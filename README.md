@@ -26,6 +26,7 @@ Now start your application locally using heroku local, which was installed as pa
 If you’re on a Microsoft Windows system, run this:
 
 heroku local -f Procfile.windows
+
 Or if you’re on a macOS/Linux system, use the default Procfile by running:
 
 heroku local
