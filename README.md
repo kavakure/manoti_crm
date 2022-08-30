@@ -30,4 +30,14 @@ Or if you’re on a macOS/Linux system, use the default Procfile by running:
 
 heroku local
 
+If you see “Connection in use” errors, check that no other running programs are using port 5000. On macOS Monterey, Airplay Receiver runs on port 5000 and will need to be disabled by going to System Preferences -> Sharing and then unticking “Airplay Receiver”.
+
+Just like Heroku, heroku local examines the Procfile to determine what to run.
+
+Open http://localhost:5000 with your web browser. You should see your app running locally.
+
+If you see “Not Found” errors in your console, check that the collectstatic step above was run before starting the web server.
+
+To stop the app from running locally, go back to your terminal window and press Ctrl+C to exit.
+
 mkvirtualenv -p python3 crm
