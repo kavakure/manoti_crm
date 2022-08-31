@@ -111,14 +111,58 @@ class SocialNetwork(models.Model):
 
 # Human Resource Management (HR)
 class Employee(models.Model):
-	# Users / Employees and Groups management
-	user               = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, help_text=_("The user object related to the employee"))
+	"""
+	 Users / Employees and Groups management
+	 TO-DO: add Foreign key Phone number to add mulpy Phone numbers for a given employee
+	 """
+
+	user              = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, help_text=_("The user object related to the employee"))
+	last_name         = models.CharField(_("Last name"), max_length=200, blank=True)
+	first_name        = models.CharField(_("First name"), max_length=200, blank=True)
+	username          = models.CharField(_("Frist name"), max_length=200, blank=True, unique=True)
+	is_administrator  = models.BooleanField(_("Administrator ?"), default=False)
+	is_employee 	  = models.BooleanField(_("Employee"), default=True)
+	# supervisor        = models.ForeignKey(Employee, blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Supervisor"))
+	# force_expense_report_validator = models.ForeignKey(Employee, blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Force expense report validator"))
+	# force_leave_request_validator = models.ForeignKey(Employee, blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Force leave request validator"))
+	po_box	          = models.CharField(_("P.O. Box"), max_length=200, blank=True, null=True, help_text=_("Please mention the postal office box of the employee"))
+	city              = models.CharField(_("City"), max_length=200, blank=True, default="Bujumbura", help_text=_("Indicate the city ot town address of the employee"))
+	country           = models.CharField(_("Country"), max_length=200, blank=True, default ="Burundi", help_text=_("Indicate the country where the employee is located and/or registered"))
+	state_province    = models.CharField(_("State/Province"), max_length=200, blank=True, default ="Bujumbura", help_text=_("Indicate the State or Province where your the employee lives"))
+	mobile_phone      = models.CharField(_("Phone Number"), blank=True, null=True, max_length=30, help_text=_("The Phone number of the employee"))
+	business_phone    = models.CharField(_("Phone Number"), blank=True, null=True, max_length=30, help_text=_("The Phone number of the employee"))
+	email             = models.EmailField(_("Email"), blank=True, max_length=255, help_text=_("The email address of your Company/Organization"))
+	note              = models.TextField(_("Notes"), blank=True, null=True, help_text=_("Any additional note or information about the employee"))
+	signature         = models.TextField(_("Signature"), blank=True, null=True)
+
+	job_postion       = models.CharField(_("Job position"), blank=True, null=True, max_length=30)
+	average_hourly_rate = models.IntegerField(_("Average hourly rate"))
+	average_daily_rate  = models.IntegerField(_("Average Daily rate"))
+	salary     		  = models.IntegerField(_("Salary"))
+	hours_worked_per_week = models.IntegerField(_("Hours worked (per week)"))
+	employement_start = models.DateField(_("Employement date begun"), blank=True, help_text=_("Ex: 01/04/2019, The date when The employee started working for the company"))
+	employement_end   = models.DateField(_("Employement date ended"), blank=True, help_text=_("Ex: 01/04/2019, The date when The employee left the company"))
+	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True, )
+
+	
+class PhoneNumber(models.Model):
+	type              = models.CharField(_("Third party name"), max_length=200, blank=True, default="Mobile", help_text=_("The type of the phone device"))
+	phone_number	  = models.CharField(_("Phone Number"), blank=False, max_length=30,)
+
+class BusinessEntityType(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class ThirdPartyType(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
 
 
-# Customer Relationship Management (CRM) related objects
 class ThirdParty(models.Model):
 	# Companies and contacts management (customers, vendors and prospoects, ...)
-	business          = models.ForeignKey(Business, blank=False, null=False, on_delete=models.CASCADE,)
+	business          = models.ForeignKey(Business, blank=False, null=False, on_delete=models.CASCADE)
 	name              = models.CharField(_("Third party name"), max_length=200, blank=True, help_text=_("The full name of the Third Party"))
 	alias_name        = models.CharField(_("Alias name (commercial, trademark, ...)"), max_length=200, blank=True, help_text=_("The Alias name used for other purposes"))
 	prospect_customer = models.CharField(_("Prospect / Customer"), choices=PROSPOECT_CUSTOMER_CHOICES, max_length=200, blank=True, help_text=_("Defines which type the thirdparty is"))
@@ -142,10 +186,9 @@ class ThirdParty(models.Model):
 	vat_id            = models.CharField(_("VAT ID"), max_length=200, blank=True, null=True)
 	registre_de_commerce = models.CharField(_("Registre de Commerce"), max_length=200, blank=True, null=True)
 	sales_tax_is_used = models.BooleanField(_("Are Sales tax used by your Company/Organization?"), default=False)
-
-	third_party_type  = models.ForeignKey(ThirdPartyType, verbose_name=_("Third-party type"), null=True)
-	business_entity_type = models.ForeignKey(BusinessEntityType, verbose_name=_("Business entity type"), null=True)
-	workforce		  = models.IntegerField(_("workforce"), max_length=200, blank=True, default=1)
+	third_party_type  = models.ForeignKey(ThirdPartyType, verbose_name=_("Third-party type"), blank=True, null=True, on_delete=models.CASCADE)
+	business_entity_type = models.ForeignKey(BusinessEntityType, verbose_name=_("Business entity type"), blank=True, null=True, on_delete=models.CASCADE)
+	workforce		  = models.IntegerField(_("workforce"), blank=True, default=1)
 	capital           = models.IntegerField(_("Capital"))
-	assigned_representative = models.ForeignKey(Employee, verbose_name=_("Business entity type"), null=True)
-	logo                = models.FileField(_("Logo"), upload_to='media/uploads', blank=True, validators=[validate_file_size, validate_document_file_extension], help_text=_("PNG or JPEG, will be used on various documents related to your Company/Organization"))
+	assigned_representative = models.ForeignKey(Employee, verbose_name=_("Business entity type"), null=True, on_delete=models.CASCADE)
+	logo              = models.FileField(_("Logo"), upload_to='media/uploads', blank=True, validators=[validate_file_size, validate_document_file_extension], help_text=_("PNG or JPEG, will be used on various documents related to your Company/Organization"))
