@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from manoti.models import Business, BusinessAccountant, SocialNetwork
+
+admin.site.register(Business)
+admin.site.register(BusinessAccountant)
+admin.site.register(SocialNetwork)
