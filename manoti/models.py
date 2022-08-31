@@ -19,7 +19,7 @@ MONTH_CHOICES = (
 )
 
 class Business(models.Model):
-	user                = models.ForeignKey(User, blank=False, null=False, help_text=_("The user object that owns Company/Organization"))
+	user                = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, help_text=_("The user object that owns Company/Organization"))
 	name                = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The full name of your Company/Organization"))
 	address             = models.TextField(_("Full Address"), blank=True, null=True, help_text=_("Please mention here the full address of your Company/Organization"))
 	address             = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the Company/Organization"))
@@ -48,18 +48,20 @@ class Business(models.Model):
 	professional_id_6   = models.CharField(_("Professional ID 6"), max_length=200, blank=True, null=True)
 	vat_id              = models.CharField(_("VAT ID"), max_length=200, blank=True, null=True)
 	registre_de_commerce = models.CharField(_("Registre de Commerce"), max_length=200, blank=True, null=True)
-	object_of_the_company = models.TextField(_("Object of the company"), blank=True, null=True)
+	object_of_the_company = models.TextField(_("Object of the company"), max_length=900, blank=True, null=True)
 	
 	# Fiscal Year
-	object_of_the_company = models.CharField(_("Starting month of the fiscal year"), blank=False, null=False, choices=MONTH_CHOICES, default='1')
+	fiscal_year = models.CharField(_("Starting month of the fiscal year"), blank=False, max_length=100, null=False, choices=MONTH_CHOICES, default='1')
 
 	# Type of sales tax
 	sales_tax_is_used = models.BooleanField(_("Are Sales tax used by your Company/Organization?"), default=False)
 
+	def __str__(self):
+		return self.name
 
 class BusinessAccountant(models.Model):
 	#If you have an external accountant/bookkeeper, you can edit here its information.
-	business          = models.ForeignKey(Business, blank=False, null=False)
+	business          = models.ForeignKey(Business, blank=False, null=False, on_delete=models.CASCADE,)
 	name              = models.CharField(_("Full name"), max_length=200, blank=True, help_text=_("The full name of the Company/Organization's accountant"))
 	address           = models.TextField(_("Full Address"), blank=True, null=True, help_text=_("Please mention here the full address of your Company/Organization's accountant"))
 	po_box	          = models.CharField(_("P.O. Box"), max_length=200, blank=True, null=True, help_text=_("Please mention the postal office box of your Company/Organization's accountant"))
@@ -72,10 +74,15 @@ class BusinessAccountant(models.Model):
 	code              = models.CharField(_("Accountant code"), max_length=200, blank=True, help_text=_("The full name of the Company/Organization's accountant"))
 	note           	  = models.TextField(_("Notes"), blank=True, null=True, help_text=_("Any additional note or information about the Company/Organization's accountant"))
 
+	def __str__(self):
+		return self.name
 
 class SocialNetwork(models.Model):
 	#If you have an external accountant/bookkeeper, you can edit here its information.
-	business          = models.ForeignKey(Business, blank=False, null=False)
+	business          = models.ForeignKey(Business, blank=False, null=False, on_delete=models.CASCADE,)
 	name              = models.CharField(_("Social networks"), max_length=200, blank=True, help_text=_("The name of the social Network"))
 	url         	  = models.URLField(_("Url"), blank=True, null=True, help_text=_("The URL of the social Network"))
 	network_id        = models.CharField(_("Social Network ID"), max_length=200, blank=True, null=True, help_text=_("The social network handle or ID of your Company/Organization"))
+
+	def __str__(self):
+		return self.name
