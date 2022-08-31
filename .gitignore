@@ -4,9 +4,5 @@ staticfiles
 .env
 db.sqlite3
 getting-started/*
-<<<<<<< Updated upstream
 hello/migrations/*
 manoti/migrations/*
-=======
-hello/migrations/0002_auto_20220830_1833.py
->>>>>>> Stashed changes
