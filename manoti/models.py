@@ -193,9 +193,29 @@ class ThirdParty(models.Model):
 	assigned_representative = models.ForeignKey(Employee, verbose_name=_("Business entity type"), null=True, on_delete=models.CASCADE)
 	logo              = models.FileField(_("Logo"), upload_to='media/uploads', blank=True, validators=[validate_file_size, validate_document_file_extension], help_text=_("PNG or JPEG, will be used on various documents related to your Company/Organization"))
 
+class Title(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
 
 class Contact(models.Model):
 	#
+	third_party 	  = models.ForeignKey(ThirdParty, verbose_name=_("Third party"), null=True, on_delete=models.CASCADE)
 	name              = models.CharField(_("Last name / Label"), max_length=200, blank=True)
 	first_name        = models.CharField(_("First name"), max_length=200, blank=True, help_text=_("Keep this field empty if this is a generic address"))
-	third_party 	  = models.ForeignKey(ThirdParty, verbose_name=_("Third party"), null=True, on_delete=models.CASCADE)
+	title		 	  = models.ForeignKey(Title, verbose_name=_("title"), null=True, on_delete=models.CASCADE)
+	job_title         = models.CharField(_("Job Title"), max_length=200, blank=True)
+	address           = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the contact"))
+	google_map        = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the contact"))
+	po_box	          = models.CharField(_("P.O. Box"), max_length=200, blank=True, null=True, help_text=_("Please mention the postal office box of your Company/Organization"))
+	town              = models.CharField(_("Town"), max_length=200, blank=True, help_text=_("Indicate the town address of your contact"))
+	country           = models.CharField(_("Country"), max_length=200, blank=True, default ="Burundi", help_text=_("Indicate the country where the contact is located and/or registered"))
+	state_province    = models.CharField(_("State/Province"), max_length=200, blank=True, default ="Bujumbura", help_text=_("Indicate the State or Province where the contact is located and/or registered"))
+	phone             = models.CharField(_("Phone Number"), blank=True, null=True, max_length=30, help_text=_("The phone number of the contact"))
+	bus_phone         = models.CharField(_("Business Phone Number"), blank=True, null=True, max_length=30, help_text=_("The Office or business phone number of the contact"))
+	mobile_phone      = models.CharField(_("Mobile Phone Number"), blank=True, null=True, max_length=30, help_text=_("The mobile phone number of the contact"))
+	email             = models.EmailField(_("Email"), blank=True, max_length=255, help_text=_("The email address of the contact"))
+	is_private 		  = models.BooleanField(_("Visibilty"), default=False)
+	alert 			  = models.BooleanField(_("Alerts"), default=False)
+	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True, )
+
