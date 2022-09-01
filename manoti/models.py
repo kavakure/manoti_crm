@@ -144,6 +144,8 @@ class Employee(models.Model):
 	employement_end   = models.DateField(_("Employement date ended"), blank=True, help_text=_("Ex: 01/04/2019, The date when The employee left the company"))
 	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True, )
 
+
+# Customer Relationship Management (CRM)
 	
 class PhoneNumber(models.Model):
 	type              = models.CharField(_("Third party name"), max_length=200, blank=True, default="Mobile", help_text=_("The type of the phone device"))
@@ -158,7 +160,6 @@ class ThirdPartyType(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
-
 
 class ThirdParty(models.Model):
 	# Companies and contacts management (customers, vendors and prospects, ...)
@@ -217,5 +218,58 @@ class Contact(models.Model):
 	email             = models.EmailField(_("Email"), blank=True, max_length=255, help_text=_("The email address of the contact"))
 	is_private 		  = models.BooleanField(_("Visibilty"), default=False)
 	alert 			  = models.BooleanField(_("Alerts"), default=False)
-	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True, )
+	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True)
 
+class PaymentMethod(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class PaymentTerms(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class Source(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class AvailabilityDelay(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class ShippingMetod(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class ProposalDocumentTemplate(models.Model):
+	# 
+	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The full name of your Company/Organization"))
+	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
+	description       = models.TextField(_("Description"), blank=True, null=True)
+	content        	  = models.TextField(_("Content of the document"), blank=True, null=True)
+
+class Proposal(models.Model):
+	# 
+	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
+	customer_reference= models.CharField(_("Customer reference"), max_length=200, blank=True, null=True)
+	customer 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), null=True, on_delete=models.CASCADE)
+	timestamp 		= models.DateField(_("Date of birth"), blank=True)
+	validity_duration = models.IntegerField(_("Validity duration"), help_text=_("days"))
+	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), null=True, on_delete=models.CASCADE)
+	payment_method 	= models.ForeignKey(PaymentMethod, verbose_name=_("Payment method"), null=True, on_delete=models.CASCADE)
+	source 	  		= models.ForeignKey(Source, verbose_name=_("Source"), null=True, on_delete=models.CASCADE)
+	availability_delay = models.ForeignKey(AvailabilityDelay, verbose_name=_("Availability delay (after order)"), null=True, on_delete=models.CASCADE)
+	shipping_metod	= models.ForeignKey(ShippingMetod, verbose_name=_("Shipping Method"), null=True, on_delete=models.CASCADE)
+	delivery_date	= models.DateField(_("Delivery date"), blank=True)
+	document_template = models.ForeignKey(ProposalDocumentTemplate, verbose_name=_("Default doc template"), null=True, on_delete=models.CASCADE)
+	note_private    = models.TextField(_("Private note"), blank=True, null=True)
+	note_public     = models.TextField(_("Public Note"), blank=True, null=True)
+	#The money figures
+	amount_excl_tax = models.IntegerField(_("Amount (excl. tax)"))
+	tax = models.IntegerField(_("Amount tax"))
+	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"))
+	
