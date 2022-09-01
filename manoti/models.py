@@ -113,7 +113,7 @@ class SocialNetwork(models.Model):
 class Employee(models.Model):
 	"""
 	 Users / Employees and Groups management
-	 TO-DO: add Foreign key Phone number to add mulpy Phone numbers for a given employee
+	 TO-DO: add Foreign key Phone number to have the ability to add mutiple Phone numbers for a given employee
 	 """
 
 	user              = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, help_text=_("The user object related to the employee"))
@@ -161,7 +161,7 @@ class ThirdPartyType(models.Model):
 
 
 class ThirdParty(models.Model):
-	# Companies and contacts management (customers, vendors and prospoects, ...)
+	# Companies and contacts management (customers, vendors and prospects, ...)
 	business          = models.ForeignKey(Business, blank=False, null=False, on_delete=models.CASCADE)
 	name              = models.CharField(_("Third party name"), max_length=200, blank=True, help_text=_("The full name of the Third Party"))
 	alias_name        = models.CharField(_("Alias name (commercial, trademark, ...)"), max_length=200, blank=True, help_text=_("The Alias name used for other purposes"))
@@ -192,3 +192,10 @@ class ThirdParty(models.Model):
 	capital           = models.IntegerField(_("Capital"))
 	assigned_representative = models.ForeignKey(Employee, verbose_name=_("Business entity type"), null=True, on_delete=models.CASCADE)
 	logo              = models.FileField(_("Logo"), upload_to='media/uploads', blank=True, validators=[validate_file_size, validate_document_file_extension], help_text=_("PNG or JPEG, will be used on various documents related to your Company/Organization"))
+
+
+class Contact(models.Model):
+	#
+	name              = models.CharField(_("Last name / Label"), max_length=200, blank=True)
+	first_name        = models.CharField(_("First name"), max_length=200, blank=True, help_text=_("Keep this field empty if this is a generic address"))
+	third_party 	  = models.ForeignKey(ThirdParty, verbose_name=_("Third party"), null=True, on_delete=models.CASCADE)
