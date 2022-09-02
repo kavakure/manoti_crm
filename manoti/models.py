@@ -304,7 +304,7 @@ class ProposalLinkedFile(models.Model):
 	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
 	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
 	
-class ProposalLinkedFile(models.Model):
+class ProposalAttachedFile(models.Model):
 	# 
 	proposal 	  	  = models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
