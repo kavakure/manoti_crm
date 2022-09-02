@@ -113,7 +113,7 @@ class SocialNetwork(models.Model):
 class Employee(models.Model):
 	"""
 	 Users / Employees and Groups management
-	 TO-DO: add Foreign key Phone number to add mulpy Phone numbers for a given employee
+	 TO-DO: add Foreign key Phone number to have the ability to add mutiple Phone numbers for a given employee
 	 """
 
 	user              = models.ForeignKey(User, blank=False, related_name='employee_user', null=False, on_delete=models.CASCADE, help_text=_("The user object related to the employee"))
@@ -144,6 +144,8 @@ class Employee(models.Model):
 	employement_end   = models.DateField(_("Employement date ended"), blank=True, help_text=_("Ex: 01/04/2019, The date when The employee left the company"))
 	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True, )
 
+
+# Customer Relationship Management (CRM)
 	
 class PhoneNumber(models.Model):
 	type              = models.CharField(_("Third party name"), max_length=200, blank=True, default="Mobile", help_text=_("The type of the phone device"))
@@ -159,9 +161,8 @@ class ThirdPartyType(models.Model):
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
 
-
 class ThirdParty(models.Model):
-	# Companies and contacts management (customers, vendors and prospoects, ...)
+	# Companies and contacts management (customers, vendors and prospects, ...)
 	business          = models.ForeignKey(Business, blank=False, null=False, on_delete=models.CASCADE)
 	name              = models.CharField(_("Third party name"), max_length=200, blank=True, help_text=_("The full name of the Third Party"))
 	alias_name        = models.CharField(_("Alias name (commercial, trademark, ...)"), max_length=200, blank=True, help_text=_("The Alias name used for other purposes"))
@@ -192,3 +193,83 @@ class ThirdParty(models.Model):
 	capital           = models.IntegerField(_("Capital"))
 	assigned_representative = models.ForeignKey(Employee, verbose_name=_("Business entity type"), null=True, on_delete=models.CASCADE)
 	logo              = models.FileField(_("Logo"), upload_to='media/uploads', blank=True, validators=[validate_file_size, validate_document_file_extension], help_text=_("PNG or JPEG, will be used on various documents related to your Company/Organization"))
+
+class Title(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class Contact(models.Model):
+	#
+	third_party 	  = models.ForeignKey(ThirdParty, verbose_name=_("Third party"), null=True, on_delete=models.CASCADE)
+	name              = models.CharField(_("Last name / Label"), max_length=200, blank=True)
+	first_name        = models.CharField(_("First name"), max_length=200, blank=True, help_text=_("Keep this field empty if this is a generic address"))
+	title		 	  = models.ForeignKey(Title, verbose_name=_("title"), null=True, on_delete=models.CASCADE)
+	job_title         = models.CharField(_("Job Title"), max_length=200, blank=True)
+	address           = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the contact"))
+	google_map        = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the contact"))
+	po_box	          = models.CharField(_("P.O. Box"), max_length=200, blank=True, null=True, help_text=_("Please mention the postal office box of your Company/Organization"))
+	town              = models.CharField(_("Town"), max_length=200, blank=True, help_text=_("Indicate the town address of your contact"))
+	country           = models.CharField(_("Country"), max_length=200, blank=True, default ="Burundi", help_text=_("Indicate the country where the contact is located and/or registered"))
+	state_province    = models.CharField(_("State/Province"), max_length=200, blank=True, default ="Bujumbura", help_text=_("Indicate the State or Province where the contact is located and/or registered"))
+	phone             = models.CharField(_("Phone Number"), blank=True, null=True, max_length=30, help_text=_("The phone number of the contact"))
+	bus_phone         = models.CharField(_("Business Phone Number"), blank=True, null=True, max_length=30, help_text=_("The Office or business phone number of the contact"))
+	mobile_phone      = models.CharField(_("Mobile Phone Number"), blank=True, null=True, max_length=30, help_text=_("The mobile phone number of the contact"))
+	email             = models.EmailField(_("Email"), blank=True, max_length=255, help_text=_("The email address of the contact"))
+	is_private 		  = models.BooleanField(_("Visibilty"), default=False)
+	alert 			  = models.BooleanField(_("Alerts"), default=False)
+	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True)
+
+class PaymentMethod(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class PaymentTerms(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class Source(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class AvailabilityDelay(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class ShippingMetod(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class ProposalDocumentTemplate(models.Model):
+	# 
+	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The full name of your Company/Organization"))
+	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
+	description       = models.TextField(_("Description"), blank=True, null=True)
+	content        	  = models.TextField(_("Content of the document"), blank=True, null=True)
+
+class Proposal(models.Model):
+	# 
+	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
+	customer_reference= models.CharField(_("Customer reference"), max_length=200, blank=True, null=True)
+	customer 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), null=True, on_delete=models.CASCADE)
+	timestamp 		= models.DateField(_("Date of birth"), blank=True)
+	validity_duration = models.IntegerField(_("Validity duration"), help_text=_("days"))
+	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), null=True, on_delete=models.CASCADE)
+	payment_method 	= models.ForeignKey(PaymentMethod, verbose_name=_("Payment method"), null=True, on_delete=models.CASCADE)
+	source 	  		= models.ForeignKey(Source, verbose_name=_("Source"), null=True, on_delete=models.CASCADE)
+	availability_delay = models.ForeignKey(AvailabilityDelay, verbose_name=_("Availability delay (after order)"), null=True, on_delete=models.CASCADE)
+	shipping_metod	= models.ForeignKey(ShippingMetod, verbose_name=_("Shipping Method"), null=True, on_delete=models.CASCADE)
+	delivery_date	= models.DateField(_("Delivery date"), blank=True)
+	document_template = models.ForeignKey(ProposalDocumentTemplate, verbose_name=_("Default doc template"), null=True, on_delete=models.CASCADE)
+	note_private    = models.TextField(_("Private note"), blank=True, null=True)
+	note_public     = models.TextField(_("Public Note"), blank=True, null=True)
+	#The money figures
+	amount_excl_tax = models.IntegerField(_("Amount (excl. tax)"))
+	tax = models.IntegerField(_("Amount tax"))
+	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"))
+	
