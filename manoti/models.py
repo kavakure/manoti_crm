@@ -116,15 +116,15 @@ class Employee(models.Model):
 	 TO-DO: add Foreign key Phone number to add mulpy Phone numbers for a given employee
 	 """
 
-	user              = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, help_text=_("The user object related to the employee"))
+	user              = models.ForeignKey(User, blank=False, related_name='employee_user', null=False, on_delete=models.CASCADE, help_text=_("The user object related to the employee"))
 	last_name         = models.CharField(_("Last name"), max_length=200, blank=True)
 	first_name        = models.CharField(_("First name"), max_length=200, blank=True)
 	username          = models.CharField(_("Frist name"), max_length=200, blank=True, unique=True)
 	is_administrator  = models.BooleanField(_("Administrator ?"), default=False)
 	is_employee 	  = models.BooleanField(_("Employee"), default=True)
 	supervisor        = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Supervisor"))
-	force_expense_report_validator = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Force expense report validator"))
-	force_leave_request_validator = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Force leave request validator"))
+	force_expense_report_validator = models.ForeignKey(User, related_name='force_expense_report_validator', blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Force expense report validator"))
+	force_leave_request_validator = models.ForeignKey(User, related_name='force_leave_request_validator',blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Force leave request validator"))
 	po_box	          = models.CharField(_("P.O. Box"), max_length=200, blank=True, null=True, help_text=_("Please mention the postal office box of the employee"))
 	city              = models.CharField(_("City"), max_length=200, blank=True, default="Bujumbura", help_text=_("Indicate the city ot town address of the employee"))
 	country           = models.CharField(_("Country"), max_length=200, blank=True, default ="Burundi", help_text=_("Indicate the country where the employee is located and/or registered"))
