@@ -40,6 +40,11 @@ THIRD_PARTY_CHOICES = (
 )
 
 
+class StatusChoices(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
 class Business(models.Model):
 	user                = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, help_text=_("The user object that owns Company/Organization"))
 	name                = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The full name of your Company/Organization"))
@@ -220,7 +225,21 @@ class Contact(models.Model):
 	alert 			  = models.BooleanField(_("Alerts"), default=False)
 	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True)
 
-class PaymentMethod(models.Model):
+class LineType(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class Line(models.Model):
+	# 
+	line_type 		= models.ForeignKey(LineType, verbose_name=_("Type"), null=True, on_delete=models.CASCADE)
+	description     = models.TextField(_("Description"), blank=False, null=False)
+	sales_tax 		= models.IntegerField(_("Sales tax"), blank=False)
+	quantity 		= models.IntegerField(_("Qty"), blank=False, default=1)
+	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"))
+	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"))
+
+class PaymentType(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
@@ -252,6 +271,7 @@ class ProposalDocumentTemplate(models.Model):
 	description       = models.TextField(_("Description"), blank=True, null=True)
 	content        	  = models.TextField(_("Content of the document"), blank=True, null=True)
 
+
 class Proposal(models.Model):
 	# 
 	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
@@ -260,7 +280,7 @@ class Proposal(models.Model):
 	timestamp 		= models.DateField(_("Date of birth"), blank=True)
 	validity_duration = models.IntegerField(_("Validity duration"), help_text=_("days"))
 	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), null=True, on_delete=models.CASCADE)
-	payment_method 	= models.ForeignKey(PaymentMethod, verbose_name=_("Payment method"), null=True, on_delete=models.CASCADE)
+	payment_type 	= models.ForeignKey(PaymentType, verbose_name=_("Payment method"), null=True, on_delete=models.CASCADE)
 	source 	  		= models.ForeignKey(Source, verbose_name=_("Source"), null=True, on_delete=models.CASCADE)
 	availability_delay = models.ForeignKey(AvailabilityDelay, verbose_name=_("Availability delay (after order)"), null=True, on_delete=models.CASCADE)
 	shipping_metod	= models.ForeignKey(ShippingMetod, verbose_name=_("Shipping Method"), null=True, on_delete=models.CASCADE)
@@ -272,4 +292,21 @@ class Proposal(models.Model):
 	amount_excl_tax = models.IntegerField(_("Amount (excl. tax)"))
 	tax = models.IntegerField(_("Amount tax"))
 	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"))
+	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, help_text=_("Are you sure you want to validate this commercial proposal under name PR########?"))
+	status = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, on_delete=models.CASCADE)
+
+
+class ProposalLinkedFile(models.Model):
+	# 
+	proposal 	  	  = models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
+	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	link       		  = models.URLField(_("Link"), blank=True, max_length=900)
+	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
 	
+class ProposalLinkedFile(models.Model):
+	# 
+	proposal 	  	  = models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
+	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
+	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
