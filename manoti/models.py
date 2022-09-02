@@ -49,7 +49,7 @@ class Business(models.Model):
 	user                = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, help_text=_("The user object that owns Company/Organization"))
 	name                = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The full name of your Company/Organization"))
 	address             = models.TextField(_("Full Address"), blank=True, null=True, help_text=_("Please mention here the full address of your Company/Organization"))
-	address             = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the Company/Organization"))
+	google_map_url      = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the Company/Organization"))
 	po_box	            = models.CharField(_("P.O. Box"), max_length=200, blank=True, null=True, help_text=_("Please mention the postal office box of your Company/Organization"))
 	town                = models.CharField(_("Town"), max_length=200, blank=True, help_text=_("Indicate the town address of your Company/Organization"))
 	country             = models.CharField(_("Country"), max_length=200, blank=True, default ="Burundi", help_text=_("Indicate the country where your Company/Organization is located and/or registered"))
@@ -310,3 +310,72 @@ class ProposalAttachedFile(models.Model):
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
 	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+
+# ========================================================================
+#Bank Accounts models
+BANK_ACCOUNT_TYPE_CHOICES = (
+	('savings', _('Savings account')),
+	('current', _('Current or Credit Card account')),
+	('cash', _('Cash account'))
+)
+
+class BankAccount(models.Model):
+	# 
+	business        = models.ForeignKey(Business, verbose_name=_("Bank Account"), blank=False, null=False, on_delete=models.CASCADE)
+	reference       = models.CharField(_("Reference"), max_length=200, blank=False, null=False)
+	account_type    = models.CharField(_("Account type"), max_length=200, blank=False, null=False, choices=BANK_ACCOUNT_TYPE_CHOICES)
+	status 			= models.CharField(_("Status"), choices=STATUS_CHOICES, max_length=200, blank=True)
+	currency       = models.CharField(_("Currency"), max_length=200, blank=True, default ="Fbu", help_text=_("What is the Currency of this financial institution"))
+	country         = models.CharField(_("Account country"), max_length=200, blank=True, default ="Burundi", help_text=_("Indicate the country where the bank/financial instituion is located "))
+	state_province  = models.CharField(_("State/Province"), max_length=200, blank=True, default ="Bujumbura", help_text=_("Indicate the State or Province where the bank/financial instituion is located and/or registered"))
+	website         = models.URLField(_("Web"), blank=True, max_length=900, help_text=_("The website of the bank/financial instituion"))
+	comment		    = models.TextField(_("Comment"), blank=True, null=True)
+	initial_balance = models.IntegerField(_("Initial balance"))
+	timestamp 		= models.DateField(_("Date"), blank=True)
+	minimum_allowed_balance = models.IntegerField(_("Minimum allowed balance"))
+	minimum_desired_balance = models.IntegerField(_("Minimum desired balance"))
+	name            = models.CharField(_("Bank name"), max_length=200, blank=True, null=True)
+	account_number  = models.CharField(_("Account number"), max_length=200, blank=True, null=True)
+	iban_number     = models.CharField(_("IBAN account number"), max_length=200, blank=True, null=True)
+	swift           = models.CharField(_("IBAN account number"), max_length=200, blank=True, null=True)
+	address         = models.TextField(_("Bank address"), blank=True, null=True, help_text=_("Please mention here the full address of the financial institution"))
+	account_owner_name = models.CharField(_("Account owner name"), max_length=200, blank=True, null=True)
+	account_owner_address         = models.TextField(_("account owner address"), blank=True, null=True, help_text=_("Please mention here the full address of the financial institution"))
+
+class BankAccountLinkedFile(models.Model):
+	# 
+	bank 		  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
+	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	link       		  = models.URLField(_("Link"), blank=True, max_length=900)
+	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
+	
+class BankAccountAttachedFile(models.Model):
+	# 
+	bank 	 	  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
+	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
+	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+
+SENS_CHOICES = (
+    (-1, 'Credit'),
+    (1, 'Debit'),
+)
+
+class BankEntry(models.Model):
+	# 
+	date 	  		  = models.DateField(_("Date"), blank=True)
+	value_date 	 	  = models.DateField(_("value date"), blank=True)
+	label          	  = models.CharField(_("Label"), max_length=200, blank=True, default="Miscellaneous payment")
+	amount 			  = models.IntegerField(_("Amount"))
+	bank 	  	  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
+	payment_type 	  = models.ForeignKey(PaymentType, verbose_name=_("Payment Type"), null=True, on_delete=models.CASCADE)
+	check_transfer_number = models.CharField(_("Number (Check/Transfer N°)"), max_length=200, blank=True)
+	check_transfer_sender = models.CharField(_("Sender (Check/Transfer sender)"), max_length=200, blank=True)
+	bank_of_check = models.CharField(_("Bank (Bank of Check)"), max_length=200, blank=True)
+	accounting_account  = models.CharField(_("Accounting account"), max_length=200, blank=True)
+	subledger_account = models.CharField(_("Subledger account"), max_length=200, blank=True)
+	sens 			  = models.FloatField(_("Sens"), choices=SENS_CHOICES, help_text=_("For an accounting account of a customer, use Credit to record a payment you have received\nFor an accounting account of a supplier, use Debit to record a payment you made"))
+
+
+
