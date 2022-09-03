@@ -225,20 +225,6 @@ class Contact(models.Model):
 	alert 			  = models.BooleanField(_("Alerts"), default=False)
 	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True)
 
-class LineType(models.Model):
-	# 
-	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
-	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
-
-class Line(models.Model):
-	# 
-	line_type 		= models.ForeignKey(LineType, verbose_name=_("Type"), null=True, on_delete=models.CASCADE)
-	description     = models.TextField(_("Description"), blank=False, null=False)
-	sales_tax 		= models.IntegerField(_("Sales tax"), blank=False)
-	quantity 		= models.IntegerField(_("Qty"), blank=False, default=1)
-	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"))
-	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"))
-
 class PaymentType(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
@@ -311,6 +297,21 @@ class ProposalAttachedFile(models.Model):
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
 	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
 
+class LineType(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class ProposalLine(models.Model):
+	# 
+	proposal 	  	= models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
+	line_type 		= models.ForeignKey(LineType, verbose_name=_("Type"), null=True, on_delete=models.CASCADE)
+	description     = models.TextField(_("Description"), blank=False, null=False)
+	sales_tax 		= models.IntegerField(_("Sales tax"), blank=False)
+	quantity 		= models.IntegerField(_("Qty"), blank=False, default=1)
+	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"))
+	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"))
+
 # ========================================================================
 #Bank Accounts models
 BANK_ACCOUNT_TYPE_CHOICES = (
@@ -372,10 +373,77 @@ class BankEntry(models.Model):
 	payment_type 	  = models.ForeignKey(PaymentType, verbose_name=_("Payment Type"), null=True, on_delete=models.CASCADE)
 	check_transfer_number = models.CharField(_("Number (Check/Transfer N°)"), max_length=200, blank=True)
 	check_transfer_sender = models.CharField(_("Sender (Check/Transfer sender)"), max_length=200, blank=True)
-	bank_of_check = models.CharField(_("Bank (Bank of Check)"), max_length=200, blank=True)
+	bank_of_check 	  = models.CharField(_("Bank (Bank of Check)"), max_length=200, blank=True)
 	accounting_account  = models.CharField(_("Accounting account"), max_length=200, blank=True)
 	subledger_account = models.CharField(_("Subledger account"), max_length=200, blank=True)
 	sens 			  = models.FloatField(_("Sens"), choices=SENS_CHOICES, help_text=_("For an accounting account of a customer, use Credit to record a payment you have received\nFor an accounting account of a supplier, use Debit to record a payment you made"))
 
+# ========================================================================
+# Billing and payment area
+
+VENDOR_INVOICE_CHOICES = (
+	("standard", 'Standard invoice'),
+    ("downpayment", 'Downpayment invoice'),
+    ("credit", 'Credit Note'),
+)
+
+class VendorInvoice(models.Model):
+	# 
+	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
+	third_party 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Vendor"), blank=False, null=False, on_delete=models.CASCADE)
+	vendor_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
+	vendor_invoice_type = models.CharField(_("Status"), choices=VENDOR_INVOICE_CHOICES, default="standard", max_length=200, blank=False, null=False)
+	label          	  	= models.CharField(_("Label"), max_length=200, blank=True)
+	date 	  		  	= models.DateField(_("Invoice date"), blank=False, null=False)
+	payment_due		  	= models.DateField(_("Payment due on"), blank=True, null=True)
+	payment_terms 		= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), null=True, on_delete=models.CASCADE)
+	payment_type 		= models.ForeignKey(PaymentType, verbose_name=_("Payment type"), null=True, on_delete=models.CASCADE)
+	bank_account 		= models.ForeignKey(BankAccount, verbose_name=_("Bank account"), null=True, on_delete=models.CASCADE)
+	note_private    	= models.TextField(_("Private note"), blank=True, null=True)
+	note_public     	= models.TextField(_("Public Note"), blank=True, null=True)
+	total_tax_excl 		= models.IntegerField(_("Amount (excl. tax)"), default=0)
+	tax_amount 	  		= models.IntegerField(_("Amount tax"), default=0)
+	total_tax_incl 	  	= models.IntegerField(_("Amount (inc. tax)"), default=0)
+	total_payment 	  	= models.IntegerField(_("Amount (inc. tax)"), default=0)
+	is_validated		= models.BooleanField(_("Validated ?"), default=False)
+	is_abandoned		= models.BooleanField(_("Abandoned ?"), default=False)
 
 
+class VendorInvoiceLinkedFile(models.Model):
+	# 
+	vendor_invoice 	   = models.ForeignKey(VendorInvoice, verbose_name=_("Vendor invoice"), null=True, on_delete=models.CASCADE)
+	filename           = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	link       		   = models.URLField(_("Link"), blank=True, max_length=900)
+	timestamp 		   = models.DateField(_("Timestamp"), blank=True)
+	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
+	
+class VendorInvoiceAttachedFile(models.Model):
+	# 
+	vendor_invoice 	  = models.ForeignKey(VendorInvoice, verbose_name=_("Vendor invoice"), null=True, on_delete=models.CASCADE)
+	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
+	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+
+class VendorInvoiceLine(models.Model):
+	# 
+	vendor_invoice 	  = models.ForeignKey(VendorInvoice, verbose_name=_("Vendor invoice"), null=True, on_delete=models.CASCADE)
+	line_type 		  = models.ForeignKey(LineType, verbose_name=_("Type"), null=True, on_delete=models.CASCADE)
+	description       = models.TextField(_("Description"), blank=False, null=False)
+	sku		          = models.CharField(_("Vendor SKU"), max_length=200, blank=True)
+	sales_tax 		  = models.IntegerField(_("Sales tax"), blank=False)
+	unit_price_tax_excl = models.IntegerField(_("Unit price (net)"))
+	unit_price_tax_incl = models.IntegerField(_("Unit price (Tax incl.)"))
+	discount 		  = models.IntegerField(_("Discount"), blank=True, default=0)
+	quantity 		  = models.IntegerField(_("Qty"), blank=False, default=1)
+
+class VendorInvoiceContactType(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class VendorInvoiceContact(models.Model):
+	# 
+	vendor_invoice 	  = models.ForeignKey(VendorInvoice, verbose_name=_("Vendor invoice"), null=True, on_delete=models.CASCADE)
+	third_party  = models.ForeignKey(ThirdParty, verbose_name=_("Third-party"), blank=True, null=True, on_delete=models.CASCADE)
+	contact  = models.ForeignKey(Contact, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE)
+	contact_type  = models.ForeignKey(VendorInvoiceContactType, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
