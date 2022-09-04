@@ -124,7 +124,6 @@ class Employee(models.Model):
 	user              = models.ForeignKey(User, blank=False, related_name='employee_user', null=False, on_delete=models.CASCADE, help_text=_("The user object related to the employee"))
 	last_name         = models.CharField(_("Last name"), max_length=200, blank=True)
 	first_name        = models.CharField(_("First name"), max_length=200, blank=True)
-	username          = models.CharField(_("Frist name"), max_length=200, blank=True, unique=True)
 	is_administrator  = models.BooleanField(_("Administrator ?"), default=False)
 	is_employee 	  = models.BooleanField(_("Employee"), default=True)
 	supervisor        = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, verbose_name=_("Supervisor"))
@@ -134,21 +133,23 @@ class Employee(models.Model):
 	city              = models.CharField(_("City"), max_length=200, blank=True, default="Bujumbura", help_text=_("Indicate the city ot town address of the employee"))
 	country           = models.CharField(_("Country"), max_length=200, blank=True, default ="Burundi", help_text=_("Indicate the country where the employee is located and/or registered"))
 	state_province    = models.CharField(_("State/Province"), max_length=200, blank=True, default ="Bujumbura", help_text=_("Indicate the State or Province where your the employee lives"))
-	mobile_phone      = models.CharField(_("Phone Number"), blank=True, null=True, max_length=30, help_text=_("The Phone number of the employee"))
-	business_phone    = models.CharField(_("Phone Number"), blank=True, null=True, max_length=30, help_text=_("The Phone number of the employee"))
-	email             = models.EmailField(_("Email"), blank=True, max_length=255, help_text=_("The email address of your Company/Organization"))
+	mobile_phone      = models.CharField(_("Mobile Phone Number"), blank=True, null=True, max_length=30, help_text=_("The mobile Phone number of the employee"))
+	business_phone    = models.CharField(_("Business Phone Number"), blank=True, null=True, max_length=30, help_text=_("The office or business Phone number of the employee"))
+	email             = models.EmailField(_("Email"), blank=True, max_length=255, help_text=_("The email address of the employee"))
 	note              = models.TextField(_("Notes"), blank=True, null=True, help_text=_("Any additional note or information about the employee"))
 	signature         = models.TextField(_("Signature"), blank=True, null=True)
 
 	job_postion       = models.CharField(_("Job position"), blank=True, null=True, max_length=30)
-	average_hourly_rate = models.IntegerField(_("Average hourly rate"))
-	average_daily_rate  = models.IntegerField(_("Average Daily rate"))
-	salary     		  = models.IntegerField(_("Salary"))
-	hours_worked_per_week = models.IntegerField(_("Hours worked (per week)"))
-	employement_start = models.DateField(_("Employement date begun"), blank=True, help_text=_("Ex: 01/04/2019, The date when The employee started working for the company"))
-	employement_end   = models.DateField(_("Employement date ended"), blank=True, help_text=_("Ex: 01/04/2019, The date when The employee left the company"))
-	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True, )
+	average_hourly_rate = models.IntegerField(_("Average hourly rate"), blank=True, null=True)
+	average_daily_rate  = models.IntegerField(_("Average Daily rate"), blank=True, null=True)
+	salary     		  = models.IntegerField(_("Salary"), blank=True, null=True)
+	hours_worked_per_week = models.IntegerField(_("Hours worked (per week)"), blank=True, null=True)
+	employement_start = models.DateField(_("Employement date begun"), blank=True, null=True, help_text=_("Ex: 01/04/2019, The date when The employee started working for the company"))
+	employement_end   = models.DateField(_("Employement date ended"), blank=True, null=True, help_text=_("Ex: 01/04/2019, The date when The employee left the company"))
+	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True, null=True)
 
+	def __str__(self):
+		return "%s %s" % (self.first_name, self.last_name)
 
 # Customer Relationship Management (CRM)
 	
@@ -199,6 +200,9 @@ class ThirdParty(models.Model):
 	assigned_representative = models.ForeignKey(Employee, verbose_name=_("Business entity type"), null=True, on_delete=models.CASCADE)
 	logo              = models.FileField(_("Logo"), upload_to='media/uploads', blank=True, validators=[validate_file_size, validate_document_file_extension], help_text=_("PNG or JPEG, will be used on various documents related to your Company/Organization"))
 
+	def __str__(self):
+		return name
+
 class Title(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
@@ -207,7 +211,7 @@ class Title(models.Model):
 class Contact(models.Model):
 	#
 	third_party 	  = models.ForeignKey(ThirdParty, verbose_name=_("Third party"), null=True, on_delete=models.CASCADE)
-	name              = models.CharField(_("Last name / Label"), max_length=200, blank=True)
+	last_name         = models.CharField(_("Last name / Label"), max_length=200, blank=True)
 	first_name        = models.CharField(_("First name"), max_length=200, blank=True, help_text=_("Keep this field empty if this is a generic address"))
 	title		 	  = models.ForeignKey(Title, verbose_name=_("title"), null=True, on_delete=models.CASCADE)
 	job_title         = models.CharField(_("Job Title"), max_length=200, blank=True)
@@ -224,6 +228,9 @@ class Contact(models.Model):
 	is_private 		  = models.BooleanField(_("Visibilty"), default=False)
 	alert 			  = models.BooleanField(_("Alerts"), default=False)
 	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True)
+
+	def __str__(self):
+		return "%s %s" % (self.first_name, self.last_name)
 
 class PaymentType(models.Model):
 	# 
@@ -257,6 +264,8 @@ class ProposalDocumentTemplate(models.Model):
 	description       = models.TextField(_("Description"), blank=True, null=True)
 	content        	  = models.TextField(_("Content of the document"), blank=True, null=True)
 
+	def __str__(self):
+		return filename
 
 class Proposal(models.Model):
 	# 
@@ -281,6 +290,8 @@ class Proposal(models.Model):
 	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, help_text=_("Are you sure you want to validate this commercial proposal under name PR########?"))
 	status = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, on_delete=models.CASCADE)
 
+	def __str__(self):
+		return reference
 
 class ProposalLinkedFile(models.Model):
 	# 
@@ -289,13 +300,19 @@ class ProposalLinkedFile(models.Model):
 	link       		  = models.URLField(_("Link"), blank=True, max_length=900)
 	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
 	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
-	
+
+	def __str__(self):
+		return filename
+
 class ProposalAttachedFile(models.Model):
 	# 
 	proposal 	  	  = models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
 	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+
+	def __str__(self):
+		return filename
 
 class LineType(models.Model):
 	# 
@@ -311,6 +328,9 @@ class ProposalLine(models.Model):
 	quantity 		= models.IntegerField(_("Qty"), blank=False, default=1)
 	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"))
 	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"))
+
+	def __str__(self):
+		return description
 
 # ========================================================================
 #Bank Accounts models
@@ -397,8 +417,8 @@ class VendorInvoice(models.Model):
 	date 	  		  	= models.DateField(_("Invoice date"), blank=False, null=False)
 	payment_due		  	= models.DateField(_("Payment due on"), blank=True, null=True)
 	payment_terms 		= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), null=True, on_delete=models.CASCADE)
-	payment_type 		= models.ForeignKey(PaymentType, verbose_name=_("Payment type"), null=True, on_delete=models.CASCADE)
-	bank_account 		= models.ForeignKey(BankAccount, verbose_name=_("Bank account"), null=True, on_delete=models.CASCADE)
+	payment_type 		= models.ForeignKey(PaymentType, verbose_name=_("Payment type"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	bank_account 		= models.ForeignKey(BankAccount, verbose_name=_("Bank account"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	note_private    	= models.TextField(_("Private note"), blank=True, null=True)
 	note_public     	= models.TextField(_("Public Note"), blank=True, null=True)
 	total_tax_excl 		= models.IntegerField(_("Amount (excl. tax)"), default=0)
@@ -444,6 +464,75 @@ class VendorInvoiceContactType(models.Model):
 class VendorInvoiceContact(models.Model):
 	# 
 	vendor_invoice 	  = models.ForeignKey(VendorInvoice, verbose_name=_("Vendor invoice"), null=True, on_delete=models.CASCADE)
-	third_party  = models.ForeignKey(ThirdParty, verbose_name=_("Third-party"), blank=True, null=True, on_delete=models.CASCADE)
-	contact  = models.ForeignKey(Contact, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE)
-	contact_type  = models.ForeignKey(VendorInvoiceContactType, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	third_party  	  = models.ForeignKey(ThirdParty, verbose_name=_("Third-party"), blank=True, null=True, on_delete=models.CASCADE)
+	contact  		  = models.ForeignKey(Contact, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE)
+	contact_type  	  = models.ForeignKey(VendorInvoiceContactType, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+
+CUSTOMER_INVOICE_CHOICES = (
+	("standard", 'Standard invoice'),
+    ("downpayment", 'Downpayment invoice'),
+    ("replacement", 'Replacement invoice'),
+    ("credit", 'Credit Note'),
+    ("template", 'Template Invoice'),
+)
+
+class CustomerInvoice(models.Model):
+	# 
+	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
+	third_party 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Customer"), blank=False, null=False, on_delete=models.CASCADE)
+	vendor_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
+	vendor_invoice_type = models.CharField(_("Status"), choices=VENDOR_INVOICE_CHOICES, default="standard", max_length=200, blank=False, null=False)
+	label          	  	= models.CharField(_("Label"), max_length=200, blank=True)
+	date 	  		  	= models.DateField(_("Invoice date"), blank=False, null=False)
+	payment_due		  	= models.DateField(_("Payment due on"), blank=True, null=True)
+	payment_terms 		= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), null=True, on_delete=models.CASCADE)
+	payment_type 		= models.ForeignKey(PaymentType, verbose_name=_("Payment type"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	bank_account 		= models.ForeignKey(BankAccount, verbose_name=_("Bank account"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	note_private    	= models.TextField(_("Private note"), blank=True, null=True)
+	note_public     	= models.TextField(_("Public Note"), blank=True, null=True)
+	total_tax_excl 		= models.IntegerField(_("Amount (excl. tax)"), default=0)
+	tax_amount 	  		= models.IntegerField(_("Amount tax"), default=0)
+	total_tax_incl 	  	= models.IntegerField(_("Amount (inc. tax)"), default=0)
+	total_payment 	  	= models.IntegerField(_("Amount (inc. tax)"), default=0)
+	is_validated		= models.BooleanField(_("Validated ?"), default=False)
+	is_abandoned		= models.BooleanField(_("Abandoned ?"), default=False)
+
+
+class CustomerInvoiceLinkedFile(models.Model):
+	# 
+	cutomer_invoice    = models.ForeignKey(CustomerInvoice, verbose_name=_("Customer invoice"), null=True, on_delete=models.CASCADE)
+	filename           = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	link       		   = models.URLField(_("Link"), blank=True, max_length=900)
+	timestamp 		   = models.DateField(_("Timestamp"), blank=True)
+	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
+	
+class CustomerInvoiceAttachedFile(models.Model):
+	# 
+	cutomer_invoice   = models.ForeignKey(CustomerInvoice, verbose_name=_("Customer invoice"), null=True, on_delete=models.CASCADE)
+	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
+	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+
+class CustomerInvoiceLine(models.Model):
+	# 
+	cutomer_invoice   = models.ForeignKey(CustomerInvoice, verbose_name=_("Customer invoice"), null=True, on_delete=models.CASCADE)
+	line_type 		  = models.ForeignKey(LineType, verbose_name=_("Type"), null=True, on_delete=models.CASCADE)
+	description       = models.TextField(_("Description"), blank=False, null=False)
+	sku		          = models.CharField(_("Customer SKU"), max_length=200, blank=True)
+	sales_tax 		  = models.IntegerField(_("Sales tax"), blank=False)
+	unit_price_tax_excl = models.IntegerField(_("Unit price (net)"))
+	unit_price_tax_incl = models.IntegerField(_("Unit price (Tax incl.)"))
+	discount 		  = models.IntegerField(_("Discount"), blank=True, default=0)
+	quantity 		  = models.IntegerField(_("Qty"), blank=False, default=1)
+
+class CustomerInvoiceContactType(models.Model):
+	# 
+	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
+	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+class CustomerInvoiceContact(models.Model):
+	# 
+	cutomer_invoice = models.ForeignKey(CustomerInvoice, verbose_name=_("Customer invoice"), null=True, on_delete=models.CASCADE)
+	third_party  	= models.ForeignKey(ThirdParty, verbose_name=_("Third-party"), blank=True, null=True, on_delete=models.CASCADE)
+	contact  		= models.ForeignKey(Contact, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE)
+	contact_type  	= models.ForeignKey(VendorInvoiceContactType, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
