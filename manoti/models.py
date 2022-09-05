@@ -45,6 +45,9 @@ class StatusChoices(models.Model):
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
 
+	def __str__(self):
+		return self.key
+
 class Business(models.Model):
 	user                = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, help_text=_("The user object that owns Company/Organization"))
 	name                = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The full name of your Company/Organization"))
@@ -157,15 +160,24 @@ class PhoneNumber(models.Model):
 	type              = models.CharField(_("Third party name"), max_length=200, blank=True, default="Mobile", help_text=_("The type of the phone device"))
 	phone_number	  = models.CharField(_("Phone Number"), blank=False, max_length=30,)
 
+	def __str__(self):
+		return self.phone_number
+
 class BusinessEntityType(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
 
+	def __str__(self):
+		return self.key
+
 class ThirdPartyType(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+	def __str__(self):
+		return self.key
 
 class ThirdParty(models.Model):
 	# Companies and contacts management (customers, vendors and prospects, ...)
@@ -175,7 +187,7 @@ class ThirdParty(models.Model):
 	prospect_customer = models.CharField(_("Prospect / Customer"), choices=PROSPOECT_CUSTOMER_CHOICES, max_length=200, blank=True, help_text=_("Defines which type the thirdparty is"))
 	customer_code     = models.CharField(_("Customer code"), max_length=200, blank=True)
 	vendor_code       = models.CharField(_("Vendor code"), max_length=200, blank=True)
-	status 			  = models.CharField(_("Status"), choices=STATUS_CHOICES, max_length=200, blank=True)
+	status 			  = models.CharField(_("Status"), choices=STATUS_CHOICES, max_length=200, blank=False, null=False, default="open")
 	address           = models.TextField(_("Full address"), blank=True, null=True, help_text=_("The full address of the Third party"))
 	google_map         = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the Third party"))
 	po_box	          = models.CharField(_("P.O. Box"), max_length=200, blank=True, null=True, help_text=_("Please mention the postal office box of the Third party"))
@@ -194,20 +206,27 @@ class ThirdParty(models.Model):
 	vat_id            = models.CharField(_("VAT ID"), max_length=200, blank=True, null=True)
 	registre_de_commerce = models.CharField(_("Registre de Commerce"), max_length=200, blank=True, null=True)
 	sales_tax_is_used = models.BooleanField(_("Are Sales tax used by your Company/Organization?"), default=False)
-	third_party_type  = models.ForeignKey(ThirdPartyType, verbose_name=_("Third-party type"), blank=True, null=True, on_delete=models.CASCADE)
-	business_entity_type = models.ForeignKey(BusinessEntityType, verbose_name=_("Business entity type"), blank=True, null=True, on_delete=models.CASCADE)
+	third_party_type  = models.ForeignKey(ThirdPartyType, verbose_name=_("Third-party type"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	business_entity_type = models.ForeignKey(BusinessEntityType, verbose_name=_("Business entity type"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	workforce		  = models.IntegerField(_("workforce"), blank=True, default=1)
 	capital           = models.IntegerField(_("Capital"), blank=True, null=True)
 	assigned_representative = models.ForeignKey(Employee, verbose_name=_("Assigned representative"), blank=True, null=True, on_delete=models.CASCADE)
 	logo              = models.FileField(_("Logo"), upload_to='media/uploads', blank=True, validators=[validate_file_size, validate_document_file_extension], help_text=_("PNG or JPEG, will be used on various documents related to your Company/Organization"))
 
 	def __str__(self):
-		return name
+		return self.name
+
+	class Meta:
+		verbose_name = _("Third party")
+		verbose_name_plural = _("Third parties")
 
 class Title(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+	def __str__(self):
+		return self.key
 
 class Contact(models.Model):
 	#
@@ -238,25 +257,40 @@ class PaymentType(models.Model):
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
 
+	def __str__(self):
+		return self.key
+
 class PaymentTerms(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
 
+	def __str__(self):
+		return self.key
+		
 class Source(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+	def __str__(self):
+		return self.key
 
 class AvailabilityDelay(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
 
+	def __str__(self):
+		return self.key
+
 class ShippingMetod(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+	def __str__(self):
+		return self.key
 
 class ProposalDocumentTemplate(models.Model):
 	# 
@@ -271,28 +305,33 @@ class ProposalDocumentTemplate(models.Model):
 class Proposal(models.Model):
 	# 
 	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
-	customer_reference= models.CharField(_("Customer reference"), max_length=200, blank=True, null=True)
-	customer 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), null=True, on_delete=models.CASCADE)
-	timestamp 		= models.DateField(_("Date of birth"), blank=True)
-	validity_duration = models.IntegerField(_("Validity duration"), help_text=_("days"))
-	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), null=True, on_delete=models.CASCADE)
-	payment_type 	= models.ForeignKey(PaymentType, verbose_name=_("Payment method"), null=True, on_delete=models.CASCADE)
-	source 	  		= models.ForeignKey(Source, verbose_name=_("Source"), null=True, on_delete=models.CASCADE)
-	availability_delay = models.ForeignKey(AvailabilityDelay, verbose_name=_("Availability delay (after order)"), null=True, on_delete=models.CASCADE)
-	shipping_metod	= models.ForeignKey(ShippingMetod, verbose_name=_("Shipping Method"), null=True, on_delete=models.CASCADE)
+	customer_reference= models.CharField(_("Customer reference"), max_length=200, blank=False, null=False)
+	customer 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), blank=False, null=False, on_delete=models.CASCADE)
+	timestamp 		= models.DateField(_("Date"), blank=True, null=True, auto_now_add=True)
+	validity_duration = models.IntegerField(_("Validity duration"), blank=True, null=True, default=30, help_text=_("days"))
+	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	payment_type 	= models.ForeignKey(PaymentType, verbose_name=_("Payment method"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	source 	  		= models.ForeignKey(Source, verbose_name=_("Source"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	availability_delay = models.ForeignKey(AvailabilityDelay, verbose_name=_("Availability delay (after order)"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	shipping_metod	= models.ForeignKey(ShippingMetod, verbose_name=_("Shipping Method"), blank=True, null=True, on_delete=models.CASCADE)
 	delivery_date	= models.DateField(_("Delivery date"), blank=True)
-	document_template = models.ForeignKey(ProposalDocumentTemplate, verbose_name=_("Default doc template"), null=True, on_delete=models.CASCADE)
+	document_template = models.ForeignKey(ProposalDocumentTemplate, verbose_name=_("Default doc template"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	note_private    = models.TextField(_("Private note"), blank=True, null=True)
 	note_public     = models.TextField(_("Public Note"), blank=True, null=True)
 	#The money figures
-	amount_excl_tax = models.IntegerField(_("Amount (excl. tax)"))
-	tax = models.IntegerField(_("Amount tax"))
-	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"))
-	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, help_text=_("Are you sure you want to validate this commercial proposal under name PR########?"))
+	amount_excl_tax = models.IntegerField(_("Amount (excl. tax)"), blank=False, null=False, default=0)
+	tax = models.IntegerField(_("Amount tax"), blank=False, null=False, default=0)
+	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"), blank=False, null=False, default=0)
+	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, blank=False, null=False, help_text=_("Are you sure you want to validate this commercial proposal under name PR########?"))
 	status = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, on_delete=models.CASCADE)
 
 	def __str__(self):
-		return reference
+		return self.reference
+
+	class Meta:
+		verbose_name = _("Commercial proposal")
+		verbose_name_plural = _("Commercial proposals")
+		ordering = ('timestamp',)
 
 class ProposalLinkedFile(models.Model):
 	# 
@@ -303,7 +342,7 @@ class ProposalLinkedFile(models.Model):
 	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
 
 	def __str__(self):
-		return filename
+		return self.filename
 
 class ProposalAttachedFile(models.Model):
 	# 
@@ -313,12 +352,15 @@ class ProposalAttachedFile(models.Model):
 	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
 
 	def __str__(self):
-		return filename
+		return self.filename
 
 class LineType(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+	def __str__(self):
+		return self.key
 
 class ProposalLine(models.Model):
 	# 
@@ -331,7 +373,7 @@ class ProposalLine(models.Model):
 	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"))
 
 	def __str__(self):
-		return description
+		return self.description
 
 # ========================================================================
 #Bank Accounts models
@@ -364,6 +406,9 @@ class BankAccount(models.Model):
 	account_owner_name = models.CharField(_("Account owner name"), max_length=200, blank=True, null=True)
 	account_owner_address         = models.TextField(_("account owner address"), blank=True, null=True, help_text=_("Please mention here the full address of the financial institution"))
 
+	def __str__(self):
+		return self.reference
+		
 class BankAccountLinkedFile(models.Model):
 	# 
 	bank 		  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
@@ -371,13 +416,19 @@ class BankAccountLinkedFile(models.Model):
 	link       		  = models.URLField(_("Link"), blank=True, max_length=900)
 	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
 	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
-	
+
+	def __str__(self):
+		return self.filename
+
 class BankAccountAttachedFile(models.Model):
 	# 
 	bank 	 	  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
 	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+
+	def __str__(self):
+		return self.filename
 
 SENS_CHOICES = (
     (-1, 'Credit'),
@@ -398,6 +449,9 @@ class BankEntry(models.Model):
 	accounting_account  = models.CharField(_("Accounting account"), max_length=200, blank=True)
 	subledger_account = models.CharField(_("Subledger account"), max_length=200, blank=True)
 	sens 			  = models.FloatField(_("Sens"), choices=SENS_CHOICES, help_text=_("For an accounting account of a customer, use Credit to record a payment you have received\nFor an accounting account of a supplier, use Debit to record a payment you made"))
+	
+	def __str__(self):
+		return self.label
 
 # ========================================================================
 # Billing and payment area
