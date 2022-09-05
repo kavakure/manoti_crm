@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.utils.translation import get_language, ugettext, ugettext_lazy as _
 from .validators import validate_file_size, validate_image_file_extension, validate_document_file_extension
 
+from datetime import date
+from django.utils import timezone
+
 MONTH_CHOICES = (
 	('1', _('January')),
 	('2', _('February')),
@@ -47,6 +50,7 @@ class StatusChoices(models.Model):
 
 	def __str__(self):
 		return self.key
+
 
 class Business(models.Model):
 	user                = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE, help_text=_("The user object that owns Company/Organization"))
@@ -185,9 +189,13 @@ class ThirdParty(models.Model):
 	name              = models.CharField(_("Third party name"), max_length=200, blank=False, null=False, help_text=_("The full name of the Third Party"))
 	alias_name        = models.CharField(_("Alias name (commercial, trademark, ...)"), max_length=200, blank=True, help_text=_("The Alias name used for other purposes"))
 	prospect_customer = models.CharField(_("Prospect / Customer"), choices=PROSPOECT_CUSTOMER_CHOICES, max_length=200, blank=True, help_text=_("Defines which type the thirdparty is"))
-	customer_code     = models.CharField(_("Customer code"), max_length=200, blank=True)
-	vendor_code       = models.CharField(_("Vendor code"), max_length=200, blank=True)
+	customer_code_number = models.IntegerField(_("Customer code number"), blank=True, null=True, default=1)
+	customer_code     = models.CharField(_("Customer code"), max_length=200, blank=True, unique=True)
+	is_vendor		  = models.BooleanField(_("Vendor ?"), default=False)
+	vendor_code_number = models.IntegerField(_("Vendor code number"), blank=True, null=True, default=1)
+	vendor_code       = models.CharField(_("Vendor code"), max_length=200, blank=True, null=False, unique=True)
 	status 			  = models.CharField(_("Status"), choices=STATUS_CHOICES, max_length=200, blank=False, null=False, default="open")
+	barcode			  = models.CharField(_("Barcode"), max_length=200, blank=True, null=True)
 	address           = models.TextField(_("Full address"), blank=True, null=True, help_text=_("The full address of the Third party"))
 	google_map         = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the Third party"))
 	po_box	          = models.CharField(_("P.O. Box"), max_length=200, blank=True, null=True, help_text=_("Please mention the postal office box of the Third party"))
@@ -212,6 +220,7 @@ class ThirdParty(models.Model):
 	capital           = models.IntegerField(_("Capital"), blank=True, null=True)
 	assigned_representative = models.ForeignKey(Employee, verbose_name=_("Assigned representative"), blank=True, null=True, on_delete=models.CASCADE)
 	logo              = models.FileField(_("Logo"), upload_to='media/uploads', blank=True, validators=[validate_file_size, validate_document_file_extension], help_text=_("PNG or JPEG, will be used on various documents related to your Company/Organization"))
+	date_added		  = models.DateField(_("Date of creation"), blank=False, default=timezone.now)
 
 	def __str__(self):
 		return self.name
@@ -305,8 +314,8 @@ class ProposalDocumentTemplate(models.Model):
 class Proposal(models.Model):
 	# 
 	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
-	customer_reference= models.CharField(_("Customer reference"), max_length=200, blank=False, null=False)
-	customer 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), blank=False, null=False, on_delete=models.CASCADE)
+	customer_reference = models.CharField(_("Customer reference"), max_length=200, blank=False, null=True)
+	customer 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), blank=False, null=True, on_delete=models.CASCADE)
 	timestamp 		= models.DateField(_("Date"), blank=True, null=True, auto_now_add=True)
 	validity_duration = models.IntegerField(_("Validity duration"), blank=True, null=True, default=30, help_text=_("days"))
 	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
@@ -464,7 +473,7 @@ VENDOR_INVOICE_CHOICES = (
 
 class VendorInvoice(models.Model):
 	# 
-	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
+	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft", unique=True)
 	third_party 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Vendor"), blank=False, null=False, on_delete=models.CASCADE)
 	vendor_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
 	vendor_invoice_type = models.CharField(_("Status"), choices=VENDOR_INVOICE_CHOICES, default="standard", max_length=200, blank=False, null=False)
@@ -483,6 +492,8 @@ class VendorInvoice(models.Model):
 	is_validated		= models.BooleanField(_("Validated ?"), default=False)
 	is_abandoned		= models.BooleanField(_("Abandoned ?"), default=False)
 
+	def __str__(self):
+		return self.reference
 
 class VendorInvoiceLinkedFile(models.Model):
 	# 
@@ -491,13 +502,19 @@ class VendorInvoiceLinkedFile(models.Model):
 	link       		   = models.URLField(_("Link"), blank=True, max_length=900)
 	timestamp 		   = models.DateField(_("Timestamp"), blank=True)
 	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
-	
+
+	def __str__(self):
+		return self.filename
+
 class VendorInvoiceAttachedFile(models.Model):
 	# 
 	vendor_invoice 	  = models.ForeignKey(VendorInvoice, verbose_name=_("Vendor invoice"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
 	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+
+	def __str__(self):
+		return self.filename
 
 class VendorInvoiceLine(models.Model):
 	# 
@@ -511,10 +528,16 @@ class VendorInvoiceLine(models.Model):
 	discount 		  = models.IntegerField(_("Discount"), blank=True, default=0)
 	quantity 		  = models.IntegerField(_("Qty"), blank=False, default=1)
 
+	def __str__(self):
+		return self.description
+
 class VendorInvoiceContactType(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+	def __str__(self):
+		return self.key
 
 class VendorInvoiceContact(models.Model):
 	# 
@@ -522,6 +545,9 @@ class VendorInvoiceContact(models.Model):
 	third_party  	  = models.ForeignKey(ThirdParty, verbose_name=_("Third-party"), blank=True, null=True, on_delete=models.CASCADE)
 	contact  		  = models.ForeignKey(Contact, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE)
 	contact_type  	  = models.ForeignKey(VendorInvoiceContactType, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+
+	def __str__(self):
+		return self.contact
 
 CUSTOMER_INVOICE_CHOICES = (
 	("standard", 'Standard invoice'),
@@ -533,10 +559,10 @@ CUSTOMER_INVOICE_CHOICES = (
 
 class CustomerInvoice(models.Model):
 	# 
-	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
+	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft", unique=True)
 	third_party 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Customer"), blank=False, null=False, on_delete=models.CASCADE)
-	vendor_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
-	vendor_invoice_type = models.CharField(_("Status"), choices=VENDOR_INVOICE_CHOICES, default="standard", max_length=200, blank=False, null=False)
+	customer_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
+	customer_invoice_type = models.CharField(_("Status"), choices=VENDOR_INVOICE_CHOICES, default="standard", max_length=200, blank=False, null=False)
 	label          	  	= models.CharField(_("Label"), max_length=200, blank=True)
 	date 	  		  	= models.DateField(_("Invoice date"), blank=False, null=False)
 	payment_due		  	= models.DateField(_("Payment due on"), blank=True, null=True)
@@ -552,6 +578,8 @@ class CustomerInvoice(models.Model):
 	is_validated		= models.BooleanField(_("Validated ?"), default=False)
 	is_abandoned		= models.BooleanField(_("Abandoned ?"), default=False)
 
+	def __str__(self):
+		return self.reference
 
 class CustomerInvoiceLinkedFile(models.Model):
 	# 
@@ -560,13 +588,19 @@ class CustomerInvoiceLinkedFile(models.Model):
 	link       		   = models.URLField(_("Link"), blank=True, max_length=900)
 	timestamp 		   = models.DateField(_("Timestamp"), blank=True)
 	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
-	
+
+	def __str__(self):
+		return self.filename
+
 class CustomerInvoiceAttachedFile(models.Model):
 	# 
 	cutomer_invoice   = models.ForeignKey(CustomerInvoice, verbose_name=_("Customer invoice"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
 	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+
+	def __str__(self):
+		return self.filename
 
 class CustomerInvoiceLine(models.Model):
 	# 
@@ -580,10 +614,16 @@ class CustomerInvoiceLine(models.Model):
 	discount 		  = models.IntegerField(_("Discount"), blank=True, default=0)
 	quantity 		  = models.IntegerField(_("Qty"), blank=False, default=1)
 
+	def __str__(self):
+		return self.description
+
 class CustomerInvoiceContactType(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+
+	def __str__(self):
+		return self.key
 
 class CustomerInvoiceContact(models.Model):
 	# 
@@ -591,3 +631,6 @@ class CustomerInvoiceContact(models.Model):
 	third_party  	= models.ForeignKey(ThirdParty, verbose_name=_("Third-party"), blank=True, null=True, on_delete=models.CASCADE)
 	contact  		= models.ForeignKey(Contact, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE)
 	contact_type  	= models.ForeignKey(VendorInvoiceContactType, verbose_name=_("Users | Contacts/Addresses"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+
+	def __str__(self):
+		return self.contact
