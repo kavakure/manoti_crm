@@ -17,8 +17,7 @@ import manoti.views
 
 urlpatterns = [
     path("", hello.views.index, name="index"),
-    path("db/", hello.views.db, name="db"),
-    path("dashboard/", manoti.views.dahshboard, name="dahshboard"),
+    path("dashboard/", manoti.views.dahshboard, name="dashboard"),
 
     path("admin/", admin.site.urls),
 ]
