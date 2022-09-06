@@ -398,7 +398,7 @@ class BankAccount(models.Model):
 	reference       = models.CharField(_("Reference"), max_length=200, blank=False, null=False)
 	account_type    = models.CharField(_("Account type"), max_length=200, blank=False, null=False, choices=BANK_ACCOUNT_TYPE_CHOICES)
 	status 			= models.CharField(_("Status"), choices=STATUS_CHOICES, max_length=200, blank=True)
-	currency       = models.CharField(_("Currency"), max_length=200, blank=True, default ="Fbu", help_text=_("What is the Currency of this financial institution"))
+	currency       	= models.CharField(_("Currency"), max_length=200, blank=True, default ="Fbu", help_text=_("What is the Currency of this financial institution"))
 	country         = models.CharField(_("Account country"), max_length=200, blank=True, default ="Burundi", help_text=_("Indicate the country where the bank/financial instituion is located "))
 	state_province  = models.CharField(_("State/Province"), max_length=200, blank=True, default ="Bujumbura", help_text=_("Indicate the State or Province where the bank/financial instituion is located and/or registered"))
 	website         = models.URLField(_("Web"), blank=True, max_length=900, help_text=_("The website of the bank/financial instituion"))
@@ -413,7 +413,7 @@ class BankAccount(models.Model):
 	swift           = models.CharField(_("IBAN account number"), max_length=200, blank=True, null=True)
 	address         = models.TextField(_("Bank address"), blank=True, null=True, help_text=_("Please mention here the full address of the financial institution"))
 	account_owner_name = models.CharField(_("Account owner name"), max_length=200, blank=True, null=True)
-	account_owner_address         = models.TextField(_("account owner address"), blank=True, null=True, help_text=_("Please mention here the full address of the financial institution"))
+	account_owner_address = models.TextField(_("account owner address"), blank=True, null=True, help_text=_("Please mention here the full address of the financial institution"))
 
 	def __str__(self):
 		return self.reference
