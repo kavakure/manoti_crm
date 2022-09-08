@@ -9,7 +9,7 @@ from manoti import views, urls
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^/', include('hello.urls')),
+    url(r'^', include('hello.urls')),
     url(r'^crm/', include('manoti.urls')),
     path("admin/", admin.site.urls),
 
