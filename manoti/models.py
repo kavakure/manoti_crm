@@ -257,6 +257,7 @@ class Contact(models.Model):
 	is_private 		  = models.BooleanField(_("Visibilty"), default=False)
 	alert 			  = models.BooleanField(_("Alerts"), default=False)
 	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True)
+	date_added		  = models.DateField(_("Date of creation"), blank=False, default=timezone.now)
 
 	def __str__(self):
 		return "%s %s" % (self.first_name, self.last_name)
