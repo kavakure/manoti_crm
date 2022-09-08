@@ -72,7 +72,7 @@ class Business(models.Model):
 	# Company/Organization identities
 	manager_name        = models.CharField(_("Manager(s) name (CEO, director, president...)"), max_length=200, blank=True, help_text=_("Manager(s) name (CEO, director, president...)"))
 	data_protection_officer = models.CharField(_("Data Protection Officer (DPO, Data Privacy or GDPR contact)"), max_length=200, blank=True, help_text=_("If your organisation is located in the EU, this field is required"))
-	capital             = models.IntegerField(_("Capital"))
+	capital             = models.IntegerField(_("Capital"), blank=True, null=True)
 	business_entity_type = models.CharField(_("Business entity type"), max_length=200, blank=True, null=True, help_text=_("If your organisation is located in the EU, this field is required"))
 	professional_id_1   = models.CharField(_("Professional ID 1"), max_length=200, blank=True, null=True)
 	professional_id_2   = models.CharField(_("Professional ID 2"), max_length=200, blank=True, null=True)
