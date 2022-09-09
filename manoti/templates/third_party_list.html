@@ -10,35 +10,20 @@
 
 {% block sidebar_links %}
 
+<li><a  href="{% url 'third_party_homepage' %}"><b>Third-party</b></a></li>
+<li><a  href="#">New Third Party</a></li>
+<li><a  href="{% url 'list_third_parties' %}">List</a></li>
+<li><a  href="#">List of prospects</a></li>
+<li><a  href="#">List of customers</a></li>
+<li><a  href="#">List of vendors</a></li>
+<hr>
+<li><a  href="#">New contact/address</a></li>
+<li><a  href="#">List</a></li>
+<li><a  href="#">Prospects</a></li>
+<li><a  href="#">Customers</a></li>
+<li><a  href="#">Vendors</a></li>
+<li><a  href="#">Others</a></li>
 
-<li class="sub-menu">
-    <a class="active" href="javascript:;" >
-        <i class="fa fa-book"></i>
-        <span>Third party</span>
-    </a>
-    <ul class="sub">
-        <li class="active"><a  href="#">New Third Party</a></li>
-        <li><a  href="{% url 'list_third_parties' %}">List</a></li>
-        <li><a  href="#">List of prospects</a></li>
-        <li><a  href="#">List of customers</a></li>
-        <li><a  href="#">List of vendors</a></li>
-    </ul>
-</li>
-
-<li class="sub-menu">
-    <a href="javascript:;" >
-        <i class="fa fa-cogs"></i>
-        <span>Contact/addresses</span>
-    </a>
-    <ul class="sub">
-        <li><a  href="#">New contact/address</a></li>
-        <li><a  href="#">List</a></li>
-        <li><a  href="#">Prospects</a></li>
-        <li><a  href="#">Customers</a></li>
-        <li><a  href="#">Vendors</a></li>
-        <li><a  href="#">Others</a></li>
-    </ul>
-</li>
 {% endblock %}
 
 
@@ -48,50 +33,33 @@
       <h3><i class="fa fa-angle-right"></i> List of Third Parties(1)</h3>
 
 
-                  
-
         <div class="row mt">
             <div class="col-lg-12">
                       <div class="content-panel">
-                      <h4><i class="fa fa-angle-right"></i> Latest 15 Third Parties which were modified</h4>
+                      <!-- <h4><i class="fa fa-angle-right"></i> Most 15 recent Third Parties</h4> -->
                           <section id="unseen">
                             <table class="table table-bordered table-striped table-condensed">
                               <thead>
                               <tr>
                                   <th>Third-party name</th>
                                   <th>Alias</th>
-                                  <th class="numeric">Price</th>
-                                  <th class="numeric">Change</th>
-                                  <th class="numeric">Change %</th>
-                                  <th class="numeric">Open</th>
-                                  <th class="numeric">High</th>
-                                  <th class="numeric">Low</th>
-                                  <th class="numeric">Volume</th>
+                                  <th>Barcode</th>
+                                  <th>Customer code</th>
+                                  <th>Phone</th>
+                                  <th>Nature of ...</th>
                               </tr>
                               </thead>
                               <tbody>
+                              {% for thp in third_parties %}
                               <tr>
-                                  <td>AUSTRALIAN AGRICULTURAL COMPANY LIMITED.</td>
-                                  <td>AAC</td>
-                                  <td class="numeric">$1.38</td>
-                                  <td class="numeric">-0.01</td>
-                                  <td class="numeric">-0.36%</td>
-                                  <td class="numeric">$1.39</td>
-                                  <td class="numeric">$1.39</td>
-                                  <td class="numeric">$1.38</td>
-                                  <td class="numeric">9,395</td>
+                                  <td>{{thp.name}}</td>
+                                  <td>{{thp.alias_name}}</td>
+                                  <td>{{thp.barcode}}</td>
+                                  <td>{{thp.customer_code}}</td>
+                                  <td>{{thp.phone}}</td>
+                                  <td> >>To-do: homework</td>
                               </tr>
-                              <tr>
-                                  <td>ARDENT LEISURE GROUP</td>
-                                  <td>AAD</td>
-                                  <td class="numeric">$1.15</td>
-                                  <td class="numeric">  +0.02</td>
-                                  <td class="numeric">1.32%</td>
-                                  <td class="numeric">$1.14</td>
-                                  <td class="numeric">$1.15</td>
-                                  <td class="numeric">$1.13</td>
-                                  <td class="numeric">56,431</td>
-                              </tr>
+                              {% endfor %}
                               </tbody>
                           </table>
                           </section>
