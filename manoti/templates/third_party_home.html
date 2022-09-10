@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_third_party.html" %}
 {% load static %}
 
 {% block extra_stylesheet %}
@@ -6,25 +6,7 @@
 {% endblock extra_stylesheet%}
 
 {% block title %}Third Parties/Contacts{% endblock %}
-{% block profile_picture %}{% endblock %}
 
-{% block sidebar_links %}
-
-<li><a  href="{% url 'third_party_homepage' %}"><b>Third-party</b></a></li>
-<li><a  href="#">New Third Party</a></li>
-<li><a  href="{% url 'list_third_parties' %}">List</a></li>
-<li><a  href="#">List of prospects</a></li>
-<li><a  href="#">List of customers</a></li>
-<li><a  href="#">List of vendors</a></li>
-<hr>
-<li><a  href="#">New contact/address</a></li>
-<li><a  href="#">List</a></li>
-<li><a  href="#">Prospects</a></li>
-<li><a  href="#">Customers</a></li>
-<li><a  href="#">Vendors</a></li>
-<li><a  href="#">Others</a></li>
-
-{% endblock %}
 
 
 {% block main_content %}
