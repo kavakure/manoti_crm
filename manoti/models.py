@@ -196,7 +196,7 @@ class ThirdParty(models.Model):
 	is_vendor		  = models.BooleanField(_("Vendor ?"), default=False)
 	vendor_code_number = models.IntegerField(_("Vendor code number"), blank=True, null=True, default=1)
 	vendor_code       = models.CharField(_("Vendor code"), max_length=200, blank=True, null=False, unique=True)
-	status 			  = models.CharField(_("Status"), choices=STATUS_CHOICES, max_length=200, blank=False, null=False, default="open")
+	status 			  = models.BooleanField(_("Status"), default=True)
 	barcode			  = models.CharField(_("Barcode"), max_length=200, blank=True, null=True)
 	address           = models.TextField(_("Full address"), blank=True, null=True, help_text=_("The full address of the Third party"))
 	google_map         = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the Third party"))
