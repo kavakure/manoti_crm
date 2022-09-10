@@ -269,7 +269,7 @@ class Contact(models.Model):
 		return "%s %s" % (self.first_name, self.last_name)
 
 	def get_absolute_url(self):
-		return reverse('contact_view', kwargs={'contacct_id': self.id})
+		return reverse('contact_view', kwargs={'contact_id': self.id})
 
 class PaymentType(models.Model):
 	# 
