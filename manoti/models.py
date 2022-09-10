@@ -249,7 +249,7 @@ class Contact(models.Model):
 	first_name        = models.CharField(_("First name"), max_length=200, blank=True, help_text=_("Keep this field empty if this is a generic address"))
 	title		 	  = models.ForeignKey(Title, verbose_name=_("title"), null=True, on_delete=models.CASCADE)
 	job_title         = models.CharField(_("Job Title"), max_length=200, blank=True)
-	address           = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the contact"))
+	address           = models.TextField(_("Full address"), blank=True, null=True, help_text=_("The full address of the contact"))
 	google_map        = models.TextField(_("Google Map URL"), blank=True, null=True, help_text=_("Google Map URL of the contact"))
 	po_box	          = models.CharField(_("P.O. Box"), max_length=200, blank=True, null=True, help_text=_("Please mention the postal office box of your Company/Organization"))
 	town              = models.CharField(_("Town"), max_length=200, blank=True, help_text=_("Indicate the town address of your contact"))
@@ -260,12 +260,16 @@ class Contact(models.Model):
 	mobile_phone      = models.CharField(_("Mobile Phone Number"), blank=True, null=True, max_length=30, help_text=_("The mobile phone number of the contact"))
 	email             = models.EmailField(_("Email"), blank=True, max_length=255, help_text=_("The email address of the contact"))
 	is_private 		  = models.BooleanField(_("Visibilty"), default=False)
+	is_active 		  = models.BooleanField(_("Status"), default=True)
 	alert 			  = models.BooleanField(_("Alerts"), default=False)
 	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True)
 	date_added		  = models.DateField(_("Date of creation"), blank=False, default=timezone.now)
 
 	def __str__(self):
 		return "%s %s" % (self.first_name, self.last_name)
+
+	def get_absolute_url(self):
+		return reverse('contact_view', kwargs={'contacct_id': self.id})
 
 class PaymentType(models.Model):
 	# 
