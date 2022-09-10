@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.contrib.messages import constants, get_messages
 
 from .models import ThirdParty, Contact
 
@@ -30,7 +31,7 @@ def third_party_view(request, thirdparty_id=None):
 
 	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
 
-	thirdparty = get_object_or_404(ThirdParty, active=True, id=thirdparty_id)
+	thirdparty = get_object_or_404(ThirdParty, id=thirdparty_id)
 
 	if errors:
 		error_message = errors[0]
