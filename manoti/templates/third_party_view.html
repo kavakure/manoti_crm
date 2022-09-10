@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_third_party.html" %}
 {% load static %}
 
 {% block extra_stylesheet %}
@@ -28,11 +28,101 @@
                                 </tr>
                               </tbody>
                             </table>
-                          </table>
                           </section>
                   </div>
                </div>  
         </div>
+
+
+
+        <div class="row mt content-panel">
+            <div class="col-lg-6">
+              <section >
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <td>Nature of Third party</td>
+                      <td> {{thirdparty.prospect_customer}}</td>
+                    </tr>
+                    <tr>
+                      <td>Customer Code</td>
+                      <td>{{thirdparty.customer_code}}</td>
+                    </tr>
+                    <tr>
+                      <td>Barcode</td>
+                      <td>{{thirdparty.barcode}}</td>
+                    </tr>
+                    <tr>
+                      <td>Professional ID 1</td>
+                      <td>{{thirdparty.professional_id_1}}</td>
+                    </tr>
+                    <tr>
+                      <td>Professional ID 2</td>
+                      <td>{{thirdparty.professional_id_2}}</td>
+                    </tr>
+                    <tr>
+                      <td>Professional ID 3</td>
+                      <td>{{thirdparty.professional_id_3}}</td>
+                    </tr>
+                    <tr>
+                      <td>Professional ID 4</td>
+                      <td>{{thirdparty.professional_id_4}}</td>
+                    </tr>
+                    <tr>
+                      <td>Professional ID 5</td>
+                      <td>{{thirdparty.professional_id_5}}</td>
+                    </tr>
+                    <tr>
+                      <td>Professional ID 6</td>
+                      <td>{{thirdparty.professional_id_6}}</td>
+                    </tr>
+                    <tr>
+                      <td>VAT ID</td>
+                      <td>{{thirdparty.vat_id}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+            </div>  
+
+            <div class="col-lg-6">
+              <section >
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <td>Third-party type</td>
+                      <td>#To-do</td>
+                    </tr>
+                    <tr>
+                      <td>Workforce</td>
+                      <td>{{thirdparty.workforce}}</td>
+                    </tr>
+                    <tr>
+                      <td>Business entity type</td>
+                      <td>#To-do</td>
+                    </tr>
+                    <tr>
+                      <td>Capital</td>
+                      <td>{{thirdparty.capital}}</td>
+                    </tr>
+                    <tr>
+                      <td>Parent company</td>
+                      <td>#To-do</td>
+                    </tr>
+                    <tr>
+                      <td>Sales representatives</td>
+                      <td>#To-do</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+            </div>   
+
+        </div>
+
+
+
+
 
     </section>
 </section>
