@@ -30,14 +30,14 @@
 {% block main_content %}
 <section id="main-content">
     <section class="wrapper site-min-height">
-      <h3><i class="fa fa-angle-right"></i> List of Third Parties({{third_parties|length}})</h3>
+      <h3><i class="fa fa-angle-right"></i> List of Third Parties(1)</h3>
 
 
         <div class="row mt">
             <div class="col-lg-12">
                       <div class="content-panel">
                       <!-- <h4><i class="fa fa-angle-right"></i> Most 15 recent Third Parties</h4> -->
-                          <section>
+                          <section id="unseen">
                             <table class="table table-bordered table-striped table-condensed">
                               <thead>
                               <tr>
@@ -52,7 +52,7 @@
                               <tbody>
                               {% for thp in third_parties %}
                               <tr>
-                                  <td> <a href="{{thp.get_absolute_url}}"></a>{{thp.name}}</td>
+                                  <td>{{thp.name}}</td>
                                   <td>{{thp.alias_name}}</td>
                                   <td>{{thp.barcode}}</td>
                                   <td>{{thp.customer_code}}</td>
