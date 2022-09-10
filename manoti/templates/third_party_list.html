@@ -6,31 +6,12 @@
 {% endblock extra_stylesheet%}
 
 {% block title %}List of Third Parties{% endblock %}
-{% block profile_picture %}{% endblock %}
-
-{% block sidebar_links %}
-
-<li><a  href="{% url 'third_party_homepage' %}"><b>Third-party</b></a></li>
-<li><a  href="#">New Third Party</a></li>
-<li><a  href="{% url 'list_third_parties' %}">List</a></li>
-<li><a  href="#">List of prospects</a></li>
-<li><a  href="#">List of customers</a></li>
-<li><a  href="#">List of vendors</a></li>
-<hr>
-<li><a  href="#">New contact/address</a></li>
-<li><a  href="#">List</a></li>
-<li><a  href="#">Prospects</a></li>
-<li><a  href="#">Customers</a></li>
-<li><a  href="#">Vendors</a></li>
-<li><a  href="#">Others</a></li>
-
-{% endblock %}
 
 
 {% block main_content %}
 <section id="main-content">
     <section class="wrapper site-min-height">
-      <h3><i class="fa fa-angle-right"></i> List of Third Parties({{third_parties|length}})</h3>
+      <h3><i class="fa fa-angle-right"></i> List of Third Parties ({{third_parties|length}})</h3>
 
 
         <div class="row mt">
@@ -54,12 +35,26 @@
                               {% for thp in third_parties %}
                               <tr>
                                   <td> <a href="{{thp.get_absolute_url}}">{{thp.name}}</a></td>
-                                  <td>{{thp.alias_name}}</td>
-                                  <td>{{thp.barcode}}</td>
+                                  <td>{{thp.alias_name|default:"-----" }}</td>
+                                  <td>{{thp.barcode|default:"-----" }}</td>
                                   <td>{{thp.customer_code}}</td>
-                                  <td>{{thp.phone}}</td>
-                                  <td> >>To-do: homework</td>
-                                  <td> >>To-do: homework</td>
+                                  <td>{{thp.phone|default:"-----" }}</td>
+                                  <td>
+                                    {% if thp.prospect_customer == 'prospect' %} 
+                                      <span class="btn btn-default btn-xs">Prospect</span>
+                                    {% endif %}
+                                    {% if thp.prospect_customer == 'customer' %}
+                                      <span class="btn btn-success btn-xs">Customer</span>
+                                    {% endif %}
+                                    {% if thp.prospect_customer == 'prospect_and_customer' %}
+                                      <span class="btn btn-default btn-xs">Prospect</span>
+                                      <span class="btn btn-warning btn-xs">Customer</span>
+                                    {% endif %}
+                                    {% if thp.is_vendor %} <span class="btn btn-warning btn-xs">Vendor</span> {% endif %}
+                                  </td>
+                                  <td>
+                                    <span class="btn {% if thp.status %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{thp.status|yesno:"Open,Closed,Not set"}}</span>
+                                  </td>
                               </tr>
                               {% endfor %}
                               </tbody>
