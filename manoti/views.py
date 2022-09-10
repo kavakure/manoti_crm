@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 
 from .models import ThirdParty, Contact
 
@@ -21,3 +22,23 @@ def list_third_parties(request):
 	"""
 	third_parties = ThirdParty.objects.all().order_by('-date_added')
 	return render(request, "third_party_list.html", {"third_parties": third_parties})
+
+def third_party_view(request, thirdparty_id=None):
+	"""
+	View that displays a given vacancy
+	 """
+
+	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
+
+	thirdparty = get_object_or_404(ThirdParty, active=True, id=thirdparty_id)
+
+	if errors:
+		error_message = errors[0]
+	else:
+		error_message = None
+
+	ctx = {
+		'thirdparty': thirdparty,
+		'error_message' : error_message,
+	}
+	return render(request, "third_party_view.html", ctx)
