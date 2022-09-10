@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import get_language, ugettext, ugettext_lazy as _
 from .validators import validate_file_size, validate_image_file_extension, validate_document_file_extension
 
+from django.urls import reverse
+
 from datetime import date
 from django.utils import timezone
 
@@ -224,6 +226,9 @@ class ThirdParty(models.Model):
 
 	def __str__(self):
 		return self.name
+
+	def get_absolute_url(self):
+		return reverse('third_party_view', kwargs={'thirdparty_id': self.id})
 
 	class Meta:
 		verbose_name = _("Third party")
