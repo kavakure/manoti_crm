@@ -106,9 +106,9 @@
                     <li><a  href="{% url 'third_party_homepage' %}"><b>Third-party</b></a></li>
                     <li><a  href="#">New Third Party</a></li>
                     <li><a  href="{% url 'list_third_parties' %}">List</a></li>
-                    <li><a  href="#">List of prospects</a></li>
-                    <li><a  href="#">List of customers</a></li>
-                    <li><a  href="#">List of vendors</a></li>
+                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='prospects' %}">List of prospects</a></li>
+                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='customers' %}">List of customers</a></li>
+                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='vendor' %}">List of vendors</a></li>
                     <hr>
                     <li><a  href="#">New contact/address</a></li>
                     <li><a  href="{% url 'list_contacts' %}">List</a></li>
