@@ -88,7 +88,7 @@
                               <tbody>
                               {% for thp in third_parties %}
                               <tr>
-                                  <td><a href="">{{thp.name}}</a></td>
+                                  <td> <a href="{{thp.get_absolute_url}}">{{thp.name}}</a></td>
                                   <td>{{thp.alias_name}}</td>
                                   <td>{{thp.barcode}}</td>
                                   <td>{{thp.customer_code}}</td>
