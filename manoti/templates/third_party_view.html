@@ -5,71 +5,37 @@
 <link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
 {% endblock extra_stylesheet%}
 
-{% block title %}List of Third Parties{% endblock %}
-{% block profile_picture %}{% endblock %}
-
-{% block sidebar_links %}
-
-<li><a  href="{% url 'third_party_homepage' %}"><b>Third-party</b></a></li>
-<li><a  href="#">New Third Party</a></li>
-<li><a  href="{% url 'list_third_parties' %}">List</a></li>
-<li><a  href="#">List of prospects</a></li>
-<li><a  href="#">List of customers</a></li>
-<li><a  href="#">List of vendors</a></li>
-<hr>
-<li><a  href="#">New contact/address</a></li>
-<li><a  href="#">List</a></li>
-<li><a  href="#">Prospects</a></li>
-<li><a  href="#">Customers</a></li>
-<li><a  href="#">Vendors</a></li>
-<li><a  href="#">Others</a></li>
-
-{% endblock %}
-
+{% block title %}{{thirdparty.name}} | {{thirdparty.alias}}{% endblock %}
 
 {% block main_content %}
 <section id="main-content">
     <section class="wrapper site-min-height">
-      <h3><i class="fa fa-angle-right"></i> List of Third Parties(1)</h3>
-
-
+      <h3><i class="fa fa-angle-right"></i> {{thirdparty.name}}</h3>
         <div class="row mt">
             <div class="col-lg-12">
                       <div class="content-panel">
-                      <!-- <h4><i class="fa fa-angle-right"></i> Most 15 recent Third Parties</h4> -->
-                          <section id="unseen">
-                            <table class="table table-bordered table-striped table-condensed">
-                              <thead>
-                              <tr>
-                                  <th>Third-party name</th>
-                                  <th>Alias</th>
-                                  <th>Barcode</th>
-                                  <th>Customer code</th>
-                                  <th>Phone</th>
-                                  <th>Nature of ...</th>
-                              </tr>
-                              </thead>
+                          <section >
+                            <table class="table">
                               <tbody>
-                              {% for thp in third_parties %}
-                              <tr>
-                                  <td>{{thp.name}}</td>
-                                  <td>{{thp.alias_name}}</td>
-                                  <td>{{thp.barcode}}</td>
-                                  <td>{{thp.customer_code}}</td>
-                                  <td>{{thp.phone}}</td>
-                                  <td> >>To-do: homework</td>
-                              </tr>
-                              {% endfor %}
+                                <tr>
+                                  <td><i class="fa fa-angle-right"></i> {{thirdparty.address}}</td>
+                                </tr>
+                                <tr>
+                                  <td><i class="fa fa-angle-right"></i> {{thirdparty.website}}</td>
+                                </tr>
+                                <tr>
+                                  <td><i class="fa fa-angle-right"></i> {{thirdparty.phone}}</td>
+                                </tr>
                               </tbody>
+                            </table>
                           </table>
                           </section>
-                  </div><!-- /content-panel -->
-               </div><!-- /col-lg-4 -->     
-        </div><!-- /row -->
-                  
-              </div><! --/row -->
-          </section>
-      </section>
+                  </div>
+               </div>  
+        </div>
+
+    </section>
+</section>
 
       <!--main content end-->
 
