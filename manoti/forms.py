@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import ugettext, ugettext_lazy as _
 
 
-from django.forms.extras.widgets import SelectDateWidget
+# from django.forms.extras.widgets import SelectDateWidget
 from django.contrib.admin.widgets import AdminDateWidget
 
 from django.contrib.auth.models import User
