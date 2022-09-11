@@ -23,7 +23,7 @@ MONTH_CHOICES = (
 	('12', _('December'))
 )
 
-PROSPOECT_CUSTOMER_CHOICES = (
+PROSPECT_CUSTOMER_CHOICES = (
 	('prospect', _('Prospect')),
 	('prospect_and_customer', _('Prospect and Customer')),
 	('customer', _('Customer')),
@@ -190,7 +190,7 @@ class ThirdParty(models.Model):
 	business          = models.ForeignKey(Business, blank=False, null=False, on_delete=models.CASCADE)
 	name              = models.CharField(_("Third party name"), max_length=200, blank=False, null=False, help_text=_("The full name of the Third Party"))
 	alias_name        = models.CharField(_("Alias name (commercial, trademark, ...)"), max_length=200, blank=True, help_text=_("The Alias name used for other purposes"))
-	prospect_customer = models.CharField(_("Prospect / Customer"), choices=PROSPOECT_CUSTOMER_CHOICES, max_length=200, blank=True, help_text=_("Defines which type the thirdparty is"))
+	prospect_customer = models.CharField(_("Prospect / Customer"), choices=PROSPECT_CUSTOMER_CHOICES, max_length=200, blank=True, help_text=_("Defines which type the thirdparty is"))
 	customer_code_number = models.IntegerField(_("Customer code number"), blank=True, null=True, default=1)
 	customer_code     = models.CharField(_("Customer code"), max_length=200, blank=True, unique=True)
 	is_vendor		  = models.BooleanField(_("Vendor ?"), default=False)
