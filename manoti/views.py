@@ -28,18 +28,15 @@ def filtered_list_third_parties(request, thirdparty_type=None):
 	"""
 	List filtered Third parties of a given business by prospect/customer type
 	"""
-	third_parties = None
-
+	
 	if thirdparty_type == 'vendor':
 		third_parties = ThirdParty.objects.filter(is_vendor=True).order_by('-date_added')
+	else:
+		third_parties = ThirdParty.objects.filter(prospect_customer__contains=thirdparty_type).order_by('-date_added')
 
-	if thirdparty_type == 'customer':
-		third_parties = ThirdParty.objects.filter(prospect_customer="cusotmer").order_by('-date_added')
+	return render(request, "third_party_list.html", {"third_parties": third_parties,})
 
-	if thirdparty_type == 'prospect':
-		third_parties = ThirdParty.objects.filter(prospect_customer="prospect").order_by('-date_added')
 
-	return render(request, "third_party_list.html", {"third_parties": third_parties})
 
 
 def third_party_view(request, thirdparty_id=None):
