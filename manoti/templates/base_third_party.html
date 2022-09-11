@@ -104,7 +104,7 @@
                   {% block sidebar_links %}
 
                     <li><a  href="{% url 'third_party_homepage' %}"><b>{% trans "Third-party" %}</b></a></li>
-                    <li><a  href="#">{% trans "New Third Party" %}</a></li>
+                    <li><a  href="{% url 'third_party_create' %}">{% trans "New Third Party" %}</a></li>
                     <li><a  href="{% url 'list_third_parties' %}">{% trans "List" %}</a></li>
                     <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='prospect' %}">{% trans "List of prospects" %}</a></li>
                     <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='customer' %}">{% trans "List of customers" %}</a></li>
