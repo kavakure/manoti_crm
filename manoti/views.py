@@ -67,6 +67,23 @@ def list_contacts(request):
 	contacts = Contact.objects.all().order_by('-date_added')
 	return render(request, "contact_list.html", {"contacts": contacts})
 
+def filtered_list_contact(request, thirdparty_type=None):
+	"""
+	List filtered contacts of a given business by prospect/customer type
+	"""
+	
+	contacts = []
+
+	if thirdparty_type == 'vendor':
+		third_parties = ThirdParty.objects.filter(is_vendor=True).order_by('-date_added')
+	else:
+		third_parties = ThirdParty.objects.filter(prospect_customer__contains=thirdparty_type).order_by('-date_added')
+
+	for thirdparty in third_parties:
+		contacts.append(thirdparty.contact_set.all())
+
+	return render(request, "contact_list.html", {"contacts": contacts})
+
 def contact_view(request, contact_id=None):
 	"""
 	View that displays a given contact
