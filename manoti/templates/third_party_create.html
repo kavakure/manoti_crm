@@ -1,0 +1,74 @@
+{% extends "base_third_party.html" %}
+{% load static i18n %}
+
+{% block extra_stylesheet %}
+<link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
+{% endblock extra_stylesheet%}
+
+{% block title %}{% trans "List of Third Parties" %}{% endblock %}
+
+
+{% block main_content %}
+<section id="main-content">
+    <section class="wrapper site-min-height">
+      <h3><i class="fa fa-angle-right"></i> <b>{% trans "List of Third Parties " %}({{third_parties|length}})</b></h3>
+
+
+        <div class="row mt">
+            <div class="col-lg-12">
+                      <div class="content-panel">
+                      <!-- <h4><i class="fa fa-angle-right"></i> Most 15 recent Third Parties</h4> -->
+                          <section>
+                            <table class="table table-bordered table-striped table-condensed">
+                              <thead>
+                              <tr>
+                                  <th>{% trans "Third-party name" %}</th>
+                                  <th>{% trans "Alias" %}</th>
+                                  <th>{% trans "Barcode" %}</th>
+                                  <th>{% trans "Customer code" %}</th>
+                                  <th>{% trans "Phone" %}</th>
+                                  <th>{% trans "Nature of ..." %}</th>
+                                  <th>{% trans "Status" %}</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              {% for thp in third_parties %}
+                              <tr>
+                                  <td> <a href="{{thp.get_absolute_url}}">{{thp.name}}</a></td>
+                                  <td>{{thp.alias_name|default:"-----" }}</td>
+                                  <td>{{thp.barcode|default:"-----" }}</td>
+                                  <td>{{thp.customer_code}}</td>
+                                  <td>{{thp.phone|default:"-----" }}</td>
+                                  <td>
+                                    {% if thp.prospect_customer == 'prospect' %} 
+                                      <span class="btn btn-default btn-xs">{% trans "Prospect" %}</span>
+                                    {% endif %}
+                                    {% if thp.prospect_customer == 'customer' %}
+                                      <span class="btn btn-success btn-xs">{% trans "Customer" %}</span>
+                                    {% endif %}
+                                    {% if thp.prospect_customer == 'prospect_and_customer' %}
+                                      <span class="btn btn-default btn-xs">{% trans "Prospect" %}</span>
+                                      <span class="btn btn-warning btn-xs">{% trans "Customer" %}</span>
+                                    {% endif %}
+                                    {% if thp.is_vendor %} <span class="btn btn-warning btn-xs">{% trans "Vendor" %}</span> {% endif %}
+                                  </td>
+                                  <td>
+                                    <span class="btn {% if thp.status %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{thp.status|yesno:"Open,Closed,Not set"}}</span>
+                                  </td>
+                              </tr>
+                              {% endfor %}
+                              </tbody>
+                          </table>
+                          </section>
+                  </div><!-- /content-panel -->
+               </div><!-- /col-lg-4 --> 
+        </div><!-- /row -->
+                  
+              </div><! --/row -->
+          </section>
+      </section>
+
+      <!--main content end-->
+
+
+{% endblock %}
