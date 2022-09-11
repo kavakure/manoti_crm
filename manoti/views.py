@@ -24,6 +24,24 @@ def list_third_parties(request):
 	third_parties = ThirdParty.objects.all().order_by('-date_added')
 	return render(request, "third_party_list.html", {"third_parties": third_parties})
 
+def filtered_list_third_parties(request, thirdparty_type=None):
+	"""
+	List filtered Third parties of a given business by prospect/customer type
+	"""
+	third_parties = None
+
+	if thirdparty_type == 'vendor':
+		third_parties = ThirdParty.objects.filter(is_vendor=True).order_by('-date_added')
+
+	if thirdparty_type == 'customer':
+		third_parties = ThirdParty.objects.filter(prospect_customer="cusotmer").order_by('-date_added')
+
+	if thirdparty_type == 'prospect':
+		third_parties = ThirdParty.objects.filter(prospect_customer="prospect").order_by('-date_added')
+
+	return render(request, "third_party_list.html", {"third_parties": third_parties})
+
+
 def third_party_view(request, thirdparty_id=None):
 	"""
 	View that displays a given third party
@@ -50,7 +68,7 @@ def list_contacts(request):
 	Lists all the contacts of a given business
 	"""
 	contacts = Contact.objects.all().order_by('-date_added')
-	return render(request, "third_party_list.html", {"third_parties": third_parties})
+	return render(request, "contact_list.html", {"contacts": contacts})
 
 def contact_view(request, contact_id=None):
 	"""
