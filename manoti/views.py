@@ -2,8 +2,11 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.messages import constants, get_messages
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from .models import ThirdParty, Contact
+from .forms import ThirdPartyForm
 
 def dahshboard(request):
 	return render(request, "dashboard.html")
@@ -36,9 +39,6 @@ def filtered_list_third_parties(request, thirdparty_type=None):
 
 	return render(request, "third_party_list.html", {"third_parties": third_parties,})
 
-
-
-
 def third_party_view(request, thirdparty_id=None):
 	"""
 	View that displays a given third party
@@ -58,6 +58,29 @@ def third_party_view(request, thirdparty_id=None):
 		'error_message' : error_message,
 	}
 	return render(request, "third_party_view.html", ctx)
+
+
+def third_party_create(request):
+	"""This view is used on order to create a Third party"""
+	next_url = request.GET.get('next',None)
+	cv_entry = None
+
+	if request.method == 'POST':
+		form = ThirdPartyForm(request.POST)
+		if form.is_valid():
+			thirdparty = form.save(commit=False)
+			thirdparty.user = request.user # Set the user object here
+			thirdparty.save() # Now you can send it to DB
+			messages.success(request, _('Succcessfully saved changes'), extra_tags='alert alert-success alert-dismissable')
+			if next_url:
+				return http.HttpResponseRedirect(next_url)
+			else:
+				return http.HttpResponseRedirect(urlresolvers.reverse('akazi_cv_preview', kwargs={'id': cv.pk}))
+
+	else:
+		form = ThirdPartyForm()
+	return render(request, 'third_party_create.html', {'form': form})
+third_party_create = login_required(third_party_create)
 
 
 def list_contacts(request):
