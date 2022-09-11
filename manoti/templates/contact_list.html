@@ -1,16 +1,16 @@
 {% extends "base_third_party.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% block extra_stylesheet %}
 <link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
 {% endblock extra_stylesheet%}
 
-{% block title %}Contacts/Addresses{% endblock %}
+{% block title %}{% trans "Contacts/Addresses" %}{% endblock %}
 
 {% block main_content %}
 <section id="main-content">
     <section class="wrapper site-min-height">
-      <h3><i class="fa fa-angle-right"></i> List of contacts/addresses({{contacts|length}})</h3>
+      <h3><i class="fa fa-angle-right"></i> <b>{% trans "List of contacts/addresses" %}({{contacts|length}})</b></h3>
 
 
         <div class="row mt">
@@ -21,14 +21,14 @@
                             <table class="table table-bordered table-striped table-condensed">
                               <thead>
                               <tr>
-                                  <th>Full name</th>
-                                  <th>Third party</th>
-                                  <th>Phone</th>
-                                  <th>Business Phone</th>
-                                  <th>Mobile phone</th>
-                                  <th>email address</th>
-                                  <th>Visibility</th>
-                                  <th>Status</th>
+                                  <th>{% trans "Full name" %}</th>
+                                  <th>{% trans "Third party" %}</th>
+                                  <th>{% trans "Phone" %}</th>
+                                  <th>{% trans "Business Phone" %}</th>
+                                  <th>{% trans "Mobile phone" %}</th>
+                                  <th>{% trans "email address" %}</th>
+                                  <th>{% trans "Visibility" %}</th>
+                                  <th>{% trans "Status" %}</th>
                               </tr>
                               </thead>
                               <tbody>
@@ -40,8 +40,12 @@
                                   <td>{{contact.bus_phone}}</td>
                                   <td>{{contact.mobile_phone}}</td>
                                   <td>{{contact.email}}</td>
-                                  <td>{{contact.is_private}}</td>
-                                  <td>{{contact.is_active}}</td>
+                                  <td>
+                                    <span class="btn {% if contact.status %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{thp.status|yesno:"Private,Shared,Not set"}}</span>
+                                  </td>
+                                  <td>
+                                    <span class="btn {% if contact.status %}btn-danger{% else %}btn-success{% endif %} btn-xs">{{thp.status|yesno:"Open,Closed,Not set"}}</span>
+                                  </td>
                               </tr>
                               {% endfor %}
                               </tbody>

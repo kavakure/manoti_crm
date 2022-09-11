@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 
 {% block doctype %}<!DOCTYPE html>{% endblock %}
 <html lang="en">
@@ -81,7 +81,7 @@
             <div class="top-menu">
               {% block top_menu_right %}
               <ul class="nav pull-right top-menu">
-                    <li><a class="logout" href="login.html">Logout</a></li>
+                    <li><a class="logout" href="login.html">{% trans "Logout" %}</a></li>
               </ul>
               {% endblock %}
             </div>
@@ -103,20 +103,19 @@
                     
                   {% block sidebar_links %}
 
-                    <li><a  href="{% url 'third_party_homepage' %}"><b>Third-party</b></a></li>
-                    <li><a  href="#">New Third Party</a></li>
-                    <li><a  href="{% url 'list_third_parties' %}">List</a></li>
-                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='prospect' %}">List of prospects</a></li>
-                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='customer' %}">List of customers</a></li>
-                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='vendor' %}">List of vendors</a></li>
+                    <li><a  href="{% url 'third_party_homepage' %}"><b>{% trans "Third-party" %}</b></a></li>
+                    <li><a  href="#">{% trans "New Third Party" %}</a></li>
+                    <li><a  href="{% url 'list_third_parties' %}">{% trans "List" %}</a></li>
+                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='prospect' %}">{% trans "List of prospects" %}</a></li>
+                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='customer' %}">{% trans "List of customers" %}</a></li>
+                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='vendor' %}">{% trans "List of vendors" %}</a></li>
                     <hr>
-                    <li><a  href="#">New contact/address</a></li>
-                    <li><a  href="{% url 'list_contacts' %}">List</a></li>
-                    <li><a  href="#">Prospects</a></li>
-                    <li><a  href="#">Customers</a></li>
-                    <li><a  href="#">Vendors</a></li>
-                    <li><a  href="#">Others</a></li>
-
+                    <li><a  href="#">{% trans "New contact/address" %}</a></li>
+                    <li><a  href="{% url 'list_contacts' %}">{% trans "List" %}</a></li>
+                    <li><a  href="{% url 'filtered_list_contact' thirdparty_type='prospect' %}">{% trans "Prospects" %}</a></li>
+                    <li><a  href="{% url 'filtered_list_contact' thirdparty_type='customer' %}">{% trans "Customers" %}</a></li>
+                    <li><a  href="{% url 'filtered_list_contact' thirdparty_type='vendor' %}">{% trans "Vendors" %}</a></li>
+                    <li><a  href="{% url 'filtered_list_contact' thirdparty_type='Others' %}">{% trans "Others" %}</a></li>
                     {% endblock %}
 
               </ul>
@@ -150,7 +149,7 @@
       <!--footer start-->
       <footer class="site-footer">
           <div class="text-center">
-               Made with <b> &#x1F496;</b> in Bumjubura. © {% now "Y " %} Manoti.</p>
+               {% trans "Made with <b> &#x1F496;</b> in Bumjubura. © " %}{% now "Y " %} Manoti.</p>
           </div>
       </footer>
       <!--footer end-->
