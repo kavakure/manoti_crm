@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import get_language, ugettext, ugettext_lazy as _
 from .validators import validate_file_size, validate_image_file_extension, validate_document_file_extension
 
+
 from django.urls import reverse
 
 from datetime import date
@@ -191,10 +192,10 @@ class ThirdParty(models.Model):
 	name              = models.CharField(_("Third party name"), max_length=200, blank=False, null=False, help_text=_("The full name of the Third Party"))
 	alias_name        = models.CharField(_("Alias name (commercial, trademark, ...)"), max_length=200, blank=True, help_text=_("The Alias name used for other purposes"))
 	prospect_customer = models.CharField(_("Prospect / Customer"), choices=PROSPECT_CUSTOMER_CHOICES, max_length=200, blank=True, help_text=_("Defines which type the thirdparty is"))
-	customer_code_number = models.IntegerField(_("Customer code number"), blank=True, null=True, default=1)
+	customer_code_number = models.IntegerField(_("Customer code number"), blank=True, null=True, default=1, unique=True)
 	customer_code     = models.CharField(_("Customer code"), max_length=200, blank=True, unique=True)
 	is_vendor		  = models.BooleanField(_("Vendor ?"), default=False)
-	vendor_code_number = models.IntegerField(_("Vendor code number"), blank=True, null=True, default=1)
+	vendor_code_number = models.IntegerField(_("Vendor code number"), blank=True, null=True, default=1, unique=True)
 	vendor_code       = models.CharField(_("Vendor code"), max_length=200, blank=True, null=False, unique=True)
 	status 			  = models.BooleanField(_("Status"), default=True)
 	barcode			  = models.CharField(_("Barcode"), max_length=200, blank=True, null=True)
