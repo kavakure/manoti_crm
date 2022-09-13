@@ -1,11 +1,13 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django import http
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.contrib.messages import constants, get_messages
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import get_language, ugettext, ugettext_lazy as _
 from django.urls import reverse
+
 
 from .models import ThirdParty, Contact
 from .forms import ThirdPartyForm
@@ -75,9 +77,9 @@ def third_party_create(request):
 			thirdparty.save() # Now you can send it to DB
 			messages.success(request, _('Succcessfully saved changes'), extra_tags='alert alert-success alert-dismissable')
 			if next_url:
-				return reverse('next_url')
+				return http.HttpResponseRedirect(reverse('next_url'))
 			else:
-				return reverse('third_party_view', kwargs={'thirdparty_id': thirdparty.id})
+				return http.HttpResponseRedirect(reverse('third_party_view', kwargs={'thirdparty_id': thirdparty.id}))
 
 	else:
 		third_party_form = ThirdPartyForm()
