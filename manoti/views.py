@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import get_language, ugettext, ugettext_lazy as _
 from django.urls import reverse
+from django.forms.models import model_to_dict
 
 
 from .models import ThirdParty, Contact
@@ -75,7 +76,7 @@ def third_party_create(request):
 			thirdparty = third_party_form.save(commit=False)
 			thirdparty.user = request.user # Set the user object here
 			thirdparty.save() # Now you can send it to DB
-			messages.success(request, _('Succcessfully saved changes'), extra_tags='alert alert-success alert-dismissable')
+			messages.success(request, _('Succcessfully saved created the third party'), extra_tags='alert alert-success alert-dismissable')
 			if next_url:
 				return http.HttpResponseRedirect(reverse('next_url'))
 			else:
@@ -85,6 +86,56 @@ def third_party_create(request):
 		third_party_form = ThirdPartyForm()
 	return render(request, 'third_party_form.html', {'third_party_form': third_party_form})
 third_party_create = login_required(third_party_create)
+
+
+def third_party_edit(request, thirdparty_id=None):
+	"""This view is used to modify a Third party"""
+
+	if thirdparty_id:
+		editing = True
+		thirdparty = get_object_or_404(ThirdParty, id=thirdparty_id)
+	else:
+		return http.HttpResponseRedirect(reverse('third_party_list'))
+
+	initial_data = {}
+	next_url = request.GET.get('next',None)
+
+	if request.POST and thirdparty_id:
+		thirdparty = get_object_or_404(ThirdParty, id=thirdparty_id)
+		initial_data = model_to_dict(thirdparty, fields=[], exclude=['date_added'])
+		third_party_form = ThirdPartyForm(request.POST or None, request.FILES or None, instance=thirdparty)
+		if third_party_form.is_valid():
+			third_party_form.save()
+			messages.success(request, _('Succcessfully saved changes to your resume'), extra_tags='alert alert-success alert-dismissable')
+			return http.HttpResponseRedirect(reverse('third_party_view', kwargs={'thirdparty_id': thirdparty.id}))
+	else:
+		third_party_form = ThirdPartyForm(request.POST or None, request.FILES or None, instance=thirdparty)
+
+	ctx = {
+		'third_party_form':third_party_form,
+		'editing': editing,
+		'thirdparty': thirdparty, 
+		'next': next_url
+	}
+
+	return render(request, 'third_party_form.html', ctx)
+third_party_edit = login_required(third_party_edit)
+
+
+def third_party_delete(request, thirdparty_id=None):
+	"""Deletes a Third party from the database"""
+
+	if request.method == 'POST':
+		try:
+			thirdparty = ThirdParty.objects.get(id=thirdparty_id)
+			thirdparty.delete()
+			messages.success(request,  _('Succcessfully deleted the Third party'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print(e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('list_third_parties'))
+	else:
+		return http.HttpResponseRedirect(reverse('list_third_parties'))
+third_party_delete = login_required(third_party_delete)
 
 
 def list_contacts(request):
@@ -130,3 +181,18 @@ def contact_view(request, contact_id=None):
 		'error_message' : error_message,
 	}
 	return render(request, "contact_view.html", ctx)
+
+def contact_delete(request, contact_id=None):
+	"""Deletes a contact from the database"""
+
+	if request.method == 'POST':
+		try:
+			contact = ThirdParty.objects.get(id=contact_id)
+			contact.delete()
+			messages.success(request,  _('Succcessfully deleted the contact'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print(e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('list_contacts'))
+	else:
+		return http.HttpResponseRedirect(reverse('list_contacts'))
+contact_delete = login_required(contact_delete)

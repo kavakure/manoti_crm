@@ -71,7 +71,6 @@ def generate_third_party_codes():
 		cus_number_arr.append(thp.customer_code_number)
 		ven_number_arr.append(thp.vendor_code_number)
 
-
 	if len(cus_number_arr) == 0:
 		cus_number = 1
 	else:
