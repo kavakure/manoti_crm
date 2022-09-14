@@ -62,7 +62,7 @@
 
                 {% block notification %}
                 <!--  notification start -->
-                 <ul class="nav pull-right top-menu">
+                    <ul class="nav pull-right top-menu">
                         <li class="dropdown">
                             <a href="{% url 'third_party_homepage' %}">
                                 <span style='font-size:20px; text-align: center;'>&#128101;</span>
@@ -115,19 +115,18 @@
                     
                   {% block sidebar_links %}
 
-                    <li><a  href="{% url 'third_party_homepage' %}"><b>{% trans "Third-party" %}</b></a></li>
-                    <li><a  href="{% url 'third_party_create' %}">{% trans "New Third Party" %}</a></li>
-                    <li><a  href="{% url 'list_third_parties' %}">{% trans "List" %}</a></li>
-                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='prospect' %}">{% trans "List of prospects" %}</a></li>
-                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='customer' %}">{% trans "List of customers" %}</a></li>
-                    <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='vendor' %}">{% trans "List of vendors" %}</a></li>
+                    <li><a  href="#"><b>{% trans "Commercial proposals" %}</b></a></li>
+                    <li><a  href="#">{% trans "New proposal" %}</a></li>
+                    <li><a  href="#">{% trans "List" %}</a></li>
+                    <li><a  href="#">{% trans "List of prospects" %}</a></li>
+                    <li><a  href="#">{% trans "List of customers" %}</a></li>
+                    <li><a  href="#">{% trans "List of vendors" %}</a></li>
                     <hr>
-                    <li><a  href="{% url 'contact_create' %}">{% trans "New contact/address" %}</a></li>
-                    <li><a  href="{% url 'list_contacts' %}">{% trans "List" %}</a></li>
-                    <li><a  href="{% url 'filtered_list_contact' thirdparty_type='prospect' %}">{% trans "Prospects" %}</a></li>
-                    <li><a  href="{% url 'filtered_list_contact' thirdparty_type='customer' %}">{% trans "Customers" %}</a></li>
-                    <li><a  href="{% url 'filtered_list_contact' thirdparty_type='vendor' %}">{% trans "Vendors" %}</a></li>
-                    <li><a  href="{% url 'filtered_list_contact' thirdparty_type='Others' %}">{% trans "Others" %}</a></li>
+                    <li><a  href="#">{% trans "New contact/address" %}</a></li>
+                    <li><a  href="#">{% trans "List" %}</a></li>
+                    <li><a  href="#">{% trans "Prospects" %}</a></li>
+                    <li><a  href="#">{% trans "Customers" %}</a></li>
+                    <hr>
                     {% endblock %}
 
               </ul>
