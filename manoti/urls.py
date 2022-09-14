@@ -3,6 +3,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    #Thirdparty related views
     url(r'^$', views.dahshboard, name='dashboard'),
     url(r'^third-parties/$', views.third_party_homepage, name='third_party_homepage'),
     url(r'^third-party-list/$', views.list_third_parties, name='list_third_parties'),
@@ -18,4 +19,6 @@ urlpatterns = [
     url(r'^contact-change-status/(?P<contact_id>[-\w]+)/$', views.contact_change_status, name='contact_change_status'),
     url(r'^contact-create/$', views.contact_create, name='contact_create'),
     url(r'^contact-edit/(?P<contact_id>[-\w]+)/$', views.contact_edit, name='contact_edit'),
+    #Commerce related views
+    url(r'^commerce/$', views.commerce_homepage, name='commerce_homepage'),
 ]

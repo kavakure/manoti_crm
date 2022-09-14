@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.forms.models import model_to_dict
 
 
-from .models import ThirdParty, Contact
+from .models import ThirdParty, Contact, Proposal
 from .forms import ThirdPartyForm, ContactForm
 
 def dahshboard(request):
@@ -18,7 +18,7 @@ def dahshboard(request):
 
 def third_party_homepage(request):
 	"""
-	THis is the homepage for the commerce area,
+	THis is the homepage for the Third-party area,
 	it will list the most recent third parties and contacts
 	"""
 	third_parties = ThirdParty.objects.all().order_by('-date_added')[:15]
@@ -279,3 +279,18 @@ def contact_edit(request, contact_id=None):
 
 	return render(request, 'contact_form.html', ctx)
 contact_edit = login_required(contact_edit)
+
+
+
+##################################################################################################
+### Commerce area ralted views
+##################################################################################################
+
+
+def commerce_homepage(request):
+	"""
+	THis is the homepage for the commerce area,
+	it will list the most recent commercials proposals, contracts and.or subscriptions
+	"""
+	proposals = Proposal.objects.all().order_by('-timestamp')[:15]
+	return render(request, "commerce_home.html", {"proposals": proposals})
