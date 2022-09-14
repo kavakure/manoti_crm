@@ -137,7 +137,7 @@
 
                 <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 15px;">
                   <button type="button" class="btn btn-success">{% trans "Send Email" %}</button>
-                  <button type="button" class="btn btn-success">{% trans "Modify" %}</button>
+                  <a href="{% url 'contact_edit' contact.id %}"  class="btn btn-success">{% trans "Modify" %}</a>
                   <button type="button" class="btn {% if contact.is_active %}btn-warning{% else%}btn-success{% endif %}" data-toggle="modal" data-target="#disable_modal">{% if contact.is_active %}{% trans "Disable" %}{% else%}{% trans "Enable" %}{% endif %}</button>
                   <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
                 </div>
@@ -249,7 +249,7 @@
                   </div>
                   <div class="modal-footer">
                             <div class="pull-left">
-                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes I am sure: Proceed & Delete" %}"/>
+                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes I am sure: Proceed & Delete' %}"/>
                             </form>
                             </div>
                                 </form>

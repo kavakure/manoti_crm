@@ -22,3 +22,11 @@ class ThirdPartyForm(forms.ModelForm):
 		exclude = [
 			'date_added'
 		]
+
+class ContactForm(forms.ModelForm):
+	"""Form used to create or edit a Contact"""
+	class Meta:
+		model = Contact
+		exclude = [
+			'date_added'
+		]

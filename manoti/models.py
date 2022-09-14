@@ -263,7 +263,7 @@ class Contact(models.Model):
 	is_private 		  = models.BooleanField(_("Visibilty"), default=False)
 	is_active 		  = models.BooleanField(_("Status"), default=True)
 	alert 			  = models.BooleanField(_("Alerts"), default=False)
-	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True)
+	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True, null=True)
 	date_added		  = models.DateField(_("Date of creation"), blank=False, default=timezone.now)
 
 	def __str__(self):

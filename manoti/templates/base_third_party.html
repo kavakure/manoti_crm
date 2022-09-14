@@ -110,7 +110,7 @@
                     <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='customer' %}">{% trans "List of customers" %}</a></li>
                     <li><a  href="{% url 'filtered_list_third_parties' thirdparty_type='vendor' %}">{% trans "List of vendors" %}</a></li>
                     <hr>
-                    <li><a  href="#">{% trans "New contact/address" %}</a></li>
+                    <li><a  href="{% url 'contact_create' %}">{% trans "New contact/address" %}</a></li>
                     <li><a  href="{% url 'list_contacts' %}">{% trans "List" %}</a></li>
                     <li><a  href="{% url 'filtered_list_contact' thirdparty_type='prospect' %}">{% trans "Prospects" %}</a></li>
                     <li><a  href="{% url 'filtered_list_contact' thirdparty_type='customer' %}">{% trans "Customers" %}</a></li>

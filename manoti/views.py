@@ -11,7 +11,7 @@ from django.forms.models import model_to_dict
 
 
 from .models import ThirdParty, Contact
-from .forms import ThirdPartyForm
+from .forms import ThirdPartyForm, ContactForm
 
 def dahshboard(request):
 	return render(request, "dashboard.html")
@@ -106,7 +106,7 @@ def third_party_edit(request, thirdparty_id=None):
 		third_party_form = ThirdPartyForm(request.POST or None, request.FILES or None, instance=thirdparty)
 		if third_party_form.is_valid():
 			third_party_form.save()
-			messages.success(request, _('Succcessfully saved changes to your resume'), extra_tags='alert alert-success alert-dismissable')
+			messages.success(request, _('Succcessfully saved changes to the the Third-party'), extra_tags='alert alert-success alert-dismissable')
 			return http.HttpResponseRedirect(reverse('third_party_view', kwargs={'thirdparty_id': thirdparty.id}))
 	else:
 		third_party_form = ThirdPartyForm(request.POST or None, request.FILES or None, instance=thirdparty)
@@ -221,3 +221,61 @@ def contact_change_status(request, contact_id=None):
 		else:
 			return http.HttpResponseRedirect(reverse('list_contacts'))
 contact_change_status = login_required(contact_change_status)
+
+
+def contact_create(request):
+	"""Creates a contact"""
+	next_url = request.GET.get('next',None)
+	contact = None
+
+	if request.method == 'POST':
+		contact_form = ContactForm(request.POST)
+		if contact_form.is_valid():
+			contact = contact_form.save(commit=False)
+			contact.save() # Now you can send it to DB
+			messages.success(request, _('Succcessfully saved created the contact'), extra_tags='alert alert-success alert-dismissable')
+			if next_url:
+				return http.HttpResponseRedirect(reverse('next_url'))
+			else:
+				return http.HttpResponseRedirect(reverse('contact_view', kwargs={'contact_id': contact.id}))
+
+	else:
+		contact_form = ContactForm()
+	return render(request, 'contact_form.html', {'contact_form': contact_form})
+contact_create = login_required(contact_create)
+
+
+
+
+def contact_edit(request, contact_id=None):
+	"""This view is used to modify a contact"""
+
+	if contact_id:
+		editing = True
+		contact = get_object_or_404(Contact, id=contact_id)
+	else:
+		return http.HttpResponseRedirect(reverse('contact_list'))
+
+	initial_data = {}
+	next_url = request.GET.get('next',None)
+
+	if request.POST and contact_id:
+		contact = get_object_or_404(Contact, id=contact_id)
+		initial_data = model_to_dict(contact, fields=[], exclude=['date_added'])
+		contact_form = ContactForm(request.POST or None, request.FILES or None, instance=contact)
+		if contact_form.is_valid():
+			contact_form.save()
+			messages.success(request, _('Succcessfully saved changes to the contact'), extra_tags='alert alert-success alert-dismissable')
+			return http.HttpResponseRedirect(reverse('contact_view', kwargs={'contact_id': contact.id}))
+	else:
+		contact_form = ContactForm(request.POST or None, request.FILES or None, instance=contact)
+
+	ctx = {
+		'contact_form':contact_form,
+		'editing': editing,
+		'contact': contact, 
+		'next': next_url
+	}
+
+	return render(request, 'contact_form.html', ctx)
+contact_edit = login_required(contact_edit)
