@@ -196,3 +196,28 @@ def contact_delete(request, contact_id=None):
 	else:
 		return http.HttpResponseRedirect(reverse('list_contacts'))
 contact_delete = login_required(contact_delete)
+
+def contact_change_status(request, contact_id=None):
+	"""Changes the status of the contact"""
+
+	try:
+		contact = ThirdParty.objects.get(id=contact_id)
+	except Exception as e:
+		print(e) # To-do: add logging to the console
+		contact = None
+		return http.HttpResponseRedirect(reverse('list_contacts'))
+	
+	if contact != None:
+		if request.method == 'POST':
+			if is_active:
+				contact.is_active = False
+			else:
+				contact.is_active = True
+
+			contact.save()
+			messages.success(request,  _('Succcessfully disabled the contact'), extra_tags='alert alert-success alert-dismissable')
+
+			return http.HttpResponseRedirect(reverse('contact_view', kwargs={'contact_id': contact.id}))
+		else:
+			return http.HttpResponseRedirect(reverse('list_contacts'))
+contact_change_status = login_required(contact_change_status)

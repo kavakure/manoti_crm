@@ -138,8 +138,8 @@
                 <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 15px;">
                   <button type="button" class="btn btn-success">{% trans "Send Email" %}</button>
                   <button type="button" class="btn btn-success">{% trans "Modify" %}</button>
-                  <button type="button" class="btn btn-default">{% trans "Disable" %}</button>
-                  <button type="button" class="btn btn-default">{% trans "Delete" %}</button>
+                  <button type="button" class="btn {% if contact.is_active %}btn-warning{% else%}btn-success{% endif %}" data-toggle="modal" data-target="#disable_modal">{% if contact.is_active %}{% trans "Disable" %}{% else%}{% trans "Enable" %}{% endif %}</button>
+                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
                 </div>
             </div>
 
@@ -229,6 +229,69 @@
 
     </section>
 </section>
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="delete_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Delete' %} {{contact.first_name|truncatechars:32}} {{contact.last_name|truncatechars:32}}  ? </h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class = "alert alert-danger" style="padding-top: 10px;">
+                              <form method="post" action="{% url 'contact_delete' contact.id %}">{% csrf_token %}
+                              {% trans "Are you sure you wish to delete" %} {{contact.first_name|truncatechars:32}} {{contact.last_name|truncatechars:32}} {% trans "and all the information assoicated with it" %}?
+                              <br> <b>{% trans "N.B: This action can not be undone!" %}</b>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes I am sure: Proceed & Delete" %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-right">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+            <!-- Modal -->
+            <div class="modal fade" id="disable_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Disable' %} {{contact.first_name|truncatechars:32}} {{contact.last_name|truncatechars:32}} ? </h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class = "alert alert-danger" style="padding-top: 10px;">
+                              <form method="post" action="{% url 'contact_change_status' contact.id %}">{% csrf_token %}
+                              {% trans "Are you sure you wish to disable" %} {{contact.first_name|truncatechars:32}} {{contact.last_name|truncatechars:32}} 
+                              
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-warning btn-fill btn-sm" value="&#128683; {% trans 'Yes I am sure: Disable' %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-right">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
 
       <!--main content end-->
 

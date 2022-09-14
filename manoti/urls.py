@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^contact_list-filtered/(?P<thirdparty_type>[-\w]+)/$', views.filtered_list_contact, name='filtered_list_contact'),
     url(r'^contact-view/(?P<contact_id>[-\w]+)/$', views.contact_view, name='contact_view'),
     url(r'^contact-delete/(?P<contact_id>[-\w]+)/$', views.contact_delete, name='contact_delete'),
+    url(r'^contact-change-status/(?P<contact_id>[-\w]+)/$', views.contact_change_status, name='contact_change_status'),
 ]
