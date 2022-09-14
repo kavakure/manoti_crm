@@ -201,7 +201,7 @@ def contact_change_status(request, contact_id=None):
 	"""Changes the status of the contact"""
 
 	try:
-		contact = ThirdParty.objects.get(id=contact_id)
+		contact = Contact.objects.get(id=contact_id)
 	except Exception as e:
 		print(e) # To-do: add logging to the console
 		contact = None
@@ -209,7 +209,7 @@ def contact_change_status(request, contact_id=None):
 	
 	if contact != None:
 		if request.method == 'POST':
-			if is_active:
+			if contact.is_active:
 				contact.is_active = False
 			else:
 				contact.is_active = True
