@@ -187,7 +187,7 @@ def contact_delete(request, contact_id=None):
 
 	if request.method == 'POST':
 		try:
-			contact = ThirdParty.objects.get(id=contact_id)
+			contact = Contact.objects.get(id=contact_id)
 			contact.delete()
 			messages.success(request,  _('Succcessfully deleted the contact'), extra_tags='alert alert-success alert-dismissable')
 		except Exception as e:
@@ -221,19 +221,3 @@ def contact_change_status(request, contact_id=None):
 		else:
 			return http.HttpResponseRedirect(reverse('list_contacts'))
 contact_change_status = login_required(contact_change_status)
-
-
-def contact_delete(request, contact_id=None):
-	"""Deletes a Contact from the database"""
-
-	if request.method == 'POST':
-		try:
-			contact = Contact.objects.get(id=contact_id)
-			contact.delete()
-			messages.success(request,  _('Succcessfully deleted the contact'), extra_tags='alert alert-success alert-dismissable')
-		except Exception as e:
-			print(e) # To-do: add logging to the console
-		return http.HttpResponseRedirect(reverse('list_contacts'))
-	else:
-		return http.HttpResponseRedirect(reverse('list_contacts'))
-contact_delete = login_required(contact_delete)
