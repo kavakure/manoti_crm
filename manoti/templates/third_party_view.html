@@ -173,10 +173,9 @@
                 </div> 
 
                 <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 15px;">
+                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
                   <button type="button" class="btn btn-success">{% trans "Send Email" %}</button>
-                  <button type="button" class="btn btn-success">{% trans "Modify" %}</button>
-                  <button type="button" class="btn btn-default">{% trans "Merge" %}</button>
-                  <button type="button" class="btn btn-default">{% trans "Delete" %}</button>
+                  <a href="{% url 'third_party_edit' thirdparty.id %}"  class="btn btn-success">{% trans "Modify" %}</a>
                 </div>
             </div>
 
@@ -211,8 +210,16 @@
         </div>
 
         <div id="contact_addresses" class="tabcontent">
-          <h4><i class="fa fa-angle-right"></i> {% trans "Contacts/addresses for" %} {{thirdparty.name}}</h4> 
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9">
+              <h4><i class="fa fa-angle-right"></i> {% trans "Contacts/addresses for" %} {{thirdparty.name}}</h4>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right">
+              <a href="#"  class="btn btn-success btn-sm">{% trans "Add a new contact" %}</a>
+            </div>
+          </div>
 
+          <div class="row mt">
             <table class="table table-bordered table-striped table-condensed">
                 <thead>
                 <tr>
@@ -236,6 +243,7 @@
                 {% endfor %}
                 </tbody>
             </table>
+          </div>
         </div>
 
         <div id="cusotmer" class="tabcontent">
@@ -279,6 +287,38 @@
 
     </section>
 </section>
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="delete_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Delete' %} {{thirdparty.name|truncatechars:32}} ? </h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class = "alert alert-danger" style="padding-top: 10px;">
+                              <form method="post" action="{% url 'third_party_delete' thirdparty.id %}">{% csrf_token %}
+                              {% trans "Are you sure you wish to delete" %} {{thirdparty.name|truncatechars:32}} {% trans "and all the information assoicated with it" %}?
+                              <br> <b>{% trans "N.B: This action can not be undone!" %}</b>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes I am sure: Proceed & Delete" %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-right">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
 
       <!--main content end-->
 

@@ -1,6 +1,6 @@
 {% extends "base_third_party.html" %} {% load static i18n %}
 
-{% block title %}{{thirdparty.name}}{% endblock %}
+{% block title %}{{contact.first_name}} {{contact.last_name}} {% endblock %}
 
 {% block extra_stylesheet %}
 <link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
@@ -54,7 +54,7 @@
 
       <div class="content-panel" style="margin-top: 5px;">
 
-          <h3><i class="fa fa-angle-right"></i> <b>{{thirdparty.name}}</b></h3> 
+          <h3><i class="fa fa-angle-right"></i> <b>{{contact.first_name}} {{contact.last_name}}</b></h3> 
 
             <div class="row mt">
                 <div class="col-lg-12 col-md-12 col-sm-12">
@@ -63,13 +63,13 @@
                       <table class="table table-condensed">
                         <tbody>
                           <tr>
-                            <td><i class="fa fa-angle-right"></i> {{thirdparty.address}}</td>
+                            <td><i class="fa fa-angle-right"></i> {{contact.third_party}}</td>
                           </tr>
                           <tr>
-                            <td><i class="fa fa-angle-right"></i> {{thirdparty.website}}</td>
+                            <td><i class="fa fa-angle-right"></i> {{contact.address}}</td>
                           </tr>
                           <tr>
-                            <td><i class="fa fa-angle-right"></i> {{thirdparty.phone}}</td>
+                            <td><i class="fa fa-angle-right"></i> {{contact.bus_phone}} {{contact.mobile_phone}} {{contact.phone}}</td>
                           </tr>
                         </tbody>
                       </table>
@@ -81,61 +81,32 @@
         
       <div class="content-panel" style="margin-top: 15px;">
         <div class="tab">
-          <button class="tablinks" onclick="openCity(event, 'third_party')">{% trans "Third-party" %}</button>
-          <button class="tablinks" onclick="openCity(event, 'contact_addresses')">{% trans "Contact/Adresses<" %}/button>
-          <button class="tablinks" onclick="openCity(event, 'cusotmer')">{% trans "Customer" %}</button>
-          <button class="tablinks" onclick="openCity(event, 'related_items')">{% trans "Related Items" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'contact_addresses')">{% trans "Contact/Adresses" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'personal_data')">{% trans "Personal data" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'related_items')">{% trans "Related items" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'note')">{% trans "Note" %}</button>
           <button class="tablinks" onclick="openCity(event, 'payment_information')">{% trans "Payment Information" %}</button>
-          <button class="tablinks" onclick="openCity(event, 'notes')">{% trans "Notes" %}</button>
           <button class="tablinks" onclick="openCity(event, 'linked_files')">{% trans "Linked files" %}</button>
           <button class="tablinks" onclick="openCity(event, 'events')">{% trans "Events" %}</button>
         </div>
 
-        <div id="third_party" class="tabcontent" style="display: block;">
+        <div id="contact_addresses" class="tabcontent" style="display: block;">
 
             <div class="row mt content-panel" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
                 <div class="col-lg-6 col-md-6 col-sm-12">
                     <table class="table">
                       <tbody>
                         <tr>
-                          <td>{% trans "Nature of Third party" %}</td>
-                          <td> {{thirdparty.prospect_customer}}</td>
+                          <td>{% trans "Title" %}</td>
+                          <td> {{contact.title.key}}</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Customer Code" %}</td>
-                          <td>{{thirdparty.customer_code}}</td>
+                          <td>{% trans "Job position" %}</td>
+                          <td>{{contact.job_title}}</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Barcode" %}</td>
-                          <td>{{thirdparty.barcode}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Professional ID 1" %}</td>
-                          <td>{{thirdparty.professional_id_1}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Professional ID 2" %}</td>
-                          <td>{{thirdparty.professional_id_2}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Professional ID 3" %}</td>
-                          <td>{{thirdparty.professional_id_3}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Professional ID 4" %}</td>
-                          <td>{{thirdparty.professional_id_4}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Professional ID 5" %}</td>
-                          <td>{{thirdparty.professional_id_5}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Professional ID 6" %}</td>
-                          <td>{{thirdparty.professional_id_6}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "VAT ID" %}</td>
-                          <td>{{thirdparty.vat_id}}</td>
+                          <td>{% trans "Visibility" %}</td>
+                          <td>{{contact.is_private|yesno:"Private,Shared"}}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -145,27 +116,19 @@
                     <table class="table">
                       <tbody>
                         <tr>
-                          <td>{% trans "Third-party type" %}</td>
+                          <td>{% trans "Default contact/address for" %}</td>
                           <td>#To-do</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Workforce" %}</td>
-                          <td>{{thirdparty.workforce}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Business entity type" %}</td>
+                          <td>{% trans "Proposal's contact" %}</td>
                           <td>#To-do</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Capital" %}</td>
-                          <td>{{thirdparty.capital}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Parent company" %}</td>
+                          <td>{% trans "Contract's contact" %}</td>
                           <td>#To-do</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Sales representatives" %}</td>
+                          <td>{% trans "Invoice's contact" %}</td>
                           <td>#To-do</td>
                         </tr>
                       </tbody>
@@ -175,7 +138,7 @@
                 <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 15px;">
                   <button type="button" class="btn btn-success">{% trans "Send Email" %}</button>
                   <button type="button" class="btn btn-success">{% trans "Modify" %}</button>
-                  <button type="button" class="btn btn-default">{% trans "Merge" %}</button>
+                  <button type="button" class="btn btn-default">{% trans "Disable" %}</button>
                   <button type="button" class="btn btn-default">{% trans "Delete" %}</button>
                 </div>
             </div>
@@ -183,7 +146,7 @@
             <div class="row mt">
               <div class="col-lg-6 col-md-6 col-sm-12">
                     <div class="content-panel">
-                      <h4><b><i class="fa fa-angle-right"></i> {% trans "Linked files" %}</b></h4>
+                      <h4><b><i class="fa fa-angle-right"></i> {% trans "Latest 10 linked events" %}</b></h4>
                       <table class="table">
                         <tbody>
                           <tr>
@@ -194,24 +157,11 @@
                     </div>
               </div>  
 
-              <div class="col-lg-6 col-md-6 col-sm-12">
-                    <div class="content-panel">
-                      <h4><b><i class="fa fa-angle-right"></i> </b></h4>
-                      <table class="table">
-                        <tbody>
-                          <tr>
-                            <td> #To-Do</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-              </div>  
-            </div>
 
         </div>
 
-        <div id="contact_addresses" class="tabcontent">
-          <h4><i class="fa fa-angle-right"></i> {% trans "Contacts/addresses for" %} {{thirdparty.name}}</h4> 
+        <div id="personal_data" class="tabcontent">
+          <h4><i class="fa fa-angle-right"></i> {% trans "Personal data" %} {{contact.name}}</h4> 
 
             <table class="table table-bordered table-striped table-condensed">
                 <thead>
@@ -238,7 +188,7 @@
             </table>
         </div>
 
-        <div id="cusotmer" class="tabcontent">
+        <div id="related_items" class="tabcontent">
           <h3>#To-do</h3>
           <p>Lorem Ipsum is simply dummy text of the printing and typesetting</p>
         </div>

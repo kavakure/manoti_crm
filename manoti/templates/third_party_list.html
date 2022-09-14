@@ -11,7 +11,16 @@
 {% block main_content %}
 <section id="main-content">
     <section class="wrapper site-min-height">
-      <h3><i class="fa fa-angle-right"></i> <b>{% trans "List of Third Parties " %}({{third_parties|length}})</b></h3>
+
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9">
+              <h3><i class="fa fa-angle-right"></i> <b>{% trans "List of Third Parties " %}({{third_parties|length}})</b></h3>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right">
+              <a href="{% url 'third_party_create' %}"  class="btn btn-success btn-sm">{% trans "Create a new Third-party" %}</a>
+            </div>
+          </div>
+      
 
 
         <div class="row mt">
@@ -34,7 +43,7 @@
                               <tbody>
                               {% for thp in third_parties %}
                               <tr>
-                                  <td> <a href="{{thp.get_absolute_url}}">{{thp.name}}</a></td>
+                                  <td><b> <a href="{{thp.get_absolute_url}}">{{thp.name}}<b></a></td>
                                   <td>{{thp.alias_name|default:"-----" }}</td>
                                   <td>{{thp.barcode|default:"-----" }}</td>
                                   <td>{{thp.customer_code}}</td>
