@@ -64,17 +64,18 @@
                 <table class="table table-bordered table-striped table-condensed">
                     <thead>
                   <tr>
-                        <th>{% trans "Third-party name" %}</th>
-                        <th>{% trans "Alias" %}</th>
-                        <th>{% trans "Barcode" %}</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Type" %}</th>
+                        <th>{% trans "Date" %}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for thp in third_parties %}
+                    {% for thp in customers_prospects %}
+
                       <tr>
-                          <td> <a href="{{thp.get_absolute_url}}">{{thp.name}}</a></td>
-                          <td>{{thp.alias_name|default:"-----" }}</td>
-                          <td>{{thp.barcode|default:"-----" }}</td>
+                          <td><b><a href="{{thp.get_absolute_url}}">{{thp.name}}</b></a></td>
+                          <td><span class="btn btn-success btn-xs">{% trans "Customer" %}</span></td>
+                          <td>{{thp.date_added }}</td>
                       </tr>
                     {% endfor %}
                     </tbody>
@@ -85,22 +86,22 @@
 
   <div class="col-lg-6 col-md-6 col-sm-12">
             <div class="content-panel">
-            <h4><i class="fa fa-angle-right"></i> {% trans "Latest 10 customers or prospects" %}</h4>
+            <h4><i class="fa fa-angle-right"></i> {% trans "Vendors: last 10 modified" %}</h4>
                 <section id="unseen">
                 <table class="table table-bordered table-striped table-condensed">
                     <thead>
                   <tr>
                         <th>{% trans "Third-party name" %}</th>
-                        <th>{% trans "Alias" %}</th>
-                        <th>{% trans "Barcode" %}</th>
+                        <th>{% trans "Type" %}</th>
+                        <th>{% trans "Date" %}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for thp in third_parties %}
+                    {% for thp in vendors %}
                       <tr>
                           <td> <a href="{{thp.get_absolute_url}}">{{thp.name}}</a></td>
-                          <td>{{thp.alias_name|default:"-----" }}</td>
-                          <td>{{thp.barcode|default:"-----" }}</td>
+                          <td><span class="btn btn-info btn-xs">{% trans "vendor" %}</span></td>
+                          <td>{{thp.date_added }}</td>
                       </tr>
                     {% endfor %}
                     </tbody>
@@ -109,117 +110,115 @@
         </div><!-- /content-panel -->
      </div><!-- /col-lg-6 col-md-6 col-sm-12-->     
 
+  
 </div><!-- /row -->
 
 <div class="row mt">
-  <div class="col-lg-6 col-md-6 col-sm-12">
+
+<div class="col-lg-6 col-md-6 col-sm-12">
             <div class="content-panel">
-            <h4><i class="fa fa-angle-right"></i> {% trans "Latest 10 customers or prospects" %}</h4>
+            <h4><i class="fa fa-angle-right"></i> {% trans "Draft commercial proposals" %} (#)</h4>
                 <section id="unseen">
                 <table class="table table-bordered table-striped table-condensed">
                     <thead>
                   <tr>
-                        <th>{% trans "Third-party name" %}</th>
-                        <th>{% trans "Alias" %}</th>
-                        <th>{% trans "Barcode" %}</th>
+                        <th>{% trans "Reference" %}</th>
+                        <th>{% trans "Third-party" %}</th>
+                        <th>{% trans "Amount" %}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for thp in third_parties %}
+                    {% for prop in proposals %}
+                      {% if not prop.is_validated %}
                       <tr>
-                          <td> <a href="{{thp.get_absolute_url}}">{{thp.name}}</a></td>
-                          <td>{{thp.alias_name|default:"-----" }}</td>
-                          <td>{{thp.barcode|default:"-----" }}</td>
+                          <td> <a href="{{thp.get_absolute_url}}">{{prop.reference}}</a></td>
+                          <td>{{prop.customer.name}}</td>
+                          <td>{{prop.amount_incl_tax }}</td>
                       </tr>
+                    {% endif %}
                     {% endfor %}
+                      <tr>
+                          <td></td>
+                          <td align="right"><b>{% trans "Total" %}</b></td>
+                          <td><b>###</b></td>
+                      </tr>
                     </tbody>
                 </table>
                 </section>
         </div><!-- /content-panel -->
-     </div><!-- /col-lg-6 col-md-6 col-sm-12-->
+ </div><!-- /col-lg-6 col-md-6 col-sm-12-->
 
   <div class="col-lg-6 col-md-6 col-sm-12">
             <div class="content-panel">
-            <h4><i class="fa fa-angle-right"></i> {% trans "Latest 10 customers or prospects" %}</h4>
+            <h4><i class="fa fa-angle-right"></i> {% trans "Draft purchase orders" %} (#)</h4>
                 <section id="unseen">
                 <table class="table table-bordered table-striped table-condensed">
                     <thead>
                   <tr>
-                        <th>{% trans "Third-party name" %}</th>
-                        <th>{% trans "Alias" %}</th>
-                        <th>{% trans "Barcode" %}</th>
+                        <th>{% trans "Reference" %}</th>
+                        <th>{% trans "Third-party" %}</th>
+                        <th>{% trans "amount" %}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for thp in third_parties %}
+                    {% for po in purchase_orders %}
+                      {% if not po.is_validated %}
                       <tr>
-                          <td> <a href="{{thp.get_absolute_url}}">{{thp.name}}</a></td>
-                          <td>{{thp.alias_name|default:"-----" }}</td>
-                          <td>{{thp.barcode|default:"-----" }}</td>
+                          <td> <b><a href="{{thp.get_absolute_url}}">{{po.reference}}</b></a></td>
+                          <td>{{po.third_party.name}}</td>
+                          <td>{{po.amount_incl_tax}}</td>
                       </tr>
+                    {% endif %}
                     {% endfor %}
+                      <tr>
+                          <td></td>
+                          <td align="right"><b>{% trans "Total" %}</b></td>
+                          <td><b>###</b></td>
+                      </tr>
                     </tbody>
                 </table>
                 </section>
         </div><!-- /content-panel -->
      </div><!-- /col-lg-6 col-md-6 col-sm-12-->     
      
+
 </div><!-- /row -->
 
 <div class="row mt">
   <div class="col-lg-6 col-md-6 col-sm-12">
             <div class="content-panel">
-            <h4><i class="fa fa-angle-right"></i> {% trans "Latest 10 customers or prospects" %}</h4>
+            <h4><i class="fa fa-angle-right"></i> {% trans "Open commercial proposals" %} (#)</h4>
                 <section id="unseen">
                 <table class="table table-bordered table-striped table-condensed">
                     <thead>
                   <tr>
-                        <th>{% trans "Third-party name" %}</th>
-                        <th>{% trans "Alias" %}</th>
-                        <th>{% trans "Barcode" %}</th>
+                        <th>{% trans "Reference" %}</th>
+                        <th>{% trans "Third-party" %}</th>
+                        <th>{% trans "Amount" %}</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for thp in third_parties %}
+                    {% for prop in proposals %}
+                      {% if prop.is_validated %}
                       <tr>
-                          <td> <a href="{{thp.get_absolute_url}}">{{thp.name}}</a></td>
-                          <td>{{thp.alias_name|default:"-----" }}</td>
-                          <td>{{thp.barcode|default:"-----" }}</td>
+                          <td> <a href="{{thp.get_absolute_url}}">{{prop.reference}}</a></td>
+                          <td>{{prop.customer.name}}</td>
+                          <td>{{prop.amount_incl_tax }}</td>
                       </tr>
+                    {% endif %}
                     {% endfor %}
+                      <tr>
+                          <td></td>
+                          <td align="right"><b>{% trans "Total" %}</b></td>
+                          <td><b>###</b></td>
+                      </tr>
                     </tbody>
                 </table>
                 </section>
         </div><!-- /content-panel -->
      </div><!-- /col-lg-6 col-md-6 col-sm-12-->
 
-  <div class="col-lg-6 col-md-6 col-sm-12">
-            <div class="content-panel">
-            <h4><i class="fa fa-angle-right"></i> {% trans "Latest 10 customers or prospects" %}</h4>
-                <section id="unseen">
-                <table class="table table-bordered table-striped table-condensed">
-                    <thead>
-                  <tr>
-                        <th>{% trans "Third-party name" %}</th>
-                        <th>{% trans "Alias" %}</th>
-                        <th>{% trans "Barcode" %}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for thp in third_parties %}
-                      <tr>
-                          <td> <a href="{{thp.get_absolute_url}}">{{thp.name}}</a></td>
-                          <td>{{thp.alias_name|default:"-----" }}</td>
-                          <td>{{thp.barcode|default:"-----" }}</td>
-                      </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                </section>
-        </div><!-- /content-panel -->
-     </div><!-- /col-lg-6 col-md-6 col-sm-12-->     
      
-</div><!-- /row -->
                   
               </div><! --/row -->
           </section>

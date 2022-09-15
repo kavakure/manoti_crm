@@ -1,0 +1,75 @@
+{% extends "base_commerce.html" %}
+{% load static i18n %}
+
+{% block extra_stylesheet %}
+<link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
+{% endblock extra_stylesheet%}
+
+{% block title %}{% trans "Commercial proposals " %}{% endblock %}
+
+
+{% block main_content %}
+<section id="main-content">
+    <section class="wrapper site-min-height">
+
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9">
+              <h3><i class="fa fa-angle-right"></i> <b>{% trans "List of commercial proposals " %}({{third_parties|length}})</b></h3>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right">
+              <a href="{% url 'third_party_create' %}"  class="btn btn-success btn-sm">{% trans "Create a new Proposal" %}</a>
+            </div>
+          </div>
+      
+
+
+        <div class="row mt">
+            <div class="col-lg-12">
+                      <div class="content-panel">
+                      <!-- <h4><i class="fa fa-angle-right"></i> Most 15 recent Third Parties</h4> -->
+                          <section>
+                            <table class="table table-bordered table-striped table-condensed">
+                              <thead>
+                              <tr>
+                                  <th>{% trans "Reference" %}</th>
+                                  <th>{% trans "Ref. customer" %}</th>
+                                  <th>{% trans "Third-party" %}</th>
+                                  <th>{% trans "Date of proposal" %}</th>
+                                  <th>{% trans "End date" %}</th>
+                                  <th>{% trans "Amount" %}</th>
+                                  <th>{% trans "Author" %}</th>
+                                  <th>{% trans "Status" %}</th>
+                                  <th>{% trans "Validated" %}</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              {% for prop in proposals %}
+                              <tr>
+                                  <td><b> <a href="{{prop.get_absolute_url}}">{{prop.reference}}<b></a></td>
+                                  <td>{{prop.customer_referencee|default:"-----" }}</td>
+                                  <td><a href="{{prop.third_party.get_absolute_url}}">{{prop.third_party.name}}<b></a></td>
+                                  <td>{{prop.timestamp}}</td>
+                                  <td>{{prop.proposal_end_date }}</td>
+                                  <td>{{prop.amount_incl_tax}} Fbu</td>
+                                  <td>{{prop.author}}</td>
+                                  <td>{{prop.status}}</td>
+                                  <td>
+                                    <span class="btn {% if prop.status %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{prop.is_validated|yesno:"Validated,Not validated"}}</span>
+                                  </td>
+                              </tr>
+                              {% endfor %}
+                              </tbody>
+                          </table>
+                          </section>
+                  </div><!-- /content-panel -->
+               </div><!-- /col-lg-4 --> 
+        </div><!-- /row -->
+                  
+              </div><! --/row -->
+          </section>
+      </section>
+
+      <!--main content end-->
+
+
+{% endblock %}
