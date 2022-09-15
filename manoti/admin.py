@@ -22,6 +22,7 @@ admin.site.register(AvailabilityDelay)
 admin.site.register(ShippingMetod)
 admin.site.register(ProposalDocumentTemplate)
 admin.site.register(Proposal)
+admin.site.register(PurchaseOrder)
 
 admin.site.register(BankAccount)
 admin.site.register(VendorInvoice)
