@@ -324,9 +324,10 @@ class ProposalDocumentTemplate(models.Model):
 
 class Proposal(models.Model):
 	# 
+	author 			= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
 	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
-	customer_reference = models.CharField(_("Customer reference"), max_length=200, blank=False, null=True)
-	customer 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), blank=False, null=True, on_delete=models.CASCADE)
+	customer_reference = models.CharField(_("Customer reference"), max_length=200, blank=True, null=True)
+	third_party	  	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), blank=False, null=True, on_delete=models.CASCADE)
 	timestamp 		= models.DateField(_("Date"), blank=True, null=True, auto_now_add=True)
 	validity_duration = models.IntegerField(_("Validity duration"), blank=True, null=True, default=30, help_text=_("days"))
 	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
@@ -334,7 +335,7 @@ class Proposal(models.Model):
 	source 	  		= models.ForeignKey(Source, verbose_name=_("Source"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	availability_delay = models.ForeignKey(AvailabilityDelay, verbose_name=_("Availability delay (after order)"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	shipping_metod	= models.ForeignKey(ShippingMetod, verbose_name=_("Shipping Method"), blank=True, null=True, on_delete=models.CASCADE)
-	delivery_date	= models.DateField(_("Delivery date"), blank=True)
+	delivery_date	= models.DateField(_("Delivery date"), blank=True, null=True)
 	document_template = models.ForeignKey(ProposalDocumentTemplate, verbose_name=_("Default doc template"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	note_private    = models.TextField(_("Private note"), blank=True, null=True)
 	note_public     = models.TextField(_("Public Note"), blank=True, null=True)
@@ -343,10 +344,16 @@ class Proposal(models.Model):
 	tax = models.IntegerField(_("Amount tax"), blank=False, null=False, default=0)
 	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"), blank=False, null=False, default=0)
 	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, blank=False, null=False, help_text=_("Are you sure you want to validate this commercial proposal under name PR########?"))
-	status = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, on_delete=models.CASCADE)
+	status = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, blank=True, on_delete=models.CASCADE)
 
 	def __str__(self):
 		return self.reference
+
+	def get_absolute_url(self):
+		return reverse('proposal_view', kwargs={'proposal_id': self.id})
+
+	def proposal_end_date(self):
+		return "#to-do..."
 
 	class Meta:
 		verbose_name = _("Commercial proposal")
@@ -395,6 +402,34 @@ class ProposalLine(models.Model):
 	def __str__(self):
 		return self.description
 
+class PurchaseOrder(models.Model):
+	# 
+	author 			= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
+	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
+	third_party 	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), blank=False, null=True, on_delete=models.CASCADE)
+	is_vendor		= models.BooleanField(_("is Vendor ?"), default=False, help_text=_("Determines if either it is an incomming or outgoing purchase order, will be used whrn creating an invoice."))
+	timestamp 		= models.DateField(_("Date"), blank=True, null=True, auto_now_add=True)
+	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	payment_type 	= models.ForeignKey(PaymentType, verbose_name=_("Payment method"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	delivery_date	= models.DateField(_("Delivery date"), blank=True, null=True)
+	document_template = models.ForeignKey(ProposalDocumentTemplate, verbose_name=_("Default doc template"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	note_private    = models.TextField(_("Private note"), blank=True, null=True)
+	note_public     = models.TextField(_("Public Note"), blank=True, null=True)
+	#The money figures
+	amount_excl_tax = models.IntegerField(_("Amount (excl. tax)"), blank=False, null=False, default=0)
+	tax = models.IntegerField(_("Amount tax"), blank=False, null=False, default=0)
+	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"), blank=False, null=False, default=0)
+	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, blank=False, null=False, help_text=_("Are you sure you want to validate this commercial proposal under name PR########?"))
+	status = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, blank=True, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return self.reference
+
+	class Meta:
+		verbose_name = _("Purchase order")
+		verbose_name_plural = _("Purchase orders")
+		ordering = ('timestamp',)
+
 # ========================================================================
 #Bank Accounts models
 BANK_ACCOUNT_TYPE_CHOICES = (
@@ -414,10 +449,11 @@ class BankAccount(models.Model):
 	state_province  = models.CharField(_("State/Province"), max_length=200, blank=True, default ="Bujumbura", help_text=_("Indicate the State or Province where the bank/financial instituion is located and/or registered"))
 	website         = models.URLField(_("Web"), blank=True, max_length=900, help_text=_("The website of the bank/financial instituion"))
 	comment		    = models.TextField(_("Comment"), blank=True, null=True)
-	initial_balance = models.IntegerField(_("Initial balance"))
+	balance 		= models.IntegerField(_("Balance"), blank=False, null=False, default=0)
+	initial_balance = models.IntegerField(_("Initial balance"), blank=False, null=False, default=0)
 	timestamp 		= models.DateField(_("Date"), blank=True)
-	minimum_allowed_balance = models.IntegerField(_("Minimum allowed balance"))
-	minimum_desired_balance = models.IntegerField(_("Minimum desired balance"))
+	minimum_allowed_balance = models.IntegerField(_("Minimum allowed balance"), blank=True, null=True, default=0)
+	minimum_desired_balance = models.IntegerField(_("Minimum desired balance"), blank=True, null=True, default=0)
 	name            = models.CharField(_("Bank name"), max_length=200, blank=True, null=True)
 	account_number  = models.CharField(_("Account number"), max_length=200, blank=True, null=True)
 	iban_number     = models.CharField(_("IBAN account number"), max_length=200, blank=True, null=True)
