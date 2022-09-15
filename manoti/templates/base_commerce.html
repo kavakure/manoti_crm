@@ -80,7 +80,7 @@
                         </li>
                         <li class="dropdown">
                             <a href="#">
-                                <span style='font-size:20px; text-align: center;'>&#128176;</span>
+                                <span style='font-size:20px; text-align: center;'>&#128179;</span>
                             </a>
                         </li>
 
@@ -115,17 +115,75 @@
                     
                   {% block sidebar_links %}
 
-                    <li><a  href="#"><b>{% trans "Commercial proposals" %}</b></a></li>
+                    <li><a  href="{% url 'commerce_homepage' %}"><b>{% trans "Commercial proposals" %}</b></a></li>
                     <li><a  href="#">{% trans "New proposal" %}</a></li>
-                    <li><a  href="#">{% trans "List" %}</a></li>
-                    <li><a  href="#">{% trans "List of prospects" %}</a></li>
-                    <li><a  href="#">{% trans "List of customers" %}</a></li>
-                    <li><a  href="#">{% trans "List of vendors" %}</a></li>
+                    <li class="sub-menu dcjq-parent-li">
+                        <a href="javascript:;" class="dcjq-parent">
+                            <span>{% trans "List" %}</span>
+                        <span class="dcjq-icon"></span></a>
+                        <ul class="sub" style="display: none; overflow: hidden;">
+                            <li><a href="{% url 'proposal_list' %}">{% trans "Full list" %}</a></li>
+                            <li><a href="#">{% trans "Drafts" %}</a></li>
+                            <li><a href="#">{% trans "Open" %}</a></li>
+                            <li><a href="#">{% trans "Signed (needs billing)" %}</a></li>
+                            <li><a href="#">{% trans "Not signed (closed)" %}</a></li>
+                            <li><a href="#">{% trans "Billed" %}</a></li>
+                        </ul>
+                    </li>
+
+
+
+                    <li><a  href="#">{% trans "Statistics" %}</a></li>
                     <hr>
-                    <li><a  href="#">{% trans "New contact/address" %}</a></li>
-                    <li><a  href="#">{% trans "List" %}</a></li>
-                    <li><a  href="#">{% trans "Prospects" %}</a></li>
-                    <li><a  href="#">{% trans "Customers" %}</a></li>
+                    <li><a  href="#">{% trans "Purchase orders" %}</a></li>
+                    <li><a  href="#">{% trans "New order" %}</a></li>
+                    <li class="sub-menu dcjq-parent-li">
+                        <a href="javascript:;" class="dcjq-parent">
+                            <span>{% trans "List" %}</span>
+                        <span class="dcjq-icon"></span></a>
+                        <ul class="sub" style="display: none; overflow: hidden;">
+                            <li><a href="#">{% trans "Full list" %}</a></li>
+                            <li><a href="#">{% trans "Draft" %}</a></li>
+                            <li><a href="#">{% trans "Validated" %}</a></li>
+                            <li><a href="#">{% trans "Approved" %}</a></li>
+                            <li><a href="#">{% trans "Ordered" %}</a></li>
+                            <li><a href="#">{% trans "Partially received" %}</a></li>
+                            <li><a href="#">{% trans "All Products Received" %}</a></li>
+                            <li><a href="#">{% trans "Canceled" %}</a></li>
+                            <li><a href="#">{% trans "Refused" %}</a></li>
+                        </ul>
+                    </li>
+                    <li><a  href="#">{% trans "Statistics" %}</a></li>
+                    <hr>
+                    <li><a  href="#">{% trans "Contracts" %}</a></li>
+                    <li><a  href="#">{% trans "New contract" %}</a></li>
+                    <li class="sub-menu dcjq-parent-li">
+                        <a href="javascript:;" class="dcjq-parent">
+                            <span>{% trans "List" %}</span>
+                        <span class="dcjq-icon"></span></a>
+                        <ul class="sub" style="display: none; overflow: hidden;">
+                         <li><a href="#">{% trans "Full list" %}</a></li>
+                            <li><a href="#">{% trans "Running services" %}</a></li>
+                            <li><a href="#">{% trans "Services not active" %}</a></li>
+                            <li><a href="#">{% trans "Expired serivces " %}</a></li>
+                            <li><a href="#">{% trans "Closed services " %}</a></li>
+                        </ul>
+                    </li>
+                    <hr>
+                    <li><a  href="#">{% trans "Subscriptions" %}</a></li>
+                    <li><a  href="#">{% trans "New subscription" %}</a></li>
+                    <li class="sub-menu dcjq-parent-li">
+                        <a href="javascript:;" class="dcjq-parent">
+                            <span>{% trans "List" %}</span>
+                        <span class="dcjq-icon"></span></a>
+                        <ul class="sub" style="display: none; overflow: hidden;">
+                            <li><a href="#">{% trans "Full list" %}</a></li>
+                            <li><a href="#">{% trans "Running subscription" %}</a></li>
+                            <li><a href="#">{% trans "Subscription not active" %}</a></li>
+                            <li><a href="#">{% trans "Expired subscription " %}</a></li>
+                            <li><a href="#">{% trans "Closed subscription " %}</a></li>
+                        </ul>
+                    </li>
                     <hr>
                     {% endblock %}
 
