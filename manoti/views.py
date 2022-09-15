@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.forms.models import model_to_dict
 
 
-from .models import ThirdParty, Contact, Proposal
+from .models import ThirdParty, Contact, Proposal, PurchaseOrder
 from .forms import ThirdPartyForm, ContactForm
 
 def dahshboard(request):
@@ -289,8 +289,45 @@ contact_edit = login_required(contact_edit)
 
 def commerce_homepage(request):
 	"""
-	THis is the homepage for the commerce area,
+	This is the homepage for the commerce area,
 	it will list the most recent commercials proposals, contracts and.or subscriptions
 	"""
 	proposals = Proposal.objects.all().order_by('-timestamp')[:15]
-	return render(request, "commerce_home.html", {"proposals": proposals})
+	customers_prospects = ThirdParty.objects.filter(is_vendor=False).order_by('-date_added')[:15]
+	vendors = ThirdParty.objects.filter(is_vendor=True).order_by('-date_added')[:10]
+	purchase_orders = PurchaseOrder.objects.all().order_by('-timestamp')[:10]
+
+	ctx = {
+		'proposals':proposals,
+		'vendors':vendors,
+		'purchase_orders':purchase_orders,
+		'customers_prospects': customers_prospects
+	}
+	return render(request, "commerce_home.html", ctx)
+
+
+def proposal_list(request):
+	"""
+	List all the commerical proposals of a given business
+	"""
+	proposals = Proposal.objects.all().order_by('-timestamp')
+	return render(request, "proposal_list.html", {"proposals": proposals})
+
+def proposal_view(request, proposal_id=None):
+	"""
+	View a commercial proposal by it's ID
+	 """
+	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
+
+	proposal = get_object_or_404(Proposal, id=proposal_id)
+
+	if errors:
+		error_message = errors[0]
+	else:
+		error_message = None
+
+	ctx = {
+		'proposal': proposal,
+		'error_message' : error_message,
+	}
+	return render(request, "proposal_view.html", ctx)
