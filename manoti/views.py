@@ -320,7 +320,7 @@ def proposal_view(request, proposal_id=None):
 	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
 
 	proposal = get_object_or_404(Proposal, id=proposal_id)
-	line_form 	  = ProposalLineForm()
+	line_form= ProposalLineForm()
 
 	if errors:
 		error_message = errors[0]
@@ -349,7 +349,7 @@ def proposal_create(request):
 			if next_url:
 				return http.HttpResponseRedirect(reverse('next_url'))
 			else:
-				return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': thirdparty.proposal}))
+				return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
 
 	else:
 		proposal_form = ProposalForm()
@@ -362,9 +362,9 @@ def proposal_edit(request, proposal_id=None):
 
 	if proposal_id:
 		editing = True
-		thirdparty = get_object_or_404(ThirdParty, id=thirdparty_id)
+		proposal = get_object_or_404(Proposal, id=thirdparty_id)
 	else:
-		return http.HttpResponseRedirect(reverse('third_party_list'))
+		return http.HttpResponseRedirect(reverse('proposal_list'))
 
 	initial_data = {}
 	next_url = request.GET.get('next',None)
@@ -389,3 +389,74 @@ def proposal_edit(request, proposal_id=None):
 
 	return render(request, 'proposal_form.html', ctx)
 proposal_edit = login_required(proposal_edit)
+
+def proposal_delete(request, proposal_id=None):
+	"""Deletes a commrercial proposal from the database"""
+
+	if request.method == 'POST':
+		try:
+			proposal = Proposal.objects.get(id=proposal_id)
+			proposal.delete()
+			messages.success(request,  _('Succcessfully deleted the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print(e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+	else:
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+proposal_delete = login_required(proposal_delete)
+
+def proposal_toggle_validation(request, proposal_id=None):
+	"""Deletes a commrercial proposal from the database"""
+
+	if request.method == 'POST':
+		try:
+			proposal = Proposal.objects.get(id=proposal_id)
+			if proposal.is_validated:
+				proposal.is_validated = False
+			else:
+				proposal.is_validated = True
+			proposal.save()
+			messages.success(request,  _('Succcessfully edited the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print(e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+proposal_toggle_validation = login_required(proposal_toggle_validation)
+
+
+def proposal_line_add(request, proposal_id=None):
+	"""This view is used to add a item line to a commercial proposal"""
+	proposal = None
+	try:
+		proposal = Proposal.objects.get(id=proposal_id)
+	except Exception as e:
+		print(e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+
+	if proposal != None:
+		if request.method == 'POST':
+			proposal_line_form = ProposalLineForm(request.POST)
+			if proposal_line_form.is_valid():
+				line = proposal_form.save(commit=False)
+				line.proposal = proposal
+				line.total_tax_excl = line.unit_price * line.quantity
+
+				line.save() # Now you can send it to DB
+
+				proposal.amount_excl_tax +=  line.total_tax_excl
+				if proposal.third_party.business.sales_tax_is_used:
+					proposal.tax = proposal.amount_excl_tax * 18 /100
+				else:
+					proposal.tax = 0
+				proposal.amount_excl_tax =  proposal.amount_excl_tax + proposal.tax
+				proposal.save()
+
+				messages.success(request, _('Succcessfully added a line to the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
+			else:
+				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
+
+
+	return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
+
+proposal_line_add = login_required(proposal_line_add)
