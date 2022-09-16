@@ -396,8 +396,10 @@ class ProposalLine(models.Model):
 	description     = models.TextField(_("Description"), blank=False, null=False)
 	sales_tax 		= models.IntegerField(_("Sales tax"), blank=False)
 	quantity 		= models.IntegerField(_("Qty"), blank=False, default=1)
-	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"))
-	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"))
+	unit_price  	= models.IntegerField(_("Unit price"), blank=False, default=0)
+	discount	  	= models.IntegerField(_("Discount"), blank=False, default=0)
+	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"), blank=False, default=0)
+	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"), blank=False, default=0)
 
 	def __str__(self):
 		return self.description
