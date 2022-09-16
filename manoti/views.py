@@ -11,7 +11,7 @@ from django.forms.models import model_to_dict
 
 
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine
-from .forms import ThirdPartyForm, ContactForm, ProposalForm
+from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm
 
 def dahshboard(request):
 	return render(request, "dashboard.html")
@@ -320,7 +320,7 @@ def proposal_view(request, proposal_id=None):
 	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
 
 	proposal = get_object_or_404(Proposal, id=proposal_id)
-	lines = ProposalLine.objects.filter(proposal=proposal).order_by('-id')
+	line_form 	  = ProposalLineForm()
 
 	if errors:
 		error_message = errors[0]
@@ -329,7 +329,7 @@ def proposal_view(request, proposal_id=None):
 
 	ctx = {
 		'proposal': proposal,
-		'lines': lines,
+		'line_form': line_form,
 		'error_message' : error_message,
 	}
 	return render(request, "proposal_view.html", ctx)
