@@ -8,7 +8,7 @@ from .utils import generate_third_party_codes
 from django.contrib.admin.widgets import AdminDateWidget
 
 from django.contrib.auth.models import User
-from .models import ThirdParty, Contact
+from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine
 
 
 class ThirdPartyForm(forms.ModelForm):
@@ -29,4 +29,19 @@ class ContactForm(forms.ModelForm):
 		model = Contact
 		exclude = [
 			'date_added'
+		]
+
+
+class ProposalForm(forms.ModelForm):
+	"""Form used to create or edit a commercial proposal"""
+	class Meta:
+		model = Proposal
+		exclude = [
+			'shipping_metod',
+			'amount_excl_tax',
+			'tax',
+			'amount_incl_tax',
+			'is_validated',
+			'status',
+			
 		]
