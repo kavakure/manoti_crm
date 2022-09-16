@@ -116,7 +116,7 @@
                   {% block sidebar_links %}
 
                     <li><a  href="{% url 'commerce_homepage' %}"><b>{% trans "Commercial proposals" %}</b></a></li>
-                    <li><a  href="#">{% trans "New proposal" %}</a></li>
+                    <li><a  href="{% url 'proposal_create' %}">{% trans "New proposal" %}</a></li>
                     <li class="sub-menu dcjq-parent-li">
                         <a href="javascript:;" class="dcjq-parent">
                             <span>{% trans "List" %}</span>

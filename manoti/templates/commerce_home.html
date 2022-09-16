@@ -131,8 +131,8 @@
                     {% for prop in proposals %}
                       {% if not prop.is_validated %}
                       <tr>
-                          <td> <a href="{{thp.get_absolute_url}}">{{prop.reference}}</a></td>
-                          <td>{{prop.customer.name}}</td>
+                          <td> <a href="{{prop.get_absolute_url}}">{{prop.reference}}</a></td>
+                          <td>{{prop.third_party.name}}</td>
                           <td>{{prop.amount_incl_tax }}</td>
                       </tr>
                     {% endif %}
@@ -164,7 +164,7 @@
                     {% for po in purchase_orders %}
                       {% if not po.is_validated %}
                       <tr>
-                          <td> <b><a href="{{thp.get_absolute_url}}">{{po.reference}}</b></a></td>
+                          <td> <b><a href="{{po.get_absolute_url}}">{{po.reference}}</b></a></td>
                           <td>{{po.third_party.name}}</td>
                           <td>{{po.amount_incl_tax}}</td>
                       </tr>
@@ -201,8 +201,8 @@
                     {% for prop in proposals %}
                       {% if prop.is_validated %}
                       <tr>
-                          <td> <a href="{{thp.get_absolute_url}}">{{prop.reference}}</a></td>
-                          <td>{{prop.customer.name}}</td>
+                          <td> <a href="{{prop.get_absolute_url}}">{{prop.reference}}</a></td>
+                          <td>{{prop.third_party.name}}</td>
                           <td>{{prop.amount_incl_tax }}</td>
                       </tr>
                     {% endif %}

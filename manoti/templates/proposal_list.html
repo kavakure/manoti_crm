@@ -14,10 +14,10 @@
 
           <div class="row mt">
             <div class="col-lg-9 col-md-9 col-sm-9">
-              <h3><i class="fa fa-angle-right"></i> <b>{% trans "List of commercial proposals " %}({{third_parties|length}})</b></h3>
+              <h3><i class="fa fa-angle-right"></i> <b>{% trans "List of commercial proposals " %}({{proposals|length}})</b></h3>
             </div>
             <div class="col-lg-3 col-md-3 col-sm-3" align="right">
-              <a href="{% url 'third_party_create' %}"  class="btn btn-success btn-sm">{% trans "Create a new Proposal" %}</a>
+              <a href="{% url 'proposal_create' %}"  class="btn btn-success btn-sm">{% trans "Create a new Proposal" %}</a>
             </div>
           </div>
       
@@ -46,7 +46,7 @@
                               {% for prop in proposals %}
                               <tr>
                                   <td><b> <a href="{{prop.get_absolute_url}}">{{prop.reference}}<b></a></td>
-                                  <td>{{prop.customer_referencee|default:"-----" }}</td>
+                                  <td>{{prop.customer_reference|default:"-----" }}</td>
                                   <td><a href="{{prop.third_party.get_absolute_url}}">{{prop.third_party.name}}<b></a></td>
                                   <td>{{prop.timestamp}}</td>
                                   <td>{{prop.proposal_end_date }}</td>

@@ -1,6 +1,6 @@
-{% extends "base_third_party.html" %} {% load static i18n %}
+{% extends "base_commerce.html" %} {% load static i18n widget_tweaks %}
 
-{% block title %}{{thirdparty.name}}{% endblock %}
+{% block title %}{% trans "Commercial Proposal" %} - {{proposal.reference}} {% endblock %}
 
 {% block extra_stylesheet %}
 <link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
@@ -54,7 +54,7 @@
 
       <div class="content-panel" style="margin-top: 5px;">
 
-          <h3><i class="fa fa-angle-right"></i> <b>{{thirdparty.name}}</b></h3> 
+          <h3><i class="fa fa-angle-right"></i> <b>{{proposal.reference}}</b></h3> 
 
             <div class="row mt">
                 <div class="col-lg-12 col-md-12 col-sm-12">
@@ -63,13 +63,10 @@
                       <table class="table table-condensed">
                         <tbody>
                           <tr>
-                            <td><i class="fa fa-angle-right"></i> {{thirdparty.address}}</td>
+                            <td><i class="fa fa-angle-right"></i> {% trans "Ref. customer" %}: {{proposal.customer_reference|default:"-----"}}</td>
                           </tr>
                           <tr>
-                            <td><i class="fa fa-angle-right"></i> {{thirdparty.website}}</td>
-                          </tr>
-                          <tr>
-                            <td><i class="fa fa-angle-right"></i> {{thirdparty.phone}}</td>
+                            <td><i class="fa fa-angle-right"></i> {% trans "Third-party" %}: {{proposal.third_party.name}}</td>
                           </tr>
                         </tbody>
                       </table>
@@ -90,49 +87,41 @@
 
         <div id="commercial_proposal" class="tabcontent" style="display: block;">
 
-            <div class="row mt content-panel" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+            <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
                 <div class="col-lg-6 col-md-6 col-sm-12">
                     <table class="table">
                       <tbody>
                         <tr>
-                          <td>{% trans "Nature of Third party" %}</td>
-                          <td> {{thirdparty.prospect_customer}}</td>
+                          <td>{% trans "Discounts" %}</td>
+                          <td> {{proposal.prospect_customer}}</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Customer Code" %}</td>
-                          <td>{{thirdparty.customer_code}}</td>
+                          <td>{% trans "Date of proposal" %}</td>
+                          <td>{{proposal.customer_code}}</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Barcode" %}</td>
-                          <td>{{thirdparty.barcode}}</td>
+                          <td>{% trans "Validity ending date" %}</td>
+                          <td>{{proposal.barcode}}</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Professional ID 1" %}</td>
-                          <td>{{thirdparty.professional_id_1}}</td>
+                          <td>{% trans "Payment terms" %}</td>
+                          <td>{{proposal.professional_id_1}}</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Professional ID 2" %}</td>
-                          <td>{{thirdparty.professional_id_2}}</td>
+                          <td>{% trans "Payment type" %}</td>
+                          <td>{{proposal.professional_id_2}}</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Professional ID 3" %}</td>
-                          <td>{{thirdparty.professional_id_3}}</td>
+                          <td>{% trans "Delivery date" %}</td>
+                          <td>{{proposal.professional_id_3}}</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Professional ID 4" %}</td>
-                          <td>{{thirdparty.professional_id_4}}</td>
+                          <td>{% trans "Availability delay" %}</td>
+                          <td>{{proposal.professional_id_4}}</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Professional ID 5" %}</td>
-                          <td>{{thirdparty.professional_id_5}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Professional ID 6" %}</td>
-                          <td>{{thirdparty.professional_id_6}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "VAT ID" %}</td>
-                          <td>{{thirdparty.vat_id}}</td>
+                          <td>{% trans "Source" %}</td>
+                          <td>{{proposal.professional_id_5}}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -142,37 +131,116 @@
                     <table class="table">
                       <tbody>
                         <tr>
-                          <td>{% trans "Third-party type" %}</td>
-                          <td>#To-do</td>
+                          <td>{% trans "Amount (excl. tax)" %}</td>
+                          <td>{{proposal.amount_excl_tax}} Fbu</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Workforce" %}</td>
-                          <td>{{thirdparty.workforce}}</td>
+                          <td>{% trans "Amount tax" %}</td>
+                          <td>{{proposal.tax}} Fbu</td>
                         </tr>
                         <tr>
-                          <td>{% trans "Business entity type" %}</td>
-                          <td>#To-do</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Capital" %}</td>
-                          <td>{{thirdparty.capital}}</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Parent company" %}</td>
-                          <td>#To-do</td>
-                        </tr>
-                        <tr>
-                          <td>{% trans "Sales representatives" %}</td>
-                          <td>#To-do</td>
+                          <td>{% trans "Amount (inc. tax)" %}</td>
+                          <td>{{proposal.amount_incl_tax}} Fbu</td>
                         </tr>
                       </tbody>
                     </table>
                 </div> 
 
+            </div>
+
+            <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+              <div class="col-lg-12 col-md-12 col-sm-12">
+                  <table class="table table-bordered table-striped table-condensed">
+                      <thead>
+                      <tr>
+                          <th>{% trans "Type" %}</th>
+                          <th>{% trans "Description" %}</th>
+                          <th>{% trans "Sales tax" %}</th>
+                          <th>{% trans "U.P. (net)" %}</th>
+                          <th>{% trans "Qty" %}</th>
+                          <th>{% trans "Disc." %}</th>
+                          <th>{% trans "Total (excl.)" %}</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      {% for line in proposal.proposalline_set.all %} 
+                      <tr>
+                          <td>{{line.line_type}}</td>
+                          <td>{{line.description}}</td>
+                          <td>{{line.sales_tax}}</td>
+                          <td>{{line.quantity }}</td>
+                          <td>{{line.unit_price}} Fbu</td>
+                          <td>{{line.discount}}</td>
+                          <td>{{line.total_tax_excl}}</td>
+                      </tr>
+                      {% endfor %}
+                      </tbody>
+                  </table>
+                      {% if not proposal.is_validated %}
+                <div style="margin-bottom: 10px;"><!-- /form-panel -->
+                  <form class="form-inline" role="form">
+                      <div class="form-group">
+                          <input type="email" class="form-control" id="exampleInputEmail2" placeholder="Enter email">
+                      </div>
+                      <div class="form-group">
+                          <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password">
+                      </div>
+                      <button type="submit" class="btn btn-theme">Sign in</button>
+                  </form>
+                </div><!-- /form-panel -->
+
+
+
+                              <form enctype="multipart/form-data" action="" class="form-inline" method="post" id="thirdparty_form" role="form">
+                                {% csrf_token %}
+                                  {{ line_form.non_field_errors }}
+
+                                {% if line_form.errors %}
+                                <p class="alert alert-danger"><b>{% trans "Please correct the following error:" %}</b> </p> 
+                                {% endif %}
+
+                                {% for hidden in line_form.hidden_fields %}
+                                  {{ hidden }}
+                                {% endfor %}
+
+                                {% for field in line_form.visible_fields %}
+                                  <div class="form-group">
+                                      {% render_field field class="form-control" size="4" %}
+                                      
+                                      {% if field.errors %}
+                                        {% for error in field.errors %}
+                                          <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ field.errors|join:", " }}</span><br>
+                                        {% endfor %}
+                                      {% else %}
+                                      {% endif %}
+
+                                    
+
+                                  </div>
+                                {% endfor %}
+
+                                <div class="btn-group btn-group-justified">
+                                  <div class="btn-group">
+                                    <a href="javascript:void(0);" onclick="editBasicInfoFunction()" class="btn btn-default btn-block">&#8678; {% trans "Cancel" %}</a>
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="submit" class="btn btn-success btn-block" ><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% if editing %}{% trans "Modify" %}{% else %}{% trans "Create proposal" %}{% endif %}</button>
+                                  </div>
+                                </div>
+                              </form>
+
+
+                      {% endif %}
+              </div>
+
                 <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 15px;">
                   <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
-                  <button type="button" class="btn btn-success">{% trans "Send Email" %}</button>
-                  <a href="#"  class="btn btn-success">{% trans "Modify" %}</a>
+                  <a href="#"  class="btn btn-success">{% trans "Re-open" %}</a>
+                  <a href="#"  class="btn btn-success">{% trans "Send mail" %}</a>
+                  <a href="#"  class="btn btn-success">{% trans "Create Contact" %}</a>
+                  <a href="#"  class="btn btn-success">{% trans "Create invoice" %}</a>
+                  <a href="#"  class="btn btn-success">{% trans "Classify billed" %}</a>
+                  <a href="#"  class="btn btn-success">{% trans "Clone" %}</a>
                 </div>
             </div>
 
@@ -192,7 +260,7 @@
 
               <div class="col-lg-6 col-md-6 col-sm-12">
                     <div class="content-panel">
-                      <h4><b><i class="fa fa-angle-right"></i> </b></h4>
+                      <h4><b><i class="fa fa-angle-right"></i> {% trans "Events on proposal" %}</b></h4>
                       <table class="table">
                         <tbody>
                           <tr>
@@ -209,7 +277,7 @@
         <div id="contact_addresses" class="tabcontent">
           <div class="row mt">
             <div class="col-lg-9 col-md-9 col-sm-9">
-              <h4><i class="fa fa-angle-right"></i> {% trans "Contacts/addresses for" %} {{thirdparty.name}}</h4>
+              <h4><i class="fa fa-angle-right"></i> {% trans "Contacts/addresses for" %} {{proposal.name}}</h4>
             </div>
             <div class="col-lg-3 col-md-3 col-sm-3" align="right">
               <a href="#"  class="btn btn-success btn-sm">{% trans "Add a new contact" %}</a>
@@ -227,7 +295,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for contact in thirdparty.contact_set.all %}
+                {% for contact in proposal.contact_set.all %}
                 <tr>
                     <td> <a href="#">{{contact.first_name}} {{contact.last_name}}</a></td>
                     <td>{{contact.job_title|default:"-----"|truncatechars:30 }}</td>
@@ -277,12 +345,12 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">{% trans 'Delete' %} {{thirdparty.name|truncatechars:32}} ? </h4>
+                    <h4 class="modal-title">{% trans 'Delete' %} {{proposal.reference}} ? </h4>
                   </div>
                   <div class="modal-body">
                     <div class = "alert alert-danger" style="padding-top: 10px;">
                               <form method="post" action="#">{% csrf_token %}
-                              {% trans "Are you sure you wish to delete" %} {{thirdparty.name|truncatechars:32}} {% trans "and all the information assoicated with it" %}?
+                              {% trans "Are you sure you wish to delete" %} <b>{{proposal.reference}}</b> {% trans "and all the information assoicated with it" %}?
                               <br> <b>{% trans "N.B: This action can not be undone!" %}</b>
                     </div>
                   </div>
