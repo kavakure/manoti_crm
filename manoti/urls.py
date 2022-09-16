@@ -23,4 +23,6 @@ urlpatterns = [
 	url(r'^commerce/$', views.commerce_homepage, name='commerce_homepage'),
 	url(r'^proposal-list/$', views.proposal_list, name='proposal_list'),
 	url(r'^proposal-view/(?P<proposal_id>[-\w]+)/$', views.proposal_view, name='proposal_view'),
+	url(r'^proposal-create/$', views.proposal_create, name='proposal_create'),
+	url(r'^proposal-edit/(?P<proposal_id>[-\w]+)/$', views.proposal_edit, name='proposal_edit'),
 ]
