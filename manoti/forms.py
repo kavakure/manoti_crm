@@ -31,7 +31,6 @@ class ContactForm(forms.ModelForm):
 			'date_added'
 		]
 
-
 class ProposalForm(forms.ModelForm):
 	"""Form used to create or edit a commercial proposal"""
 	class Meta:
@@ -43,5 +42,21 @@ class ProposalForm(forms.ModelForm):
 			'amount_incl_tax',
 			'is_validated',
 			'status',
+
+		]
+
+class ProposalLineForm(forms.ModelForm):
+	"""Form used to create or edit a commercial proposal"""
+	class Meta:
+		model = ProposalLine
+		exclude = [
+			'proposal',
+			'description',
+			'sales_tax',
+			'quantity',
+			'unit_price',
+			'discount',
+			'total_tax_excl',
+			'total_tax_incl',
 			
 		]
