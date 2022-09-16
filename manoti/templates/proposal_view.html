@@ -54,11 +54,17 @@
 
       <div class="content-panel" style="margin-top: 5px;">
 
-          <h3><i class="fa fa-angle-right"></i> <b>{{proposal.reference}}</b></h3> 
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9">
+              <h3><i class="fa fa-angle-right"></i> <b>{{proposal.reference}}</b></h3> 
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
+              <p style="font-size: 18px;"><a href="{% url 'proposal_list' %}"><b>Back to list</b></a> </p>
+            </div>
+          </div>
 
             <div class="row mt">
-                <div class="col-lg-12 col-md-12 col-sm-12">
-                  <div class="content-panel">
+                <div class="col-lg-9 col-md-9 col-sm-9">
                     <section >
                       <table class="table table-condensed">
                         <tbody>
@@ -71,8 +77,14 @@
                         </tbody>
                       </table>
                     </section>
-                  </div>
-               </div>  
+               </div> 
+               <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
+                {% if proposal.is_validated %}
+                <p class="btn btn-success btn-block" style="font-size: 18px;"><b>{% trans 'Validated' %}</b></p>
+                {% else %}
+                <p class="btn btn-default btn-block" style="font-size: 14px;"><b>{% trans 'Draft (needs validation)' %}</b></p>
+                {% endif %}
+               </div> 
             </div>
       </div>
         
@@ -167,86 +179,102 @@
                       <tr>
                           <td>{{line.line_type}}</td>
                           <td>{{line.description}}</td>
-                          <td>{{line.sales_tax}}</td>
-                          <td>{{line.quantity }}</td>
-                          <td>{{line.unit_price}} Fbu</td>
-                          <td>{{line.discount}}</td>
-                          <td>{{line.total_tax_excl}}</td>
+                          <td align="right">{{line.sales_tax}} Fbu</td>
+                          <td align="right">{{line.quantity }}</td>
+                          <td align="right">{{line.unit_price}} Fbu</td>
+                          <td align="right">{{line.discount}}  Fbu</td>
+                          <td align="right">{{line.total_tax_excl}} Fbu</td>
                       </tr>
                       {% endfor %}
+
+                      {% if not proposal.is_validated %}
+                      <form enctype="multipart/form-data" action="{% url 'proposal_line_add' proposal.id %}" class="form-inline" method="post" id="proposal_line_form" role="form">
+                        {% csrf_token %}
+                        {{ line_form.non_field_errors }}
+
+                        {% for hidden in line_form.hidden_fields %}
+                          {{ hidden }}
+                        {% endfor %}
+                      <tr>
+                        <td align="left"> 
+                          {% render_field line_form.line_type class="form-control" %}
+                          {% if line_form.line_type.errors %}
+                            {% for error in line_form.line_type.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.line_type.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.description class="form-control" %}
+                          {% if line_form.description.errors %}
+                            {% for error in line_form.description.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.description.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.sales_tax class="form-control" %}
+                          {% if line_form.sales_tax.errors %}
+                            {% for error in line_form.sales_tax.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.sales_tax.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.unit_price class="form-control" %}
+                          {% if line_form.unit_price.errors %}
+                            {% for error in line_form.unit_price.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.unit_price.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.quantity class="form-control" %}
+                          {% if line_form.quantity.errors %}
+                            {% for error in line_form.quantity.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.quantity.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.discount class="form-control" %}
+                          {% if line_form.discount.errors %}
+                            {% for error in line_form.discount.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.discount.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="right"> 
+                         <button type="submit" class="btn btn-success" ><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% if editing %}{% trans "Modify" %}{% else %}{% trans "Add" %}{% endif %}</button>
+                         </form> 
+                        </td>
+                      </tr>
+                      {% endif %}
                       </tbody>
                   </table>
-                      {% if not proposal.is_validated %}
-                <div style="margin-bottom: 10px;"><!-- /form-panel -->
-                  <form class="form-inline" role="form">
-                      <div class="form-group">
-                          <input type="email" class="form-control" id="exampleInputEmail2" placeholder="Enter email">
-                      </div>
-                      <div class="form-group">
-                          <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password">
-                      </div>
-                      <button type="submit" class="btn btn-theme">Sign in</button>
-                  </form>
-                </div><!-- /form-panel -->
 
 
 
-                              <form enctype="multipart/form-data" action="" class="form-inline" method="post" id="thirdparty_form" role="form">
-                                {% csrf_token %}
-                                  {{ line_form.non_field_errors }}
-
-                                {% if line_form.errors %}
-                                <p class="alert alert-danger"><b>{% trans "Please correct the following error:" %}</b> </p> 
-                                {% endif %}
-
-                                {% for hidden in line_form.hidden_fields %}
-                                  {{ hidden }}
-                                {% endfor %}
-
-                                {% for field in line_form.visible_fields %}
-                                  <div class="form-group">
-                                      {% render_field field class="form-control" size="4" %}
-                                      
-                                      {% if field.errors %}
-                                        {% for error in field.errors %}
-                                          <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ field.errors|join:", " }}</span><br>
-                                        {% endfor %}
-                                      {% else %}
-                                      {% endif %}
-
-                                    
-
-                                  </div>
-                                {% endfor %}
-
-                                <div class="btn-group btn-group-justified">
-                                  <div class="btn-group">
-                                    <a href="javascript:void(0);" onclick="editBasicInfoFunction()" class="btn btn-default btn-block">&#8678; {% trans "Cancel" %}</a>
-                                  </div>
-                                  <div class="btn-group">
-                                    <button type="submit" class="btn btn-success btn-block" ><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% if editing %}{% trans "Modify" %}{% else %}{% trans "Create proposal" %}{% endif %}</button>
-                                  </div>
-                                </div>
-                              </form>
-
-
-                      {% endif %}
-              </div>
-
-                <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 15px;">
+                <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 40px;">
+                  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#clone_modal">{% trans 'Clone' %}</button>
                   <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
-                  <a href="#"  class="btn btn-success">{% trans "Re-open" %}</a>
+                  {% if proposal.is_validated %} 
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#toggle_validation_modal">{% trans 'Re-open' %}</button>
+                  {% endif %}
+                  {% if not proposal.is_validated %}{% if proposal.proposalline_set.all|length != 0 %} 
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#toggle_validation_modal">{% trans 'validate' %}</button>
+                  {% endif %}{% endif %}
+                  {% if proposal.is_validated %} {% if proposal.proposalline_set.all|length != 0 %} 
                   <a href="#"  class="btn btn-success">{% trans "Send mail" %}</a>
                   <a href="#"  class="btn btn-success">{% trans "Create Contact" %}</a>
                   <a href="#"  class="btn btn-success">{% trans "Create invoice" %}</a>
                   <a href="#"  class="btn btn-success">{% trans "Classify billed" %}</a>
-                  <a href="#"  class="btn btn-success">{% trans "Clone" %}</a>
+                  {% endif %}{% endif %}
                 </div>
             </div>
 
             <div class="row mt">
               <div class="col-lg-6 col-md-6 col-sm-12">
-                    <div class="content-panel">
                       <h4><b><i class="fa fa-angle-right"></i> {% trans "Linked files" %}</b></h4>
                       <table class="table">
                         <tbody>
@@ -255,11 +283,9 @@
                           </tr>
                         </tbody>
                       </table>
-                    </div>
               </div>  
 
               <div class="col-lg-6 col-md-6 col-sm-12">
-                    <div class="content-panel">
                       <h4><b><i class="fa fa-angle-right"></i> {% trans "Events on proposal" %}</b></h4>
                       <table class="table">
                         <tbody>
@@ -268,7 +294,6 @@
                           </tr>
                         </tbody>
                       </table>
-                    </div>
               </div>  
             </div>
 
@@ -325,9 +350,6 @@
           <h3>#To-do</h3>
           <p>Lorem Ipsum is simply dummy text of the printing and typesetting</p> 
         </div>
-
-
-
       </div>
 
 
@@ -349,7 +371,7 @@
                   </div>
                   <div class="modal-body">
                     <div class = "alert alert-danger" style="padding-top: 10px;">
-                              <form method="post" action="#">{% csrf_token %}
+                              <form method="post" action="{% url 'proposal_delete' proposal.id %}">{% csrf_token %}
                               {% trans "Are you sure you wish to delete" %} <b>{{proposal.reference}}</b> {% trans "and all the information assoicated with it" %}?
                               <br> <b>{% trans "N.B: This action can not be undone!" %}</b>
                     </div>
@@ -362,6 +384,71 @@
                                 </form>
                             <div class="pull-right">
                                 <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+          <!-- Modal -->
+            <div class="modal fade" id="toggle_validation_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Re-open' %} {{proposal.reference}} ? </h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class = "alert alert-warning" style="padding-top: 10px;">
+                              <form method="post" action="{% url 'proposal_toggle_validation' proposal.id %}">{% csrf_token %}
+                              {% if proposal.is_validated %} 
+                              {% trans "Are you sure you want to open back the commercial proposal" %} <b>{{proposal.reference}}</b> 
+                              {% else %}
+                              {% trans "Are you sure you want to validate this commercial proposal under name" %} <b> PR####-####</b> 
+                              {% endif %}
+                              
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-right">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+          <!-- Modal -->
+            <div class="modal fade" id="clone_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Clone' %}</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class = "alert alert-warning" style="padding-top: 10px;">
+                              <form method="post" action="#">{% csrf_token %}
+                              {% trans "Are you sure you want to clone the commercial proposal" %} <b>{{proposal.reference}}</b> 
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-right">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
                             </div>
                   </div>
                 </div>
