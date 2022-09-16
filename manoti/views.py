@@ -10,8 +10,8 @@ from django.urls import reverse
 from django.forms.models import model_to_dict
 
 
-from .models import ThirdParty, Contact, Proposal, PurchaseOrder
-from .forms import ThirdPartyForm, ContactForm
+from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine
+from .forms import ThirdPartyForm, ContactForm, ProposalForm
 
 def dahshboard(request):
 	return render(request, "dashboard.html")
@@ -320,6 +320,7 @@ def proposal_view(request, proposal_id=None):
 	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
 
 	proposal = get_object_or_404(Proposal, id=proposal_id)
+	lines = ProposalLine.objects.filter(proposal=proposal).order_by('-id')
 
 	if errors:
 		error_message = errors[0]
@@ -328,6 +329,63 @@ def proposal_view(request, proposal_id=None):
 
 	ctx = {
 		'proposal': proposal,
+		'lines': lines,
 		'error_message' : error_message,
 	}
 	return render(request, "proposal_view.html", ctx)
+
+def proposal_create(request):
+	"""This view is used on order to create a commercial proposal"""
+	next_url = request.GET.get('next',None)
+	proposal_entry = None
+
+	if request.method == 'POST':
+		proposal_form = ProposalForm(request.POST)
+		if proposal_form.is_valid():
+			proposal = proposal_form.save(commit=False)
+			proposal_form.author = request.user # Set the user object here
+			proposal_form.save() # Now you can send it to DB
+			messages.success(request, _('Succcessfully saved created a draft commercial proposal'), extra_tags='alert alert-success alert-dismissable')
+			if next_url:
+				return http.HttpResponseRedirect(reverse('next_url'))
+			else:
+				return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': thirdparty.proposal}))
+
+	else:
+		proposal_form = ProposalForm()
+	return render(request, 'proposal_form.html', {'proposal_form': proposal_form})
+proposal_create = login_required(proposal_create)
+
+
+def proposal_edit(request, proposal_id=None):
+	"""This view is used to modify a commercial proposal"""
+
+	if proposal_id:
+		editing = True
+		thirdparty = get_object_or_404(ThirdParty, id=thirdparty_id)
+	else:
+		return http.HttpResponseRedirect(reverse('third_party_list'))
+
+	initial_data = {}
+	next_url = request.GET.get('next',None)
+
+	if request.POST and thirdparty_id:
+		thirdparty = get_object_or_404(ThirdParty, id=thirdparty_id)
+		initial_data = model_to_dict(thirdparty, fields=[], exclude=['date_added'])
+		third_party_form = ThirdPartyForm(request.POST or None, request.FILES or None, instance=thirdparty)
+		if third_party_form.is_valid():
+			third_party_form.save()
+			messages.success(request, _('Succcessfully saved changes to the the Third-party'), extra_tags='alert alert-success alert-dismissable')
+			return http.HttpResponseRedirect(reverse('third_party_view', kwargs={'thirdparty_id': thirdparty.id}))
+	else:
+		third_party_form = ThirdPartyForm(request.POST or None, request.FILES or None, instance=thirdparty)
+
+	ctx = {
+		'third_party_form':third_party_form,
+		'editing': editing,
+		'thirdparty': thirdparty, 
+		'next': next_url
+	}
+
+	return render(request, 'proposal_form.html', ctx)
+proposal_edit = login_required(proposal_edit)
