@@ -37,6 +37,9 @@ class ProposalForm(forms.ModelForm):
 		model = Proposal
 		exclude = [
 			'shipping_metod',
+			'author',
+			'reference',
+			'reference_number',
 			'amount_excl_tax',
 			'tax',
 			'amount_incl_tax',
@@ -47,10 +50,10 @@ class ProposalForm(forms.ModelForm):
 
 class ProposalLineForm(forms.ModelForm):
 	"""Form used to create or edit a commercial proposal"""
+	sales_tax = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'style': 'width: 80px', 'class':'form-control'}))
+
 	class Meta:
 		model = ProposalLine
-		# customer_code = forms.ModelChoiceField(queryset=Proposal, widget=forms.TextInput(attrs={'class':'form-control'}))
-
 		widgets = {
 			 'quantity': forms.NumberInput(attrs={'style': 'width: 80px'}),
 			 'sales_tax': forms.NumberInput(attrs={'style': 'width: 80px'}),
