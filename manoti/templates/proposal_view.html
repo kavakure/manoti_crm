@@ -104,36 +104,40 @@
                     <table class="table">
                       <tbody>
                         <tr>
+                          <td>{% trans "Author" %}</td>
+                          <td> {{proposal.author}}</td>
+                        </tr>
+                        <tr>
                           <td>{% trans "Discounts" %}</td>
-                          <td> {{proposal.prospect_customer}}</td>
+                          <td> {{proposal.pk}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Date of proposal" %}</td>
-                          <td>{{proposal.customer_code}}</td>
+                          <td>{{proposal.timestamp}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Validity ending date" %}</td>
-                          <td>{{proposal.barcode}}</td>
+                          <td>{{proposal.proposal_end_date}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Payment terms" %}</td>
-                          <td>{{proposal.professional_id_1}}</td>
+                          <td>{{proposal.payment_terms.key}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Payment type" %}</td>
-                          <td>{{proposal.professional_id_2}}</td>
+                          <td>{{proposal.payment_type.key}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Delivery date" %}</td>
-                          <td>{{proposal.professional_id_3}}</td>
+                          <td>{{proposal.delivery_date}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Availability delay" %}</td>
-                          <td>{{proposal.professional_id_4}}</td>
+                          <td>{{proposal.availability_delay.key}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Source" %}</td>
-                          <td>{{proposal.professional_id_5}}</td>
+                          <td>{{proposal.source.key}}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -167,11 +171,13 @@
                       <tr>
                           <th>{% trans "Type" %}</th>
                           <th>{% trans "Description" %}</th>
-                          <th>{% trans "Sales tax" %}</th>
-                          <th>{% trans "U.P. (net)" %}</th>
-                          <th>{% trans "Qty" %}</th>
-                          <th>{% trans "Disc." %}</th>
-                          <th>{% trans "Total (excl.)" %}</th>
+                          <th align="right">{% trans "Sales tax" %}</th>
+                          <th align="right">{% trans "U.P. (net)" %}</th>
+                          <th align="right">{% trans "Qty" %}</th>
+                          <th align="right">{% trans "Disc." %}</th>
+                          <th align="right">{% trans "Total (excl.)" %}</th>
+                          {% if not proposal.is_validated %}<th align="right">{% trans "Action" %}</th>{% endif %}
+
                       </tr>
                       </thead>
                       <tbody>
@@ -179,11 +185,50 @@
                       <tr>
                           <td>{{line.line_type}}</td>
                           <td>{{line.description}}</td>
-                          <td align="right">{{line.sales_tax}} Fbu</td>
-                          <td align="right">{{line.quantity }}</td>
+                          <td align="right">{{line.sales_tax}} %</td>
                           <td align="right">{{line.unit_price}} Fbu</td>
+                          <td align="right">{{line.quantity }}</td>
                           <td align="right">{{line.discount}}  Fbu</td>
                           <td align="right">{{line.total_tax_excl}} Fbu</td>
+                          {% if not proposal.is_validated %}
+                          <td align="right">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-warning btn-xs">{% trans "Modify" %}</button>
+                                <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_line_modal{{line.id}}"><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% trans "Delete" %}</button>
+                            </div>
+                          </td>
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_line_modal{{line.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete product line?' %}</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="{% url 'proposal_line_delete' proposal.id line.id %}">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the product line:" %} <b>{{line.description}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
+                          {% endif %}
                       </tr>
                       {% endfor %}
 
@@ -205,20 +250,15 @@
                           {% endif %}
                         </td>
                         <td align="left"> 
-                          {% render_field line_form.description class="form-control" %}
+                          {% render_field line_form.description class="form-control" rows="3" cols="20" %}
                           {% if line_form.description.errors %}
                             {% for error in line_form.description.errors %}
                               <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.description.errors|join:", " }}</span><br>
                             {% endfor %}
                           {% endif %}
                         </td>
-                        <td align="left"> 
-                          {% render_field line_form.sales_tax class="form-control" %}
-                          {% if line_form.sales_tax.errors %}
-                            {% for error in line_form.sales_tax.errors %}
-                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.sales_tax.errors|join:", " }}</span><br>
-                            {% endfor %}
-                          {% endif %}
+                        <td align="right"> 
+                          {% if proposal.third_party.business.sales_tax_is_used %} 18% {% else %} 0% {% endif %}
                         </td>
                         <td align="left"> 
                           {% render_field line_form.unit_price class="form-control" %}
@@ -244,6 +284,7 @@
                             {% endfor %}
                           {% endif %}
                         </td>
+                        <td align="left"> </td>
                         <td align="right"> 
                          <button type="submit" class="btn btn-success" ><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% if editing %}{% trans "Modify" %}{% else %}{% trans "Add" %}{% endif %}</button>
                          </form> 
@@ -266,7 +307,7 @@
                   {% endif %}{% endif %}
                   {% if proposal.is_validated %} {% if proposal.proposalline_set.all|length != 0 %} 
                   <a href="#"  class="btn btn-success">{% trans "Send mail" %}</a>
-                  <a href="#"  class="btn btn-success">{% trans "Create Contact" %}</a>
+                  <a href="#"  class="btn btn-success">{% trans "Create Contract" %}</a>
                   <a href="#"  class="btn btn-success">{% trans "Create invoice" %}</a>
                   <a href="#"  class="btn btn-success">{% trans "Classify billed" %}</a>
                   {% endif %}{% endif %}
@@ -455,6 +496,7 @@
               </div>
             </div>
             <!-- End Modal -->
+
 
 
       <!--main content end-->

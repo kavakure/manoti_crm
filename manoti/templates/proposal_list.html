@@ -54,7 +54,7 @@
                                   <td>{{prop.author}}</td>
                                   <td>{{prop.status}}</td>
                                   <td>
-                                    <span class="btn {% if prop.status %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{prop.is_validated|yesno:"Validated,Not validated"}}</span>
+                                    <span class="btn {% if prop.is_validated %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{prop.is_validated|yesno:"Validated,Not validated"}}</span>
                                   </td>
                               </tr>
                               {% endfor %}
