@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.translation import ugettext, ugettext_lazy as _
+from bootstrap_datepicker_plus.widgets import DatePickerInput
 
 from .utils import generate_third_party_codes
 
@@ -33,8 +34,15 @@ class ContactForm(forms.ModelForm):
 
 class ProposalForm(forms.ModelForm):
 	"""Form used to create or edit a commercial proposal"""
+
 	class Meta:
 		model = Proposal
+
+		widgets = {
+			'delivery_date': DatePickerInput(), # default date-format %m/%d/%Y will be used
+			'timestamp': DatePickerInput(format='%Y-%m-%d'), # specify date-frmat
+		}
+		
 		exclude = [
 			'shipping_metod',
 			'author',
