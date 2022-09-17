@@ -27,5 +27,6 @@ urlpatterns = [
 	url(r'^proposal-edit/(?P<proposal_id>[-\w]+)/$', views.proposal_edit, name='proposal_edit'),
 	url(r'^proposal-delete/(?P<proposal_id>[-\w]+)/$', views.proposal_delete, name='proposal_delete'),
 	url(r'^proposal-toggle-validation/(?P<proposal_id>[-\w]+)/$', views.proposal_toggle_validation, name='proposal_toggle_validation'),
-	url(r'^proposal-add-line/(?P<proposal_id>[-\w]+)/$', views.proposal_line_add, name='proposal_line_add'),
+	url(r'^proposal-line-add/(?P<proposal_id>[-\w]+)/$', views.proposal_line_add, name='proposal_line_add'),
+	url(r'^proposal-line-delete/(?P<proposal_id>[-\w]+)/(?P<proposal_line_id>[-\w]+)/$', views.proposal_line_delete, name='proposal_line_delete'),
 ]
