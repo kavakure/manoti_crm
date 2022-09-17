@@ -6,7 +6,10 @@ from .validators import validate_file_size, validate_image_file_extension, valid
 
 from django.urls import reverse
 
-from datetime import date
+#Time related imports
+import time
+from datetime import datetime, date, timedelta
+import datetime as dt
 from django.utils import timezone
 
 MONTH_CHOICES = (
@@ -223,7 +226,7 @@ class ThirdParty(models.Model):
 	capital           = models.IntegerField(_("Capital"), blank=True, null=True)
 	assigned_representative = models.ForeignKey(Employee, verbose_name=_("Assigned representative"), blank=True, null=True, on_delete=models.CASCADE)
 	logo              = models.FileField(_("Logo"), upload_to='media/uploads', blank=True, validators=[validate_file_size, validate_document_file_extension], help_text=_("PNG or JPEG, will be used on various documents related to your Company/Organization"))
-	date_added		  = models.DateField(_("Date of creation"), blank=False, default=timezone.now)
+	date_added		  = models.DateTimeField(_("Date of creation"), blank=False, default=timezone.now)
 
 	def __str__(self):
 		return self.name
@@ -264,7 +267,7 @@ class Contact(models.Model):
 	is_active 		  = models.BooleanField(_("Status"), default=True)
 	alert 			  = models.BooleanField(_("Alerts"), default=False)
 	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True, null=True)
-	date_added		  = models.DateField(_("Date of creation"), blank=False, default=timezone.now)
+	date_added		  = models.DateTimeField(_("Date of creation"), blank=False, default=timezone.now)
 
 	def __str__(self):
 		return "%s %s" % (self.first_name, self.last_name)
@@ -326,9 +329,10 @@ class Proposal(models.Model):
 	# 
 	author 			= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
 	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
+	reference_number = models.IntegerField(_("Reference number"), blank=False, null=False, default=1)
 	customer_reference = models.CharField(_("Customer reference"), max_length=200, blank=True, null=True)
 	third_party	  	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), blank=False, null=True, on_delete=models.CASCADE)
-	timestamp 		= models.DateField(_("Date"), blank=True, null=True, auto_now_add=True)
+	timestamp 		= models.DateTimeField(_("Date"), blank=True, null=True, auto_now_add=True)
 	validity_duration = models.IntegerField(_("Validity duration"), blank=True, null=True, default=30, help_text=_("days"))
 	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	payment_type 	= models.ForeignKey(PaymentType, verbose_name=_("Payment method"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
@@ -353,7 +357,7 @@ class Proposal(models.Model):
 		return reverse('proposal_view', kwargs={'proposal_id': self.id})
 
 	def proposal_end_date(self):
-		return "#to-do..."
+		return self.timestamp + dt.timedelta(self.validity_duration)
 
 	class Meta:
 		verbose_name = _("Commercial proposal")
@@ -365,7 +369,7 @@ class ProposalLinkedFile(models.Model):
 	proposal 	  	  = models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	link       		  = models.URLField(_("Link"), blank=True, max_length=900)
-	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
 	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
 
 	def __str__(self):
@@ -376,7 +380,7 @@ class ProposalAttachedFile(models.Model):
 	proposal 	  	  = models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
-	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
 
 	def __str__(self):
 		return self.filename
@@ -391,15 +395,15 @@ class LineType(models.Model):
 
 class ProposalLine(models.Model):
 	# 
-	proposal 	  	= models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
+	proposal 	  	= models.ForeignKey(Proposal, verbose_name=_("Proposal"), blank=True, null=True, on_delete=models.CASCADE)
 	line_type 		= models.ForeignKey(LineType, verbose_name=_("Type"), null=True, on_delete=models.CASCADE)
 	description     = models.TextField(_("Description"), blank=False, null=False)
-	sales_tax 		= models.IntegerField(_("Sales tax"), blank=False)
+	sales_tax 		= models.IntegerField(_("Sales tax"), blank=True, null=True)
 	quantity 		= models.IntegerField(_("Qty"), blank=False, default=1)
 	unit_price  	= models.IntegerField(_("Unit price"), blank=False, default=0)
-	discount	  	= models.IntegerField(_("Discount"), blank=False, default=0)
-	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"), blank=False, default=0)
-	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"), blank=False, default=0)
+	discount	  	= models.IntegerField(_("Discount"), blank=True, default=0)
+	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"), blank=True, default=0)
+	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"), blank=True, default=0)
 
 	def __str__(self):
 		return self.description
@@ -410,7 +414,7 @@ class PurchaseOrder(models.Model):
 	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
 	third_party 	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), blank=False, null=True, on_delete=models.CASCADE)
 	is_vendor		= models.BooleanField(_("is Vendor ?"), default=False, help_text=_("Determines if either it is an incomming or outgoing purchase order, will be used whrn creating an invoice."))
-	timestamp 		= models.DateField(_("Date"), blank=True, null=True, auto_now_add=True)
+	timestamp 		= models.DateTimeField(_("Date"), blank=True, null=True, auto_now_add=True)
 	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	payment_type 	= models.ForeignKey(PaymentType, verbose_name=_("Payment method"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	delivery_date	= models.DateField(_("Delivery date"), blank=True, null=True)
@@ -453,7 +457,7 @@ class BankAccount(models.Model):
 	comment		    = models.TextField(_("Comment"), blank=True, null=True)
 	balance 		= models.IntegerField(_("Balance"), blank=False, null=False, default=0)
 	initial_balance = models.IntegerField(_("Initial balance"), blank=False, null=False, default=0)
-	timestamp 		= models.DateField(_("Date"), blank=True)
+	timestamp 		= models.DateTimeField(_("Date"), blank=True)
 	minimum_allowed_balance = models.IntegerField(_("Minimum allowed balance"), blank=True, null=True, default=0)
 	minimum_desired_balance = models.IntegerField(_("Minimum desired balance"), blank=True, null=True, default=0)
 	name            = models.CharField(_("Bank name"), max_length=200, blank=True, null=True)
@@ -472,7 +476,7 @@ class BankAccountLinkedFile(models.Model):
 	bank 		  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	link       		  = models.URLField(_("Link"), blank=True, max_length=900)
-	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
 	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
 
 	def __str__(self):
@@ -483,7 +487,7 @@ class BankAccountAttachedFile(models.Model):
 	bank 	 	  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
-	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
 
 	def __str__(self):
 		return self.filename
@@ -495,8 +499,8 @@ SENS_CHOICES = (
 
 class BankEntry(models.Model):
 	# 
-	date 	  		  = models.DateField(_("Date"), blank=True)
-	value_date 	 	  = models.DateField(_("value date"), blank=True)
+	date 	  		  = models.DateTimeField(_("Date"), blank=True)
+	value_date 	 	  = models.DateTimeField(_("value date"), blank=True)
 	label          	  = models.CharField(_("Label"), max_length=200, blank=True, default="Miscellaneous payment")
 	amount 			  = models.IntegerField(_("Amount"))
 	bank 	  	  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
@@ -527,7 +531,7 @@ class VendorInvoice(models.Model):
 	vendor_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
 	vendor_invoice_type = models.CharField(_("Status"), choices=VENDOR_INVOICE_CHOICES, default="standard", max_length=200, blank=False, null=False)
 	label          	  	= models.CharField(_("Label"), max_length=200, blank=True)
-	date 	  		  	= models.DateField(_("Invoice date"), blank=False, null=False)
+	date 	  		  	= models.DateTimeField(_("Invoice date"), blank=False, null=False)
 	payment_due		  	= models.DateField(_("Payment due on"), blank=True, null=True)
 	payment_terms 		= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), null=True, on_delete=models.CASCADE)
 	payment_type 		= models.ForeignKey(PaymentType, verbose_name=_("Payment type"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
@@ -549,7 +553,7 @@ class VendorInvoiceLinkedFile(models.Model):
 	vendor_invoice 	   = models.ForeignKey(VendorInvoice, verbose_name=_("Vendor invoice"), null=True, on_delete=models.CASCADE)
 	filename           = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	link       		   = models.URLField(_("Link"), blank=True, max_length=900)
-	timestamp 		   = models.DateField(_("Timestamp"), blank=True)
+	timestamp 		   = models.DateTimeField(_("Timestamp"), blank=True)
 	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
 
 	def __str__(self):
@@ -560,7 +564,7 @@ class VendorInvoiceAttachedFile(models.Model):
 	vendor_invoice 	  = models.ForeignKey(VendorInvoice, verbose_name=_("Vendor invoice"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
-	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
 
 	def __str__(self):
 		return self.filename
@@ -613,7 +617,7 @@ class CustomerInvoice(models.Model):
 	customer_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
 	customer_invoice_type = models.CharField(_("Status"), choices=VENDOR_INVOICE_CHOICES, default="standard", max_length=200, blank=False, null=False)
 	label          	  	= models.CharField(_("Label"), max_length=200, blank=True)
-	date 	  		  	= models.DateField(_("Invoice date"), blank=False, null=False)
+	date 	  		  	= models.DateTimeField(_("Invoice date"), blank=False, null=False)
 	payment_due		  	= models.DateField(_("Payment due on"), blank=True, null=True)
 	payment_terms 		= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), null=True, on_delete=models.CASCADE)
 	payment_type 		= models.ForeignKey(PaymentType, verbose_name=_("Payment type"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
@@ -635,7 +639,7 @@ class CustomerInvoiceLinkedFile(models.Model):
 	cutomer_invoice    = models.ForeignKey(CustomerInvoice, verbose_name=_("Customer invoice"), null=True, on_delete=models.CASCADE)
 	filename           = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	link       		   = models.URLField(_("Link"), blank=True, max_length=900)
-	timestamp 		   = models.DateField(_("Timestamp"), blank=True)
+	timestamp 		   = models.DateTimeField(_("Timestamp"), blank=True)
 	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
 
 	def __str__(self):
@@ -646,7 +650,7 @@ class CustomerInvoiceAttachedFile(models.Model):
 	cutomer_invoice   = models.ForeignKey(CustomerInvoice, verbose_name=_("Customer invoice"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
-	timestamp 		  = models.DateField(_("Timestamp"), blank=True)
+	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
 
 	def __str__(self):
 		return self.filename
