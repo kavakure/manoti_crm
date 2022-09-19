@@ -109,15 +109,15 @@
                         </tr>
                         <tr>
                           <td>{% trans "Discounts" %}</td>
-                          <td> {{proposal.pk}}</td>
+                          <td> #To-Do</td>
                         </tr>
                         <tr>
                           <td>{% trans "Date of proposal" %}</td>
-                          <td>{{proposal.timestamp}}</td>
+                          <td>{{proposal.timestamp|date:"d F Y"}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Validity ending date" %}</td>
-                          <td>{{proposal.proposal_end_date}}</td>
+                          <td>{{proposal.proposal_end_date|date:"d F Y"}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Payment terms" %}</td>
@@ -129,7 +129,7 @@
                         </tr>
                         <tr>
                           <td>{% trans "Delivery date" %}</td>
-                          <td>{{proposal.delivery_date}}</td>
+                          <td>{{proposal.delivery_date|date:"d F Y"}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Availability delay" %}</td>
