@@ -479,12 +479,12 @@
                   <div class="modal-body">
                     <div class = "alert alert-warning" style="padding-top: 10px;">
                               <form method="post" action="#">{% csrf_token %}
-                              {% trans "Are you sure you want to clone the commercial proposal" %} <b>{{proposal.reference}}</b> 
+                              {% trans "Are you sure you want to clone the commercial proposal" %} <b>{{proposal.reference}} ?</b> 
                     </div>
                   </div>
                   <div class="modal-footer">
                             <div class="pull-left">
-                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
                             </form>
                             </div>
                                 </form>

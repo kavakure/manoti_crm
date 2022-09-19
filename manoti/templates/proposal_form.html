@@ -3,10 +3,6 @@
 
 {% block extra_stylesheet %}
 <link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}" />
-<script src="{% static 'admin/js/core.js' %}"></script>
-<script src="{% url 'admin:jsi18n' %}"></script>  {# see note below #}
-{{ proposal_form.media }}  {# this adds 'calendar.js' and 'DateTimeShortcuts.js' #}
 {% endblock extra_stylesheet%}
 
 {% block title %}{% if editing %}{% trans "Modify" %} {{proposal}}{% else %}{% trans "New Commercial proposal" %}{% endif %}{% endblock %}
