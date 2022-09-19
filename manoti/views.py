@@ -83,6 +83,8 @@ def third_party_create(request):
 				return http.HttpResponseRedirect(reverse('next_url'))
 			else:
 				return http.HttpResponseRedirect(reverse('third_party_view', kwargs={'thirdparty_id': thirdparty.id}))
+		else:
+			print("[ERROR] >> %s" % third_party_form.errors) # To-do: add logging to the console
 
 	else:
 		third_party_form = ThirdPartyForm()
