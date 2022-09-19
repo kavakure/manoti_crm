@@ -32,14 +32,17 @@ class ContactForm(forms.ModelForm):
 			'date_added'
 		]
 
+class DateTimeInput(forms.DateTimeInput):
+	input_type = 'datetime-local'
+
+class DateInput(forms.DateInput):
+	input_type = 'date'
+
 class ProposalForm(forms.ModelForm):
 	"""Form used to create or edit a commercial proposal"""
 
 	class Meta:
 		model = Proposal
-		timestamp = forms.DateField(required=True, widget=AdminDateWidget(attrs={'style': 'width: 80px', 'class':'form-control'}))
-		delivery_date = forms.DateField(required=False, widget=AdminDateWidget(attrs={'style': 'width: 80px', 'class':'form-control'}))
-
 
 		exclude = [
 			'shipping_metod',
@@ -53,6 +56,11 @@ class ProposalForm(forms.ModelForm):
 			'status',
 
 		]
+
+		widgets = {
+			'timestamp': DateTimeInput(),
+			'delivery_date': DateInput(),
+		}
 
 class ProposalLineForm(forms.ModelForm):
 	"""Form used to create or edit a commercial proposal"""
