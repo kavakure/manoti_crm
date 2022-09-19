@@ -58,7 +58,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'widget_tweaks',
-    'bootstrap_datepicker_plus',
     "crm",
     "hello",
     "manoti",
