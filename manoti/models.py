@@ -332,7 +332,7 @@ class Proposal(models.Model):
 	reference_number = models.IntegerField(_("Reference number"), blank=False, null=False, default=1)
 	customer_reference = models.CharField(_("Customer reference"), max_length=200, blank=True, null=True)
 	third_party	  	= models.ForeignKey(ThirdParty, verbose_name=_("Third party"), blank=False, null=True, on_delete=models.CASCADE)
-	timestamp 		= models.DateTimeField(_("Date"), blank=True, null=True, auto_now_add=True)
+	timestamp 		= models.DateTimeField(_("Date"), blank=True, null=True)
 	validity_duration = models.IntegerField(_("Validity duration"), blank=True, null=True, default=30, help_text=_("days"))
 	payment_terms 	= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	payment_type 	= models.ForeignKey(PaymentType, verbose_name=_("Payment method"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
