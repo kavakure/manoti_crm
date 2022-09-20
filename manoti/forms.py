@@ -53,7 +53,7 @@ class ProposalForm(forms.ModelForm):
 			'tax',
 			'amount_incl_tax',
 			'is_validated',
-			'status',
+			'is_signed',
 
 		]
 
@@ -82,3 +82,10 @@ class ProposalLineForm(forms.ModelForm):
 			'total_tax_incl',
 			
 		]
+
+class ProposalStatusForm(forms.ModelForm):
+	"""Form used to set the status of an commercial proposal to determine if it was accepted or not by the customer"""
+
+	class Meta:
+		model = Proposal
+		fields = ['is_signed']
