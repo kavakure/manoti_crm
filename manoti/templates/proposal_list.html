@@ -51,9 +51,16 @@
                                   <td>{{prop.proposal_end_date|date:"d F Y" }}</td>
                                   <td>{{prop.amount_incl_tax}} Fbu</td>
                                   <td>{{prop.author}}</td>
-                                  <td>
-                                    <span class="btn {% if prop.is_validated %}btn-success{% else %}btn-danger{% endif %}  btn-block btn-xs">{{prop.is_validated|yesno:"Validated,Not validated"}}
-                                    </span>
+                                  <td align="left">
+                                    {% if prop.is_validated %} 
+                                      {% if prop.is_signed.value == '1' %}<span class="btn btn-warning  btn-xs">{% trans 'Signed (needs Billing)' %}</span>
+                                      {% elif prop.is_signed.value == '0' %}<span class="btn btn-default  btn-xs">{% trans 'Not signed (closed)' %}</span>
+                                      {% elif proposal.is_signed.value != '1' and proposal.is_signed.value != '0' %}<span class="btn btn-warning btn-xs">{% trans 'Validated (proposal is open)' %}</span>
+                                      {% endif %}
+                                    {% else %}
+                                    <span class="btn btn-default btn-xs">{% trans 'Draft (needs validation)' %}</span>
+                                    {% endif %}
+
                                   </td>
                               </tr>
                               {% endfor %}
