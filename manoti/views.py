@@ -8,11 +8,14 @@ from django.contrib.auth.decorators import login_required
 from django.utils.translation import get_language, ugettext, ugettext_lazy as _
 from django.urls import reverse
 from django.forms.models import model_to_dict
+
+#Time related imports
+from django.utils import timezone
 from datetime import datetime
 
 
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine
-from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm
+from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm
 from .utils import generate_proposal_reference
 
 def dahshboard(request):
@@ -287,7 +290,7 @@ contact_edit = login_required(contact_edit)
 
 
 ##################################################################################################
-### Commerce area ralted views
+### Commerce area ralated views
 ##################################################################################################
 
 
@@ -323,8 +326,10 @@ def proposal_view(request, proposal_id=None):
 	 """
 	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
 
-	proposal = get_object_or_404(Proposal, id=proposal_id)
-	line_form= ProposalLineForm()
+	proposal   = get_object_or_404(Proposal, id=proposal_id)
+	line_form  = ProposalLineForm()
+	clone_form = ProposalForm()
+	status_from = ProposalStatusForm()
 
 	if errors:
 		error_message = errors[0]
@@ -334,6 +339,8 @@ def proposal_view(request, proposal_id=None):
 	ctx = {
 		'proposal': proposal,
 		'line_form': line_form,
+		'clone_form': clone_form,
+		'status_from': status_from,
 		'error_message' : error_message,
 	}
 	return render(request, "proposal_view.html", ctx)
@@ -412,8 +419,66 @@ def proposal_delete(request, proposal_id=None):
 		return http.HttpResponseRedirect(reverse('proposal_list'))
 proposal_delete = login_required(proposal_delete)
 
+def proposal_clone(request, proposal_id=None):
+	"""Creates a commrercial proposal clone from the database"""
+
+	if request.method == 'POST':
+		try:
+			proposal = Proposal.objects.get(id=proposal_id)
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+			proposal = None
+			return http.HttpResponseRedirect(reverse('proposal_list'))
+
+		if proposal != None:
+			proposal_form = ProposalForm(request.POST)
+			if proposal_form.is_valid():
+				clone = Proposal(
+					author 			= request.user,
+					reference_number= generate_proposal_reference()['draft_number'],
+					third_party 	= proposal_form.cleaned_data['third_party'],
+					timestamp 		= timezone.now(),
+					validity_duration = proposal.validity_duration,
+					payment_terms	= proposal.payment_terms,
+					payment_type 	= proposal.payment_type,
+					source 			= proposal.source,
+					availability_delay = proposal.availability_delay,
+					shipping_metod 	= proposal.shipping_metod,
+					delivery_date 	= proposal.delivery_date,
+					document_template = proposal.document_template,
+					note_private 	= proposal.note_private,
+					note_public 	= proposal.note_public,
+					amount_excl_tax = proposal.amount_excl_tax,
+					tax 			= proposal.tax,
+					amount_incl_tax = proposal.amount_incl_tax,
+					is_signed 		= proposal.is_signed,
+				)
+				clone.reference  = "PROV%s" % str(clone.reference_number).zfill(3)
+				clone.save()
+				for line in proposal.proposalline_set.all():
+					clone_line = ProposalLine(
+						proposal = clone,
+						line_type = line.line_type,
+						description = line.description,
+						sales_tax = line.sales_tax,
+						quantity = line.quantity,
+						unit_price = line.unit_price,
+						discount = line.discount,
+						total_tax_excl = line.total_tax_excl,
+						total_tax_incl = line.total_tax_incl,
+
+					)
+					clone_line.save()
+
+				return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': clone.id}))
+			else:
+				print("[ERROR] >> %s" % proposal_form.errors) # To-do: add logging to the console
+	else:
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+proposal_clone = login_required(proposal_clone)
+
 def proposal_toggle_validation(request, proposal_id=None):
-	"""Deletes a commrercial proposal from the database"""
+	"""Sets the status of a commrercial proposal from the database"""
 
 	if request.method == 'POST':
 		try:
@@ -426,6 +491,7 @@ def proposal_toggle_validation(request, proposal_id=None):
 				proposal.is_validated = True
 				proposal.reference_number =  generate_proposal_reference()['validated_number']
 				proposal.reference =  "PR%s-%s" % (datetime.now().strftime("%y%m"), str(generate_proposal_reference()['validated_number']).zfill(3)) 
+			proposal.is_signed = None
 			proposal.save()
 			messages.success(request,  _('Succcessfully edited the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
 		except Exception as e:
@@ -435,6 +501,32 @@ def proposal_toggle_validation(request, proposal_id=None):
 		return http.HttpResponseRedirect(reverse('proposal_list'))
 proposal_toggle_validation = login_required(proposal_toggle_validation)
 
+def proposal_set_status(request, proposal_id=None):
+	"""Determines if a commercial proposal is accepted or refused by a third-party"""
+
+	if proposal_id:
+		editing = True
+		proposal = get_object_or_404(Proposal, id=proposal_id)
+	else:
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+		proposal = None
+
+	next_url = request.GET.get('next',None)
+
+	if request.POST:
+
+		status_form = ProposalStatusForm(request.POST)
+		if status_form.is_valid():
+			proposal.is_signed = status_form.cleaned_data['is_signed']
+			proposal.save()
+			messages.success(request, _('Succcessfully changed the status of the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
+			
+		else:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+proposal_set_status = login_required(proposal_set_status)
 
 def proposal_line_add(request, proposal_id=None):
 	"""This view is used to add a item line to a commercial proposal"""
