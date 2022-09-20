@@ -28,21 +28,17 @@ def generate_third_party_codes():
 
 def generate_proposal_reference():
 
-	pro_ref_arr = []
-	proposals = Proposal.objects.all()
-	prop = Proposal.objects.filter(is_validated=True).order_by('timestamp').first()
-	if prop == None:
+	all_proposals = Proposal.objects.all().order_by('-timestamp').first()
+	validated_proposals = Proposal.objects.filter(is_validated=True).order_by('-timestamp').first()
+	if validated_proposals == None:
 		validated_number = 1
 	else:
-		validated_number = prop.reference_number+1
+		validated_number = validated_proposals.reference_number+1
 
-	for prop in proposals:
-		pro_ref_arr.append(prop.reference_number)
-
-	if len(pro_ref_arr) == 0:
+	if all_proposals == None:
 		draft_number = 1
 	else:
-		draft_number = max(pro_ref_arr)+1
+		draft_number = all_proposals.reference_number+1
 
 	codes = {
 		'draft_number': draft_number,
