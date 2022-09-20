@@ -35,11 +35,10 @@
                                   <th>{% trans "Ref. customer" %}</th>
                                   <th>{% trans "Third-party" %}</th>
                                   <th>{% trans "Date of proposal" %}</th>
-                                  <th>{% trans "End date" %}</th>
+                                  <th>{% trans "Valid until" %}</th>
                                   <th>{% trans "Amount" %}</th>
                                   <th>{% trans "Author" %}</th>
-                                  <th>{% trans "Status" %}</th>
-                                  <th>{% trans "Validated" %}</th>
+                                  <th>{% trans "Status" %} ?</th>
                               </tr>
                               </thead>
                               <tbody>
@@ -48,13 +47,13 @@
                                   <td><b> <a href="{{prop.get_absolute_url}}">{{prop.reference}}<b></a></td>
                                   <td>{{prop.customer_reference|default:"-----" }}</td>
                                   <td><a href="{{prop.third_party.get_absolute_url}}">{{prop.third_party.name}}<b></a></td>
-                                  <td>{{prop.timestamp}}</td>
-                                  <td>{{prop.proposal_end_date }}</td>
+                                  <td>{{prop.timestamp|date:"d F Y"}}</td>
+                                  <td>{{prop.proposal_end_date|date:"d F Y" }}</td>
                                   <td>{{prop.amount_incl_tax}} Fbu</td>
                                   <td>{{prop.author}}</td>
-                                  <td>{{prop.status}}</td>
                                   <td>
-                                    <span class="btn {% if prop.is_validated %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{prop.is_validated|yesno:"Validated,Not validated"}}</span>
+                                    <span class="btn {% if prop.is_validated %}btn-success{% else %}btn-danger{% endif %}  btn-block btn-xs">{{prop.is_validated|yesno:"Validated,Not validated"}}
+                                    </span>
                                   </td>
                               </tr>
                               {% endfor %}

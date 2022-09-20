@@ -56,7 +56,7 @@
 
           <div class="row mt">
             <div class="col-lg-9 col-md-9 col-sm-9">
-              <h3><i class="fa fa-angle-right"></i> <b>{{proposal.reference}}</b></h3> 
+              <h3><i class="fa fa-angle-right"></i> <b>{{proposal.reference}}</b> {{proposal.reference_number}}</h3> 
             </div>
             <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
               <p style="font-size: 18px;"><a href="{% url 'proposal_list' %}"><b>Back to list</b></a> </p>
@@ -79,8 +79,15 @@
                     </section>
                </div> 
                <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
-                {% if proposal.is_validated %}
-                <p class="btn btn-success btn-block" style="font-size: 18px;"><b>{% trans 'Validated' %}</b></p>
+                {% if proposal.is_validated %}  
+                  {% if proposal.is_signed.value == '1' %}
+                    <p class="btn btn-warning btn-block" style="font-size: 14px;"><b>{% trans 'Signed (needs Billing)' %}</b></p>
+                  {% elif proposal.is_signed.value == '0' %}
+                  <p class="btn btn-default btn-default" style="font-size: 14px;"><b>{% trans 'Not signed (closed)' %}</b></p>
+                  {% elif proposal.is_signed.value != '1' and proposal.is_signed.value != '0' %}
+                    <p class="btn btn-warning btn-block" style="font-size: 14px;"><b>{% trans 'Validated (proposal is open)' %}</b></p>
+                  {% endif %}
+                
                 {% else %}
                 <p class="btn btn-default btn-block" style="font-size: 14px;"><b>{% trans 'Draft (needs validation)' %}</b></p>
                 {% endif %}
@@ -300,17 +307,28 @@
                   <button type="button" class="btn btn-success" data-toggle="modal" data-target="#clone_modal">{% trans 'Clone' %}</button>
                   <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
                   {% if proposal.is_validated %} 
-                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#toggle_validation_modal">{% trans 'Re-open' %}</button>
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#toggle_validation_modal"> {% if proposal.is_signed.value != '1' and proposal.is_signed.value != '0' %}{% trans 'Modify' %}{% else %}{% trans 'Re-open' %}{% endif %}</button>
                   {% endif %}
                   {% if not proposal.is_validated %}{% if proposal.proposalline_set.all|length != 0 %} 
                     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#toggle_validation_modal">{% trans 'validate' %}</button>
                   {% endif %}{% endif %}
-                  {% if proposal.is_validated %} {% if proposal.proposalline_set.all|length != 0 %} 
+                  {% if proposal.is_validated and proposal.proposalline_set.all|length != 0 and proposal.is_signed.value != '0' %} 
                   <a href="#"  class="btn btn-success">{% trans "Send mail" %}</a>
+                  {% endif %}
+                  
+                  {% if proposal.is_signed.value == '1' %}
                   <a href="#"  class="btn btn-success">{% trans "Create Contract" %}</a>
                   <a href="#"  class="btn btn-success">{% trans "Create invoice" %}</a>
                   <a href="#"  class="btn btn-success">{% trans "Classify billed" %}</a>
-                  {% endif %}{% endif %}
+
+                  {% elif proposal.is_signed.value == '0' %}
+
+                  {% elif proposal.is_validated and proposal.is_signed.value != '1' and proposal.is_signed.value != '0' %}
+                  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#status_modal">{% trans "Set Accepted/Refused" %}</button>
+                  {% endif %}
+
+  
+
                 </div>
             </div>
 
@@ -439,7 +457,7 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">{% trans 'Re-open' %} {{proposal.reference}} ? </h4>
+                    <h4 class="modal-title">{% if proposal.is_validated %}{% trans 'Re-open' %}{% else %}{% trans 'Validate' %}{% endif %} {{proposal.reference}} ?</h4>
                   </div>
                   <div class="modal-body">
                     <div class = "alert alert-warning" style="padding-top: 10px;">
@@ -447,18 +465,18 @@
                               {% if proposal.is_validated %} 
                               {% trans "Are you sure you want to open back the commercial proposal" %} <b>{{proposal.reference}}</b> 
                               {% else %}
-                              {% trans "Are you sure you want to validate this commercial proposal under name" %} <b> PR####-####</b> 
+                              {% trans "Are you sure you want to validate this commercial proposal under name" %} <b> PR{% now "%y%m" %}--{{proposal.reference_number}}</b> 
                               {% endif %}
                               
                     </div>
                   </div>
                   <div class="modal-footer">
-                            <div class="pull-left">
-                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                            <div class="pull-right">
+                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="&#9989; {% trans "Yes" %}"/>
                             </form>
                             </div>
                                 </form>
-                            <div class="pull-right">
+                            <div class="pull-left">
                                 <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
                             </div>
                   </div>
@@ -477,19 +495,53 @@
                     <h4 class="modal-title">{% trans 'Clone' %}</h4>
                   </div>
                   <div class="modal-body">
-                    <div class = "alert alert-warning" style="padding-top: 10px;">
-                              <form method="post" action="#">{% csrf_token %}
-                              {% trans "Are you sure you want to clone the commercial proposal" %} <b>{{proposal.reference}} ?</b> 
+                    <div style="padding-top: 10px;">
+                              <form method="post" action="{% url 'proposal_clone' proposal.id %}">{% csrf_token %}
+                              <p><b>{% trans "Select Third-party" %}</b></p>
+                              {% render_field clone_form.third_party class="form-control" %}
+                              <p class = "alert alert-warning" >{% trans "Are you sure you want to clone the commercial proposal" %} <b>{{proposal.reference}} ?</b> </p>
                     </div>
                   </div>
                   <div class="modal-footer">
                             <div class="pull-left">
-                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="&#9989; {% trans "Yes" %}"/>
                             </form>
                             </div>
                                 </form>
                             <div class="pull-right">
                                 <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+
+          <!-- Modal -->
+            <div class="modal fade" id="status_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Set accepted/refused' %}</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div style="padding-top: 10px;">
+                      <p><b>{% trans 'Set status to' %}</b></p>
+                              <form method="post" action="{% url 'proposal_set_status' proposal.id %}">{% csrf_token %}
+                              {% render_field status_from.is_signed class="form-control" %}
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-right">
+                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="&#9989; {% trans 'Set' %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-left">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
                             </div>
                   </div>
                 </div>
