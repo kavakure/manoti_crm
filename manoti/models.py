@@ -348,7 +348,7 @@ class Proposal(models.Model):
 	tax = models.IntegerField(_("Amount tax"), blank=False, null=False, default=0)
 	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"), blank=False, null=False, default=0)
 	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, blank=False, null=False, help_text=_("Are you sure you want to validate this commercial proposal under name PR########?"))
-	status = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, blank=True, on_delete=models.CASCADE)
+	is_signed = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, blank=True, on_delete=models.CASCADE,  help_text=_("Determines if this commercial proposal accepted or refused by the customer or prospect"))
 
 	def __str__(self):
 		return self.reference
@@ -400,7 +400,7 @@ class ProposalLine(models.Model):
 	description     = models.TextField(_("Description"), blank=False, null=False)
 	sales_tax 		= models.IntegerField(_("Sales tax"), blank=True, null=True)
 	quantity 		= models.IntegerField(_("Qty"), blank=False, default=1)
-	unit_price  	= models.IntegerField(_("Unit price"), blank=False, default=0)
+	unit_price  	= models.IntegerField(_("Unit price"), blank=False, null=False, default=1)
 	discount	  	= models.IntegerField(_("Discount"), blank=True, default=0)
 	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"), blank=True, default=0)
 	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"), blank=True, default=0)
@@ -426,7 +426,7 @@ class PurchaseOrder(models.Model):
 	tax = models.IntegerField(_("Amount tax"), blank=False, null=False, default=0)
 	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"), blank=False, null=False, default=0)
 	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, blank=False, null=False, help_text=_("Are you sure you want to validate this commercial proposal under name PR########?"))
-	status = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, blank=True, on_delete=models.CASCADE)
+	is_signed = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, blank=True, on_delete=models.CASCADE,  help_text=_("Determines if this commercial proposal accepted or refused by the customer or prospect"))
 
 	def __str__(self):
 		return self.reference
