@@ -96,4 +96,4 @@ class ProposalLinkedFileForm(forms.ModelForm):
 
 	class Meta:
 		model = ProposalLinkedFile
-		fields = ['label', 'link']
+		fields = ['proposal', 'label', 'link'] 
