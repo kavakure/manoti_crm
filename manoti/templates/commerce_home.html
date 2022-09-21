@@ -1,5 +1,5 @@
 {% extends "base_commerce.html" %}
-{% load static i18n %}
+{% load static i18n humanize %}
 
 {% block extra_stylesheet %}
 <link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
@@ -133,7 +133,7 @@
                       <tr>
                           <td> <a href="{{prop.get_absolute_url}}">{{prop.reference}}</a></td>
                           <td>{{prop.third_party.name}}</td>
-                          <td>{{prop.amount_incl_tax }}</td>
+                          <td>{{prop.amount_incl_tax|intcomma }} Fbu</td>
                       </tr>
                     {% endif %}
                     {% endfor %}
@@ -166,7 +166,7 @@
                       <tr>
                           <td> <b><a href="{{po.get_absolute_url}}">{{po.reference}}</b></a></td>
                           <td>{{po.third_party.name}}</td>
-                          <td>{{po.amount_incl_tax}}</td>
+                          <td>{{po.amount_incl_tax|intcomma}} Fbu</td>
                       </tr>
                     {% endif %}
                     {% endfor %}
@@ -203,7 +203,7 @@
                       <tr>
                           <td> <a href="{{prop.get_absolute_url}}">{{prop.reference}}</a></td>
                           <td>{{prop.third_party.name}}</td>
-                          <td>{{prop.amount_incl_tax }}</td>
+                          <td>{{prop.amount_incl_tax|intcomma}} Fbu</td>
                       </tr>
                     {% endif %}
                     {% endfor %}
