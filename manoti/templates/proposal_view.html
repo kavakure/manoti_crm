@@ -1,4 +1,4 @@
-{% extends "base_commerce.html" %} {% load static i18n widget_tweaks %}
+{% extends "base_commerce.html" %} {% load static i18n widget_tweaks humanize %}
 
 {% block title %}{% trans "Commercial Proposal" %} - {{proposal.reference}} {% endblock %}
 
@@ -104,6 +104,7 @@
         </div>
 
         <div id="commercial_proposal" class="tabcontent" style="display: block;">
+          <!-- =========================================================================================== -->
 
             <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
                 <div class="col-lg-6 col-md-6 col-sm-12">
@@ -153,16 +154,16 @@
                     <table class="table">
                       <tbody>
                         <tr>
-                          <td>{% trans "Amount (excl. tax)" %}</td>
-                          <td>{{proposal.amount_excl_tax}} Fbu</td>
+                          <td style="font-size:16px;"><b>{% trans "Amount (excl. tax)" %}</b></td>
+                          <td style="font-size:16px;"><b>{{proposal.amount_excl_tax|intcomma}} Fbu</b></td>
                         </tr>
                         <tr>
-                          <td>{% trans "Amount tax" %}</td>
-                          <td>{{proposal.tax}} Fbu</td>
+                          <td style="font-size:16px;"><b>{% trans "Amount tax" %}</b></td>
+                          <td style="font-size:16px;"><b>{{proposal.tax|intcomma}} Fbu</b></td>
                         </tr>
                         <tr>
-                          <td>{% trans "Amount (inc. tax)" %}</td>
-                          <td>{{proposal.amount_incl_tax}} Fbu</td>
+                          <td style="font-size:16px;"><b>{% trans "Amount (inc. tax)" %}</b></td>
+                          <td style="font-size:16px;"><b>{{proposal.amount_incl_tax|intcomma}} Fbu</b></td>
                         </tr>
                       </tbody>
                     </table>
@@ -192,10 +193,10 @@
                           <td>{{line.line_type}}</td>
                           <td>{{line.description}}</td>
                           <td align="right">{{line.sales_tax}} %</td>
-                          <td align="right">{{line.unit_price}} Fbu</td>
-                          <td align="right">{{line.quantity }}</td>
-                          <td align="right">{{line.discount}}  Fbu</td>
-                          <td align="right">{{line.total_tax_excl}} Fbu</td>
+                          <td align="right">{{line.unit_price|intcomma}} Fbu</td>
+                          <td align="right">{{line.quantity|intcomma }}</td>
+                          <td align="right">{{line.discount|intcomma}}  Fbu</td>
+                          <td align="right">{{line.total_tax_excl|intcomma}} Fbu</td>
                           {% if not proposal.is_validated %}
                           <td align="right">
                             <div class="btn-group">
@@ -299,6 +300,8 @@
                       {% endif %}
                       </tbody>
                   </table>
+                </div>
+
 
 
 
@@ -326,9 +329,9 @@
                   <button type="button" class="btn btn-success" data-toggle="modal" data-target="#status_modal">{% trans "Set Accepted/Refused" %}</button>
                   {% endif %}
 
-  
-
                 </div>
+            </div>
+
 
             <div class="row mt">
               <div class="col-lg-6 col-md-6 col-sm-12">
@@ -353,12 +356,14 @@
                       </table>
               </div>  
             </div>
+         <!-- =========================================================================================== -->
+        </div>
 
 
         <div id="contact_addresses" class="tabcontent">
           <div class="row mt">
             <div class="col-lg-9 col-md-9 col-sm-9">
-              <h4><i class="fa fa-angle-right"></i> {% trans "Contacts/addresses for" %} {{proposal.name}}</h4>
+              <h4><i class="fa fa-angle-right"></i> {% trans "Contacts/addresses for" %} {{proposal.third_party.name}}</h4>
             </div>
             <div class="col-lg-3 col-md-3 col-sm-3" align="right">
               <a href="#"  class="btn btn-success btn-sm">{% trans "Add a new contact" %}</a>
@@ -376,9 +381,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for contact in proposal.contact_set.all %}
+                {% for contact in proposal.third_party.contact_set.all %}
                 <tr>
-                    <td> <a href="#">{{contact.first_name}} {{contact.last_name}}</a></td>
+                    <td> <a href="{{contact.get_absolute_url}}">{{contact.first_name}} {{contact.last_name}}</a></td>
                     <td>{{contact.job_title|default:"-----"|truncatechars:30 }}</td>
                     <td>{{contact.address|default:"-----"|truncatechars:50 }}</td>
                     <td>{{contact.phone}}</td>
@@ -393,13 +398,96 @@
         </div>
 
         <div id="notes" class="tabcontent">
-          <h3>#To-do</h3>
-          <p>Lorem Ipsum is simply dummy text of the printing and typesetting</p>
+          <div class="row mt">
+            <table class="table table-condensed">
+                <tbody>
+                <tr>
+                    <td>{% trans "Private note" %}</td>
+                    <td align="left">{{proposal.note_private}}</td>
+                </tr>
+                <tr>
+                    <td>{% trans "Public note" %}</td>
+                    <td align="left"> {{proposal.note_public}}</td>
+                </tr>
+                </tbody>
+            </table>
+          </div>
         </div>
 
         <div id="linked_files" class="tabcontent">
-          <h3>#To-do</h3>
-          <p>Lorem Ipsum is simply dummy text of the printing and typesetting</p>
+          <div class="row mt">
+            <table class="table table-condensed">
+                <tbody>
+                <tr>
+                    <td>{% trans "Number of attached files/documents" %}</td>
+                    <td align="left"> #To-do</td>
+                </tr>
+                <tr>
+                    <td>{% trans "Total size of attached files/documents" %}</td>
+                    <td align="left"> #To-do</td>
+                </tr>
+                </tbody>
+            </table>
+          </div>
+
+          <div class="row mt">
+            <h4>{% trans "Attached files and documents" %}</h4>
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>{% trans "Documents" %}</th>
+                    <th>{% trans "Size" %}</th>
+                    <th>{% trans "Date" %}</th>
+                    <th> </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for file in proposal.Proposalattachedfile_set.all %}
+                <tr>
+                    <td><a href="#">{{file.filename}}</a></td>
+                    <td>{{file.job_title}}</td>
+                    <td>{{file.job_title}}</td>
+                    <td>
+                      <span class="btn {% if thp.status %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{thp.status|yesno:"Open,Closed,Not set"}}</span>
+                      Edit
+                      Delete
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+          </div>
+
+          <div class="row mt">
+            <h4>{% trans "Linked files and documents" %}</h4>
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>{% trans "Link" %}</th>
+                    <th>{% trans "Date" %}</th>
+                    <th> </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for file in proposal.Proposalattachedfile_set.all %}
+                <tr>
+                    <td><a href="#">{{file.filename}}</a></td>
+                    <td>{{file.job_title}}</td>
+                    <td>{{file.job_title}}</td>
+                    <td>
+                      Edit
+                      Delete
+                    </td>
+                    <td>
+                      <span class="btn {% if thp.status %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{thp.status|yesno:"Open,Closed,Not set"}}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+          </div>
+
+
         </div>
 
         <div id="log" class="tabcontent">
@@ -407,11 +495,10 @@
           <p>Lorem Ipsum is simply dummy text of the printing and typesetting</p> 
         </div>
 
+
       </div>
 
-
-
-
+        
     </section>
 </section>
 
@@ -545,10 +632,6 @@
               </div>
             </div>
             <!-- End Modal -->
-
-
-
-      <!--main content end-->
 
 {% endblock %}
 
