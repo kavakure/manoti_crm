@@ -9,7 +9,7 @@ from .utils import generate_third_party_codes
 from django.contrib.admin.widgets import AdminDateWidget
 
 from django.contrib.auth.models import User
-from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine
+from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, ProposalLinkedFile
 
 
 class ThirdPartyForm(forms.ModelForm):
@@ -89,3 +89,11 @@ class ProposalStatusForm(forms.ModelForm):
 	class Meta:
 		model = Proposal
 		fields = ['is_signed']
+
+
+class ProposalStatusForm(forms.ModelForm):
+	"""Form used to add a linked file to a commercial proposal"""
+
+	class Meta:
+		model = ProposalLinkedFile
+		fields = ['label', 'link']
