@@ -368,7 +368,7 @@ class Proposal(models.Model):
 class ProposalLinkedFile(models.Model):
 	# 
 	proposal 	  	  = models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
-	label          	  = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	label          	  = models.CharField(_("Label"), max_length=200, blank=True, help_text=_("Label associated with the link"))
 	link       		  = models.URLField(_("Link"), blank=False, max_length=900)
 	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
 
