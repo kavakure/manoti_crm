@@ -52,11 +52,12 @@
                                   <td>{{prop.proposal_end_date|date:"d N Y" }}</td>
                                   <td>{{prop.amount_incl_tax|intcomma}} Fbu</td>
                                   <td>{{prop.author}}</td>
-                                  <td align="left">
+                                  <td align="left"> 
                                     {% if prop.is_validated %} 
-                                      {% if prop.is_signed.value == '1' %}<span class="btn btn-warning  btn-xs">{% trans 'Signed (needs Billing)' %}</span>
-                                      {% elif prop.is_signed.value == '0' %}<span class="btn btn-default  btn-xs">{% trans 'Not signed (closed)' %}</span>
-                                      {% elif proposal.is_signed.value != '1' and proposal.is_signed.value != '0' %}<span class="btn btn-warning btn-xs">{% trans 'Validated (proposal is open)' %}</span>
+                                      {% if prop.is_signed.value == '1' and prop.is_billed %}<span class="btn btn-success btn-xs">{% trans 'Billed' %}</span>
+                                      {% elif prop.is_signed.value == '1' and not prop.is_billed %}<span class="btn btn-warning  btn-xs">{% trans 'Signed (needs Billing)' %}</span>
+                                      {% elif prop.is_signed.value == '0' %}<span class="btn btn-danger  btn-xs">{% trans 'Not signed (closed)' %}</span>
+                                      {% elif prop.is_signed.value != '1' and prop.is_signed.value != '0' %}<span class="btn btn-warning btn-xs">{% trans 'Validated (proposal is open)' %}</span>
                                       {% endif %}
                                     {% else %}
                                     <span class="btn btn-default btn-xs">{% trans 'Draft (needs validation)' %}</span>
