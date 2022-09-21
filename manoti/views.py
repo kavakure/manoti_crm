@@ -14,8 +14,8 @@ from django.utils import timezone
 from datetime import datetime
 
 
-from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices, ProposalLinkedFile
-from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm
+from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices, ProposalLinkedFile, ProposalAttachedFile
+from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm, ProposalAttachedFileForm
 from .utils import generate_proposal_reference
 
 def dahshboard(request):
@@ -350,7 +350,13 @@ def proposal_view(request, proposal_id=None):
 	line_form  = ProposalLineForm()
 	clone_form = ProposalForm()
 	status_from = ProposalStatusForm()
-	link_form = ProposalLinkedFileForm()
+
+	linked_file = ProposalLinkedFile(proposal=proposal)
+	link_form = ProposalLinkedFileForm(instance=linked_file)
+
+	attached_file = ProposalAttachedFile(proposal=proposal)
+	attached_form = ProposalAttachedFileForm(instance=attached_file)
+	
 
 	if errors:
 		error_message = errors[0]
@@ -363,6 +369,7 @@ def proposal_view(request, proposal_id=None):
 		'clone_form': clone_form,
 		'status_from': status_from,
 		'link_form': link_form,
+		'attached_form': attached_form,
 		'error_message' : error_message,
 	}
 	return render(request, "proposal_view.html", ctx)
@@ -641,7 +648,7 @@ def proposal_toggle_billing_status(request, proposal_id=None):
 
 proposal_toggle_billing_status = login_required(proposal_toggle_billing_status)
 
-def proposal_linked_file_delete(request, proposal_id=None ,linked_file_id=None):
+def proposal_linked_file_delete(request, proposal_id=None, linked_file_id=None):
 	"""Removing a linked file from a Commercial proposal"""
 
 	try:
@@ -649,7 +656,7 @@ def proposal_linked_file_delete(request, proposal_id=None ,linked_file_id=None):
 		linked_file = ProposalLinkedFile.objects.get(id=linked_file_id)
 	except Exception as e:
 		print("[ERROR] >> %s" % e) # To-do: add logging to the console
-		proposal, proposal_line = None, None
+		proposal, linked_file = None, None
 
 	if request.method == 'POST' and proposal !=None and linked_file!= None:
 		try:
@@ -666,6 +673,7 @@ proposal_linked_file_delete = login_required(proposal_linked_file_delete)
 def proposal_linked_file_add(request, proposal_id=None):
 	"""This view is used to add a linked file to a commercial proposal"""
 	proposal = None
+
 	try:
 		proposal = Proposal.objects.get(id=proposal_id)
 	except Exception as e:
@@ -687,3 +695,51 @@ def proposal_linked_file_add(request, proposal_id=None):
 
 	return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
 proposal_linked_file_add = login_required(proposal_linked_file_add)
+
+
+def proposal_attached_file_delete(request, proposal_id=None, attached_file_id=None):
+	"""Removing an attached file from a Commercial proposal"""
+
+	try:
+		proposal = Proposal.objects.get(id=proposal_id)
+		attached_file = ProposalAttachedFile.objects.get(id=attached_file_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		proposal, attached_file = None, None
+
+	if request.method == 'POST' and proposal !=None and attached_file!= None:
+		try:
+			attached_file.delete()
+			messages.success(request,  _('Succcessfully deleted the attached file from the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+proposal_attached_file_delete = login_required(proposal_attached_file_delete)
+
+def proposal_attached_file_add(request, proposal_id=None):
+	"""This view is used to add a file as an attachment to a commercial proposal"""
+	proposal = None
+
+	try:
+		proposal = Proposal.objects.get(id=proposal_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+
+	if proposal != None:
+		if request.method == 'POST':
+			attached_file_form = ProposalAttachedFileForm(request.POST)
+			if attached_file_form.is_valid():
+				attachment = attached_file_form.save(commit=False)
+				attachment.timestamp = timezone.now()
+				attachment.save() # Now you can send it to DB
+				messages.success(request, _('Succcessfully attached a file to the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
+			else:
+				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
+				print("[ERROR] >>> %s" % attached_file_form.errors.as_data())
+
+
+	return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
+proposal_attached_file_add = login_required(proposal_attached_file_add)
