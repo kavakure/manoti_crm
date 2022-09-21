@@ -331,10 +331,10 @@ def proposal_list(request):
 		proposals = Proposal.objects.filter(is_validated=False).order_by('-timestamp')
 
 	elif is_signed == '1': # filter the commercial proposal list by signed status
-		proposals = Proposal.objects.filter(is_validated=True, is_signed=StatusChoices.objects.get(value=1)).order_by('-timestamp')
+		proposals = Proposal.objects.filter(is_validated=True, is_signed=StatusChoices.objects.get(value=1)).exclude(is_billed=True).order_by('-timestamp')
 
 	elif is_signed == '0': # filter the commercial proposal list by signed status
-		proposals = Proposal.objects.filter(is_validated=True, is_signed=StatusChoices.objects.get(value=0)).order_by('-timestamp')
+		proposals = Proposal.objects.filter(is_validated=True, is_signed=StatusChoices.objects.get(value=0)).exclude(is_billed=True).order_by('-timestamp')
 
 	elif is_billed: # filter the commercial proposal list by signed status
 		proposals = Proposal.objects.filter(is_billed=True).order_by('-timestamp')
@@ -625,3 +625,21 @@ def proposal_line_delete(request, proposal_id=None ,proposal_line_id=None):
 	else:
 		return http.HttpResponseRedirect(reverse('proposal_list'))
 proposal_line_delete = login_required(proposal_line_delete)
+
+
+def proposal_toggle_billing_status(request, proposal_id=None):
+	"""Determines if a relative invoice was issued to the thirparty of this commrercial proposal"""
+
+	try:
+		proposal = Proposal.objects.get(id=proposal_id)
+		if proposal.is_billed:
+			proposal.is_billed = False
+		else:
+			proposal.is_billed = True
+		proposal.save()
+		return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+
+proposal_toggle_billing_status = login_required(proposal_toggle_billing_status)
