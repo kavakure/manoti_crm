@@ -34,4 +34,6 @@ urlpatterns = [
 	url(r'^proposal-line-delete/(?P<proposal_id>[-\w]+)/(?P<proposal_line_id>[-\w]+)/$', views.proposal_line_delete, name='proposal_line_delete'),
 	url(r'^proposal-linked-file-add/(?P<proposal_id>[-\w]+)/$', views.proposal_linked_file_add, name='proposal_linked_file_add'),
 	url(r'^proposal-linked-file-delete/(?P<proposal_id>[-\w]+)/(?P<linked_file_id>[-\w]+)/$', views.proposal_linked_file_delete, name='proposal_linked_file_delete'),
+	url(r'^proposal-attached-file-add/(?P<proposal_id>[-\w]+)/$', views.proposal_attached_file_add, name='proposal_attached_file_add'),
+	url(r'^proposal-attached-file-delete/(?P<proposal_id>[-\w]+)/(?P<attached_file_id>[-\w]+)/$', views.proposal_attached_file_delete, name='proposal_attached_file_delete'),
 ]
