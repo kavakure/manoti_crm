@@ -379,7 +379,7 @@ class ProposalAttachedFile(models.Model):
 	# 
 	proposal 	  	  = models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
-	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
+	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True )
 	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True, auto_now_add=True)
 
 	def __str__(self):
