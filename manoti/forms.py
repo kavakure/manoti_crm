@@ -54,7 +54,7 @@ class ProposalForm(forms.ModelForm):
 			'amount_incl_tax',
 			'is_validated',
 			'is_signed',
-
+			'is_billed',
 		]
 
 		widgets = {
