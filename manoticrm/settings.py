@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'django.contrib.humanize',
     'widget_tweaks',
+    'storages',
     "crm",
     "hello",
     "manoti",
@@ -149,14 +150,12 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 # https://simpleisbetterthancomplex.com/tutorial/2017/08/01/how-to-setup-amazon-s3-in-a-django-project.html
 
-
-# Enable WhiteNoise's GZip compression of static assets.
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.eu-west-1.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 
 AWS_S3_OBJECT_PARAMETERS = {
@@ -179,6 +178,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+DEFAULT_FILE_STORAGE = 'manoticrm.storage_backends.MediaStorage'   
 
 
 # Test Runner Config
