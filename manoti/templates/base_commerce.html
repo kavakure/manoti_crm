@@ -118,16 +118,16 @@
                     <li><a  href="{% url 'commerce_homepage' %}"><b>{% trans "Commercial proposals" %}</b></a></li>
                     <li><a  href="{% url 'proposal_create' %}">{% trans "New proposal" %}</a></li>
                     <li class="sub-menu dcjq-parent-li">
-                        <a href="javascript:;" class="dcjq-parent">
+                        <a href="javascript:;" class="{% block commercial_proposal_active_link_class %}{% endblock %} dcjq-parent">
                             <span>{% trans "List" %}</span>
                         <span class="dcjq-icon"></span></a>
                         <ul class="sub" style="display: none; overflow: hidden;">
                             <li><a href="{% url 'proposal_list' %}">{% trans "Full list" %}</a></li>
-                            <li><a href="#">{% trans "Drafts" %}</a></li>
-                            <li><a href="#">{% trans "Open" %}</a></li>
-                            <li><a href="#">{% trans "Signed (needs billing)" %}</a></li>
-                            <li><a href="#">{% trans "Not signed (closed)" %}</a></li>
-                            <li><a href="#">{% trans "Billed" %}</a></li>
+                            <li><a href="{% url 'proposal_list' %}?is_validated=0">{% trans "Drafts" %}</a></li>
+                            <li><a href="{% url 'proposal_list' %}?is_validated=1">{% trans "Open" %}</a></li>
+                            <li><a href="{% url 'proposal_list' %}?is_signed=1">{% trans "Signed (needs billing)" %}</a></li>
+                            <li><a href="{% url 'proposal_list' %}?is_signed=0">{% trans "Not signed (closed)" %}</a></li>
+                            <li><a href="{% url 'proposal_list' %}?is_billed=1">{% trans "Billed" %}</a></li>
                         </ul>
                     </li>
 
@@ -138,7 +138,7 @@
                     <li><a  href="#">{% trans "Purchase orders" %}</a></li>
                     <li><a  href="#">{% trans "New order" %}</a></li>
                     <li class="sub-menu dcjq-parent-li">
-                        <a href="javascript:;" class="dcjq-parent">
+                        <a href="javascript:;" class=" {% block purchase_order_active_link_class %}{% endblock %}dcjq-parent">
                             <span>{% trans "List" %}</span>
                         <span class="dcjq-icon"></span></a>
                         <ul class="sub" style="display: none; overflow: hidden;">
@@ -158,7 +158,7 @@
                     <li><a  href="#">{% trans "Contracts" %}</a></li>
                     <li><a  href="#">{% trans "New contract" %}</a></li>
                     <li class="sub-menu dcjq-parent-li">
-                        <a href="javascript:;" class="dcjq-parent">
+                        <a href="javascript:;" class="dcjq-parent {% block contract_active_link_class %}{% endblock %}">
                             <span>{% trans "List" %}</span>
                         <span class="dcjq-icon"></span></a>
                         <ul class="sub" style="display: none; overflow: hidden;">
@@ -173,7 +173,7 @@
                     <li><a  href="#">{% trans "Subscriptions" %}</a></li>
                     <li><a  href="#">{% trans "New subscription" %}</a></li>
                     <li class="sub-menu dcjq-parent-li">
-                        <a href="javascript:;" class="dcjq-parent">
+                        <a href="javascript:;" class="dcjq-parent {% block subscription_active_link_class %}{% endblock %}">
                             <span>{% trans "List" %}</span>
                         <span class="dcjq-icon"></span></a>
                         <ul class="sub" style="display: none; overflow: hidden;">
