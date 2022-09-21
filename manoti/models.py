@@ -347,8 +347,9 @@ class Proposal(models.Model):
 	amount_excl_tax = models.IntegerField(_("Amount (excl. tax)"), blank=False, null=False, default=0)
 	tax = models.IntegerField(_("Amount tax"), blank=False, null=False, default=0)
 	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"), blank=False, null=False, default=0)
-	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, blank=False, null=False, help_text=_("Are you sure you want to validate this commercial proposal under name PR########?"))
+	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, blank=False, null=False, help_text=_("was this commercial proposal validated?"))
 	is_signed = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, blank=True, on_delete=models.CASCADE,  help_text=_("Determines if this commercial proposal accepted or refused by the customer or prospect"))
+	is_billed = models.BooleanField(_("Is the commercial proposal Billed?"), default=False, blank=False, null=False, help_text=_("Determines if an invoice was created from this commercial invoice"))
 
 	def __str__(self):
 		return self.reference
