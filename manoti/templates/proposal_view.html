@@ -335,15 +335,74 @@
 
             <div class="row mt">
               <div class="col-lg-6 col-md-6 col-sm-12">
-                      <h4><b><i class="fa fa-angle-right"></i> {% trans "Linked files" %}</b></h4>
-                      <table class="table">
-                        <tbody>
-                          <tr>
-                            <td> #To-Do</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                <h4><b><i class="fa fa-angle-right"></i> {% trans "Linked files" %}</b></h4>
+                <table class="table table-bordered table-striped table-condensed">
+                    <thead>
+                    <tr>
+                        <th>{% trans "Link" %}</th>
+                        <th>{% trans "Date" %}</th>
+                        <th>{% trans "Size" %}</th>
+                        <th> </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for file in proposal.proposalatttachedfile_set.all %}
+                    <tr>
+                        <td><a href="#">{{file.filename}}</a></td>
+                        <td>{{file.timestamp}}</td>
+                        <td></td>
+                        <td>
+                          <a class="btn btn-danger btn-xs">{% trans "Linked files" %}</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% for link in proposal.proposallinkedfile_set.all %}
+                    <tr>
+                        <td><a href="{{link.link}}" target="_Blank">{{link.label}}</a></td>
+                        <td>{{link.timestamp}}</td>
+                        <td></td>
+                        <td>
+                          <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_linked_file_modal{{link.id}}">&#128683;</button>
+                        </td>
+                    </tr>
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_linked_file_modal{{link.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete linked file' %}?</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="{% url 'proposal_linked_file_delete' proposal.id link.id %}">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the file:" %} <b>{{link.label}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
+                    {% endfor %}
+                    </tbody>
+                </table>
               </div>  
+
+
+
 
               <div class="col-lg-6 col-md-6 col-sm-12">
                       <h4><b><i class="fa fa-angle-right"></i> {% trans "Events on proposal" %}</b></h4>
@@ -371,6 +430,7 @@
           </div>
 
           <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
             <table class="table table-bordered table-striped table-condensed">
                 <thead>
                 <tr>
@@ -395,27 +455,32 @@
                 </tbody>
             </table>
           </div>
+          </div>
         </div>
 
         <div id="notes" class="tabcontent">
           <div class="row mt">
-            <table class="table table-condensed">
-                <tbody>
-                <tr>
-                    <td>{% trans "Private note" %}</td>
-                    <td align="left">{{proposal.note_private}}</td>
-                </tr>
-                <tr>
-                    <td>{% trans "Public note" %}</td>
-                    <td align="left"> {{proposal.note_public}}</td>
-                </tr>
-                </tbody>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+              <table class="table table-condensed">
+                  <tbody>
+                  <tr>
+                      <td>{% trans "Private note" %}</td>
+                      <td align="left">{{proposal.note_private}}</td>
+                  </tr>
+                  <tr>
+                      <td>{% trans "Public note" %}</td>
+                      <td align="left"> {{proposal.note_public}}</td>
+                  </tr>
+                  </tbody>
             </table>
+            </div>
           </div>
         </div>
 
         <div id="linked_files" class="tabcontent">
           <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <h4>{% trans "Attached files and documents" %}</h4>
             <table class="table table-condensed">
                 <tbody>
                 <tr>
@@ -428,9 +493,58 @@
                 </tr>
                 </tbody>
             </table>
+            </div>
           </div>
 
           <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+              <h4>{% trans "Link a new file/document" %}</h4>
+<!-- ############################# -->
+<form enctype="multipart/form-data" action="{% url 'proposal_linked_file_add' proposal.id %}" class="form-inline" method="post" id="proposal_linked_form" role="form">
+
+  {% render_field link_form.proposal class="form-control" %}
+  <table class="table table-condensed">
+    <tbody>
+
+        {% csrf_token %}
+        {{ link_form.non_field_errors }}
+
+        {% for hidden in link_form.hidden_fields %}
+          {{ hidden }}
+        {% endfor %}
+      <tr>
+
+        <td align="left"> 
+          {% render_field link_form.label class="form-control" %}
+          {% if link_form.label.errors %}
+            {% for error in link_form.label.errors %}
+              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ link_form.line_type.errors|join:", " }}</span><br>
+            {% endfor %}
+          {% endif %}
+        </td>
+        <td align="left"> 
+          {% render_field link_form.link class="form-control" rows="3" cols="20" %}
+          {% if link_form.link.errors %}
+            {% for error in link_form.link.errors %}
+              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ link_form.link.errors|join:", " }}</span><br>
+            {% endfor %}
+          {% endif %}
+        </td>
+        <td align="right"> 
+         <button type="submit" class="btn btn-success" ><i class="fa fa-check-circle-o" aria-hidden="true"></i>  {% trans "Add" %}</button>
+
+        </td>
+      </tr>
+      </tbody>
+  </table>
+</form> 
+<!-- ############################# -->
+
+            </div>
+          </div>
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
             <h4>{% trans "Attached files and documents" %}</h4>
             <table class="table table-bordered table-striped table-condensed">
                 <thead>
@@ -456,35 +570,76 @@
                 {% endfor %}
                 </tbody>
             </table>
+            </div>
           </div>
 
           <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
             <h4>{% trans "Linked files and documents" %}</h4>
-            <table class="table table-bordered table-striped table-condensed">
-                <thead>
-                <tr>
-                    <th>{% trans "Link" %}</th>
-                    <th>{% trans "Date" %}</th>
-                    <th> </th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for file in proposal.Proposalattachedfile_set.all %}
-                <tr>
-                    <td><a href="#">{{file.filename}}</a></td>
-                    <td>{{file.job_title}}</td>
-                    <td>{{file.job_title}}</td>
-                    <td>
-                      Edit
-                      Delete
-                    </td>
-                    <td>
-                      <span class="btn {% if thp.status %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{thp.status|yesno:"Open,Closed,Not set"}}</span>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                <table class="table table-bordered table-striped table-condensed">
+                    <thead>
+                    <tr>
+                        <th>{% trans "Link" %}</th>
+                        <th>{% trans "Date" %}</th>
+                        <th>{% trans "Size" %}</th>
+                        <th> </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for file in proposal.proposalatttachedfile_set.all %}
+                    <tr>
+                        <td><a href="#">{{file.filename}}</a></td>
+                        <td>{{file.timestamp}}</td>
+                        <td></td>
+                        <td>
+                          <a class="btn btn-danger btn-xs">{% trans "Linked files" %}</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% for link in proposal.proposallinkedfile_set.all %}
+                    <tr>
+                        <td><a href="{{link.link}}" target="_Blank">{{link.label}}</a></td>
+                        <td>{{link.timestamp}}</td>
+                        <td></td>
+                        <td>
+                          <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_linked_file_modal{{link.id}}">&#128683;</button>
+                        </td>
+                    </tr>
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_linked_file_modal{{link.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete linked file' %}?</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="{% url 'proposal_linked_file_delete' proposal.id link.id %}">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the file:" %} <b>{{link.label}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
           </div>
 
 
