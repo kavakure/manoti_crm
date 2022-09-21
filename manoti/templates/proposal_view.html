@@ -498,6 +498,35 @@
 
           <div class="row mt">
             <div class="col-lg-12 col-md-12 col-sm-12">
+              <h4>{% trans "Attach a new file/document" %}</h4>
+
+
+<!-- ########################################### -->
+              <form enctype="multipart/form-data" action="{% url 'proposal_attached_file_add' proposal.id %}" class="form-inline" method="post" id="proposal_attached_form" role="form">
+
+                 {% csrf_token %}
+                  {{ attached_form.non_field_errors }}
+
+
+                  <div class="form-group">
+                      {{attached_form.proposal.as_hidden }}
+                  </div>
+                  <div class="form-group">
+                      {% render_field attached_form.filename class="form-control" placeholder="Filename" %}
+                  </div>
+                  <div class="form-group">
+                      {% render_field attached_form.attachment class="form-control" placeholder="URL" %}
+                  </div> 
+                  <button type="submit" class="btn btn-theme">{% trans "Add" %}</button>
+              </form>
+<!-- ########################################### -->
+
+            </div>
+          </div>
+
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
               <h4>{% trans "Link a new file/document" %}</h4>
 
 
@@ -512,7 +541,7 @@
                   {% endfor %}
 
                   <div class="form-group">
-                      {% render_field link_form.proposal class="form-control" %}
+                      {{link_form.proposal.as_hidden }}
                   </div>
                   <div class="form-group">
                       {% render_field link_form.label class="form-control" placeholder="Label" %}
