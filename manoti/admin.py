@@ -11,7 +11,7 @@ class  ProposalLine_Inline(admin.StackedInline):
 	extra = 2
 
 class ProposalOptions(admin.ModelAdmin):
-	list_display = ('reference', 'customer_reference', 'third_party', 'timestamp', 'amount_incl_tax', 'is_validated', 'is_signed')
+	list_display = ('reference', 'customer_reference', 'third_party', 'timestamp', 'amount_incl_tax', 'is_validated', 'is_signed', 'is_billed')
 	inlines = [ProposalLine_Inline]
 
 admin.site.register(Business)
