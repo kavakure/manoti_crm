@@ -14,7 +14,7 @@ from django.utils import timezone
 from datetime import datetime
 
 
-from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine
+from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices
 from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm
 from .utils import generate_proposal_reference
 
@@ -324,16 +324,19 @@ def proposal_list(request):
 
 	proposals = []
 
-	if is_validated_filter: # filter the commercial proposal list by validation status
-		print(is_validated_filter)
+	if is_validated_filter == '1': # filter the commercial proposal list by validation status
 		proposals = Proposal.objects.filter(is_validated=True).order_by('-timestamp')
 
-	elif is_signed: # filter the commercial proposal list by signed status
-		print(is_signed)
-		proposals = Proposal.objects.filter(is_signed=True).order_by('-timestamp')
+	elif is_validated_filter == '0':
+		proposals = Proposal.objects.filter(is_validated=False).order_by('-timestamp')
 
-	elif is_signed: # filter the commercial proposal list by signed status
-		print(is_billed)
+	elif is_signed == '1': # filter the commercial proposal list by signed status
+		proposals = Proposal.objects.filter(is_validated=True, is_signed=StatusChoices.objects.get(value=1)).order_by('-timestamp')
+
+	elif is_signed == '0': # filter the commercial proposal list by signed status
+		proposals = Proposal.objects.filter(is_validated=True, is_signed=StatusChoices.objects.get(value=0)).order_by('-timestamp')
+
+	elif is_billed: # filter the commercial proposal list by signed status
 		proposals = Proposal.objects.filter(is_billed=True).order_by('-timestamp')
 
 	else:
