@@ -14,8 +14,8 @@ from django.utils import timezone
 from datetime import datetime
 
 
-from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices
-from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm
+from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices, ProposalLinkedFile
+from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm
 from .utils import generate_proposal_reference
 
 def dahshboard(request):
@@ -251,9 +251,6 @@ def contact_create(request):
 	return render(request, 'contact_form.html', {'contact_form': contact_form})
 contact_create = login_required(contact_create)
 
-
-
-
 def contact_edit(request, contact_id=None):
 	"""This view is used to modify a contact"""
 
@@ -286,7 +283,6 @@ def contact_edit(request, contact_id=None):
 
 	return render(request, 'contact_form.html', ctx)
 contact_edit = login_required(contact_edit)
-
 
 
 ##################################################################################################
@@ -354,6 +350,7 @@ def proposal_view(request, proposal_id=None):
 	line_form  = ProposalLineForm()
 	clone_form = ProposalForm()
 	status_from = ProposalStatusForm()
+	link_form = ProposalLinkedFileForm()
 
 	if errors:
 		error_message = errors[0]
@@ -365,6 +362,7 @@ def proposal_view(request, proposal_id=None):
 		'line_form': line_form,
 		'clone_form': clone_form,
 		'status_from': status_from,
+		'link_form': link_form,
 		'error_message' : error_message,
 	}
 	return render(request, "proposal_view.html", ctx)
@@ -626,7 +624,6 @@ def proposal_line_delete(request, proposal_id=None ,proposal_line_id=None):
 		return http.HttpResponseRedirect(reverse('proposal_list'))
 proposal_line_delete = login_required(proposal_line_delete)
 
-
 def proposal_toggle_billing_status(request, proposal_id=None):
 	"""Determines if a relative invoice was issued to the thirparty of this commrercial proposal"""
 
@@ -643,3 +640,50 @@ def proposal_toggle_billing_status(request, proposal_id=None):
 		return http.HttpResponseRedirect(reverse('proposal_list'))
 
 proposal_toggle_billing_status = login_required(proposal_toggle_billing_status)
+
+def proposal_linked_file_delete(request, proposal_id=None ,linked_file_id=None):
+	"""Removing a linked file from a Commercial proposal"""
+
+	try:
+		proposal = Proposal.objects.get(id=proposal_id)
+		linked_file = ProposalLinkedFile.objects.get(id=linked_file_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		proposal, proposal_line = None, None
+
+	if request.method == 'POST' and proposal !=None and linked_file!= None:
+		try:
+			linked_file.delete()
+			messages.success(request,  _('Succcessfully deleted the linked file'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+proposal_linked_file_delete = login_required(proposal_linked_file_delete)
+
+
+def proposal_linked_file_add(request, proposal_id=None):
+	"""This view is used to add a linked file to a commercial proposal"""
+	proposal = None
+	try:
+		proposal = Proposal.objects.get(id=proposal_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('proposal_list'))
+
+	if proposal != None:
+		if request.method == 'POST':
+			proposal_linked_file_form = ProposalLinkedFileForm(request.POST)
+			if proposal_linked_file_form.is_valid():
+				link = proposal_linked_file_form.save(commit=False)
+				link.timestamp = timezone.now()
+				link.save() # Now you can send it to DB
+				messages.success(request, _('Succcessfully added a linked file to the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
+			else:
+				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
+				print("[ERROR] >>> %s" % proposal_linked_file_form.errors.as_data())
+
+
+	return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
+proposal_linked_file_add = login_required(proposal_linked_file_add)
