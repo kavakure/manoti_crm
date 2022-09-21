@@ -315,9 +315,30 @@ def commerce_homepage(request):
 
 def proposal_list(request):
 	"""
-	List all the commerical proposals of a given business
+	List all the commerical proposals of a given business or filter them by a given keyword
 	"""
-	proposals = Proposal.objects.all().order_by('-timestamp')
+
+	is_validated_filter = request.GET.get('is_validated',None)
+	is_signed = request.GET.get('is_signed',None)
+	is_billed = request.GET.get('is_billed',None)
+
+	proposals = []
+
+	if is_validated_filter: # filter the commercial proposal list by validation status
+		print(is_validated_filter)
+		proposals = Proposal.objects.filter(is_validated=True).order_by('-timestamp')
+
+	elif is_signed: # filter the commercial proposal list by signed status
+		print(is_signed)
+		proposals = Proposal.objects.filter(is_signed=True).order_by('-timestamp')
+
+	elif is_signed: # filter the commercial proposal list by signed status
+		print(is_billed)
+		proposals = Proposal.objects.filter(is_billed=True).order_by('-timestamp')
+
+	else:
+		proposals = Proposal.objects.all().order_by('-timestamp')
+
 	return render(request, "proposal_list.html", {"proposals": proposals})
 
 def proposal_view(request, proposal_id=None):
