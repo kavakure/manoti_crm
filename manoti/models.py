@@ -368,20 +368,19 @@ class Proposal(models.Model):
 class ProposalLinkedFile(models.Model):
 	# 
 	proposal 	  	  = models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
-	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
-	link       		  = models.URLField(_("Link"), blank=True, max_length=900)
+	label          	  = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	link       		  = models.URLField(_("Link"), blank=False, max_length=900)
 	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
-	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
 
 	def __str__(self):
-		return self.filename
+		return self.link
 
 class ProposalAttachedFile(models.Model):
 	# 
 	proposal 	  	  = models.ForeignKey(Proposal, verbose_name=_("Proposal"), null=True, on_delete=models.CASCADE)
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
-	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
+	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True, auto_now_add=True)
 
 	def __str__(self):
 		return self.filename
