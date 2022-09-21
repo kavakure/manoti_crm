@@ -14,9 +14,13 @@ class  ProposalLinkedFile_Inline(admin.StackedInline):
 	model = ProposalLinkedFile
 	extra = 2
 
+class  ProposalAttachedFile_Inline(admin.StackedInline):
+	model = ProposalAttachedFile
+	extra = 2
+
 class ProposalOptions(admin.ModelAdmin):
 	list_display = ('reference', 'customer_reference', 'third_party', 'timestamp', 'amount_incl_tax', 'is_validated', 'is_signed', 'is_billed')
-	inlines = [ProposalLine_Inline, ProposalLinkedFile_Inline]
+	inlines = [ProposalLine_Inline, ProposalLinkedFile_Inline, ProposalAttachedFile_Inline]
 
 admin.site.register(Business)
 admin.site.register(BusinessAccountant)
