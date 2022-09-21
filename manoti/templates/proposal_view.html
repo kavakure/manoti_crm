@@ -499,46 +499,30 @@
           <div class="row mt">
             <div class="col-lg-12 col-md-12 col-sm-12">
               <h4>{% trans "Link a new file/document" %}</h4>
-<!-- ############################# -->
-<form enctype="multipart/form-data" action="{% url 'proposal_linked_file_add' proposal.id %}" class="form-inline" method="post" id="proposal_linked_form" role="form">
 
-  {% render_field link_form.proposal class="form-control" %}
-  <table class="table table-condensed">
-    <tbody>
 
-        {% csrf_token %}
-        {{ link_form.non_field_errors }}
+<!-- ########################################### -->
+              <form enctype="multipart/form-data" action="{% url 'proposal_linked_file_add' proposal.id %}" class="form-inline" method="post" id="proposal_linked_form" role="form">
 
-        {% for hidden in link_form.hidden_fields %}
-          {{ hidden }}
-        {% endfor %}
-      <tr>
+                 {% csrf_token %}
+                  {{ link_form.non_field_errors }}
 
-        <td align="left"> 
-          {% render_field link_form.label class="form-control" %}
-          {% if link_form.label.errors %}
-            {% for error in link_form.label.errors %}
-              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ link_form.line_type.errors|join:", " }}</span><br>
-            {% endfor %}
-          {% endif %}
-        </td>
-        <td align="left"> 
-          {% render_field link_form.link class="form-control" rows="3" cols="20" %}
-          {% if link_form.link.errors %}
-            {% for error in link_form.link.errors %}
-              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ link_form.link.errors|join:", " }}</span><br>
-            {% endfor %}
-          {% endif %}
-        </td>
-        <td align="right"> 
-         <button type="submit" class="btn btn-success" ><i class="fa fa-check-circle-o" aria-hidden="true"></i>  {% trans "Add" %}</button>
+                  {% for hidden in link_form.hidden_fields %}
+                    {{ hidden }}
+                  {% endfor %}
 
-        </td>
-      </tr>
-      </tbody>
-  </table>
-</form> 
-<!-- ############################# -->
+                  <div class="form-group">
+                      {% render_field link_form.proposal class="form-control" %}
+                  </div>
+                  <div class="form-group">
+                      {% render_field link_form.label class="form-control" placeholder="Label" %}
+                  </div>
+                  <div class="form-group">
+                      {% render_field link_form.link class="form-control" placeholder="URL" %}
+                  </div>
+                  <button type="submit" class="btn btn-theme">{% trans "Add" %}</button>
+              </form>
+<!-- ########################################### -->
 
             </div>
           </div>
