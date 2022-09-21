@@ -91,7 +91,7 @@ class ProposalStatusForm(forms.ModelForm):
 		fields = ['is_signed']
 
 
-class ProposalStatusForm(forms.ModelForm):
+class ProposalLinkedFileForm(forms.ModelForm):
 	"""Form used to add a linked file to a commercial proposal"""
 
 	class Meta:
