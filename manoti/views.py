@@ -718,6 +718,7 @@ def proposal_attached_file_delete(request, proposal_id=None, attached_file_id=No
 		return http.HttpResponseRedirect(reverse('proposal_list'))
 proposal_attached_file_delete = login_required(proposal_attached_file_delete)
 
+@login_required
 def proposal_attached_file_add(request, proposal_id=None):
 	"""This view is used to add a file as an attachment to a commercial proposal"""
 	proposal = None
@@ -729,12 +730,16 @@ def proposal_attached_file_add(request, proposal_id=None):
 		return http.HttpResponseRedirect(reverse('proposal_list'))
 
 	if proposal != None:
+
+		attached_file_form = ProposalAttachedFileForm(request.POST or None,
+								 request.FILES or None)
+
 		if request.method == 'POST':
-			attached_file_form = ProposalAttachedFileForm(request.POST)
 			if attached_file_form.is_valid():
 				attachment = attached_file_form.save(commit=False)
+				doc_file = request.FILES['avatar']
 				attachment.timestamp = timezone.now()
-				attachment.save() # Now you can send it to DB
+				attachment.save(doc_file.name, doc_file) # Now you can send it to DB
 				messages.success(request, _('Succcessfully attached a file to the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
 			else:
 				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
@@ -742,4 +747,5 @@ def proposal_attached_file_add(request, proposal_id=None):
 
 
 	return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
-proposal_attached_file_add = login_required(proposal_attached_file_add)
+
+
