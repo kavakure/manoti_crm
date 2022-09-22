@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import get_language, ugettext, ugettext_lazy as _
 from .validators import validate_file_size, validate_image_file_extension, validate_document_file_extension
-
+import boto3
+from decouple import config
 
 from django.urls import reverse
 
@@ -385,6 +386,17 @@ class ProposalAttachedFile(models.Model):
 	def __str__(self):
 		return self.filename
 
+	def get_file_size(self):
+		s3 = boto3.resource('s3',
+			 aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
+			 aws_secret_access_key= config('AWS_SECRET_ACCESS_KEY'))
+		bucket = s3.Bucket('manoti')
+		try:
+			return bucket.Object(self.attachment.url.replace('https://manoti.s3.eu-west-1.amazonaws.com/', '')).content_length
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+			return " --- "
+		
 class LineType(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
@@ -493,8 +505,8 @@ class BankAccountAttachedFile(models.Model):
 		return self.filename
 
 SENS_CHOICES = (
-    (-1, 'Credit'),
-    (1, 'Debit'),
+	(-1, 'Credit'),
+	(1, 'Debit'),
 )
 
 class BankEntry(models.Model):
@@ -520,8 +532,8 @@ class BankEntry(models.Model):
 
 VENDOR_INVOICE_CHOICES = (
 	("standard", 'Standard invoice'),
-    ("downpayment", 'Downpayment invoice'),
-    ("credit", 'Credit Note'),
+	("downpayment", 'Downpayment invoice'),
+	("credit", 'Credit Note'),
 )
 
 class VendorInvoice(models.Model):
@@ -604,10 +616,10 @@ class VendorInvoiceContact(models.Model):
 
 CUSTOMER_INVOICE_CHOICES = (
 	("standard", 'Standard invoice'),
-    ("downpayment", 'Downpayment invoice'),
-    ("replacement", 'Replacement invoice'),
-    ("credit", 'Credit Note'),
-    ("template", 'Template Invoice'),
+	("downpayment", 'Downpayment invoice'),
+	("replacement", 'Replacement invoice'),
+	("credit", 'Credit Note'),
+	("template", 'Template Invoice'),
 )
 
 class CustomerInvoice(models.Model):
