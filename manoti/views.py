@@ -747,4 +747,6 @@ def proposal_attached_file_add(request, proposal_id=None):
 
 	return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
 
-
+##################################################################################################
+### Billing area ralated views
+##################################################################################################

@@ -341,26 +341,54 @@
                     <tr>
                         <th>{% trans "Link" %}</th>
                         <th>{% trans "Date" %}</th>
-                        <th>{% trans "Size" %}</th>
                         <th> </th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for file in proposal.proposalatttachedfile_set.all %}
+                    {% for file in proposal.proposalattachedfile_set.all %}
                     <tr>
                         <td><a href="#">{{file.filename}}</a></td>
                         <td>{{file.timestamp}}</td>
-                        <td></td>
                         <td>
-                          <a class="btn btn-danger btn-xs">{% trans "Linked files" %}</a>
+                          <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_attached_file_modal{{file.id}}">&#128683;</button>
                         </td>
                     </tr>
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_attached_file_modal{{file.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete attached file' %}?</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="{% url 'proposal_attached_file_delete' proposal.id file.id %}">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the file:" %} <b>{{file.filename}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes' %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
                     {% endfor %}
                     {% for link in proposal.proposallinkedfile_set.all %}
                     <tr>
                         <td><a href="{{link.link}}" target="_Blank">{{link.label}}</a></td>
                         <td>{{link.timestamp}}</td>
-                        <td></td>
                         <td>
                           <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_linked_file_modal{{link.id}}">&#128683;</button>
                         </td>
@@ -383,7 +411,7 @@
                                       </div>
                                       <div class="modal-footer">
                                                 <div class="pull-left">
-                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes' %}"/>
                                                 </form>
                                                 </div>
                                                     </form>
@@ -569,11 +597,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for file in proposal.Proposalattachedfile_set.all %}
+
+                {% for file in proposal.proposalattachedfile_set.all %}
                 <tr>
                     <td><a href="#">{{file.filename}}</a></td>
                     <td>{{file.job_title}}</td>
-                    <td>{{file.job_title}}</td>
+                    <td>{{file.timestamp}}</td>
                     <td>
                       <span class="btn {% if thp.status %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{thp.status|yesno:"Open,Closed,Not set"}}</span>
                       Edit
