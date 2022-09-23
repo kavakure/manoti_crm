@@ -460,10 +460,10 @@ class BankAccount(models.Model):
 	# 
 	author 			= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
 	is_private 		= models.BooleanField(_("Visibilty"), default=False)
-	business        = models.ForeignKey(Business, verbose_name=_("Bank Account"), blank=False, null=False, on_delete=models.CASCADE)
+	business        = models.ForeignKey(Business, verbose_name=_("Business"), blank=False, null=False, on_delete=models.CASCADE)
 	reference       = models.CharField(_("Reference"), max_length=200, blank=False, null=False)
 	account_type    = models.CharField(_("Account type"), max_length=200, blank=False, null=False, choices=BANK_ACCOUNT_TYPE_CHOICES)
-	status 			= models.CharField(_("Status"), choices=STATUS_CHOICES, max_length=200, blank=True)
+	status 			= models.BooleanField(_("Is this account active ?"), default=False)
 	currency       	= models.CharField(_("Currency"), max_length=200, blank=True, default ="Fbu", help_text=_("What is the Currency of this financial institution"))
 	country         = models.CharField(_("Account country"), max_length=200, blank=True, default ="Burundi", help_text=_("Indicate the country where the bank/financial instituion is located "))
 	state_province  = models.CharField(_("State/Province"), max_length=200, blank=True, default ="Bujumbura", help_text=_("Indicate the State or Province where the bank/financial instituion is located and/or registered"))
@@ -471,7 +471,7 @@ class BankAccount(models.Model):
 	comment		    = models.TextField(_("Comment"), blank=True, null=True)
 	balance 		= models.IntegerField(_("Balance"), blank=False, null=False, default=0)
 	initial_balance = models.IntegerField(_("Initial balance"), blank=False, null=False, default=0)
-	timestamp 		= models.DateTimeField(_("Date"), blank=True)
+	timestamp 		= models.DateTimeField(_("Date"), blank=True, auto_now_add=True)
 	minimum_allowed_balance = models.IntegerField(_("Minimum allowed balance"), blank=True, null=True, default=0)
 	minimum_desired_balance = models.IntegerField(_("Minimum desired balance"), blank=True, null=True, default=0)
 	name            = models.CharField(_("Bank name"), max_length=200, blank=True, null=True)
@@ -481,6 +481,9 @@ class BankAccount(models.Model):
 	address         = models.TextField(_("Bank address"), blank=True, null=True, help_text=_("Please mention here the full address of the financial institution"))
 	account_owner_name = models.CharField(_("Account owner name"), max_length=200, blank=True, null=True)
 	account_owner_address = models.TextField(_("account owner address"), blank=True, null=True, help_text=_("Please mention here the full address of the financial institution"))
+	accounting_account = models.CharField(_("Accounting account"), max_length=200, blank=True, null=True)
+	entries_to_reconcile = models.IntegerField(_("Entries to reconcile"), blank=True, null=True, default=0)
+	entries_late_to_reconcile = models.IntegerField(_("Entries late to reconcile"), blank=True, null=True, default=0)
 
 	def __str__(self):
 		return self.reference
