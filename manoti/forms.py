@@ -9,7 +9,7 @@ from .utils import generate_third_party_codes
 from django.contrib.admin.widgets import AdminDateWidget
 
 from django.contrib.auth.models import User
-from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, ProposalLinkedFile, ProposalAttachedFile
+from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, ProposalLinkedFile, ProposalAttachedFile, BankAccount
 
 
 class ThirdPartyForm(forms.ModelForm):
@@ -105,3 +105,19 @@ class ProposalAttachedFileForm(forms.ModelForm):
 	class Meta:
 		model = ProposalAttachedFile
 		fields = ['proposal', 'filename', 'attachment'] 
+
+class BankAccountForm(forms.ModelForm):
+	"""Form used to create or edit a commercial proposal"""
+
+	class Meta:
+		model = BankAccount
+
+		exclude = [
+			'author',
+			'balance',
+			'entries_to_reconcile',
+			'entries_late_to_reconcile',
+		]
+		widgets = {
+			'timestamp': DateTimeInput(),
+		}
