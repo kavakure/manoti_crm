@@ -40,4 +40,6 @@ urlpatterns = [
     url(r'^billing/$', views.billing_homepage, name='billing_homepage'),
     #Bank|cash area related URLS
     url(r'^bank/$', views.bank_homepage, name='bank_homepage'),
+    url(r'^bank-view/(?P<bank_id>[-\w]+)/$', views.bank_view, name='bank_view'),
+	url(r'^bank-create/$', views.bank_create, name='bank_create'),
 ]
