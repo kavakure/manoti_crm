@@ -458,6 +458,8 @@ BANK_ACCOUNT_TYPE_CHOICES = (
 
 class BankAccount(models.Model):
 	# 
+	author 			= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
+	is_private 		= models.BooleanField(_("Visibilty"), default=False)
 	business        = models.ForeignKey(Business, verbose_name=_("Bank Account"), blank=False, null=False, on_delete=models.CASCADE)
 	reference       = models.CharField(_("Reference"), max_length=200, blank=False, null=False)
 	account_type    = models.CharField(_("Account type"), max_length=200, blank=False, null=False, choices=BANK_ACCOUNT_TYPE_CHOICES)
@@ -538,6 +540,8 @@ VENDOR_INVOICE_CHOICES = (
 
 class VendorInvoice(models.Model):
 	# 
+	author 				= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
+	is_private 		 	= models.BooleanField(_("Visibilty"), default=False)
 	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft", unique=True)
 	third_party 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Vendor"), blank=False, null=False, on_delete=models.CASCADE)
 	vendor_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
@@ -624,6 +628,8 @@ CUSTOMER_INVOICE_CHOICES = (
 
 class CustomerInvoice(models.Model):
 	# 
+	author 				= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
+	is_private 		 	= models.BooleanField(_("Visibilty"), default=False)
 	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft", unique=True)
 	third_party 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Customer"), blank=False, null=False, on_delete=models.CASCADE)
 	customer_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
