@@ -15,6 +15,8 @@ from datetime import datetime
 
 
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices, ProposalLinkedFile, ProposalAttachedFile
+from .models import VendorInvoice, CustomerInvoice
+from .models import BankAccount
 from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm, ProposalAttachedFileForm
 from .utils import generate_proposal_reference
 
@@ -750,3 +752,29 @@ def proposal_attached_file_add(request, proposal_id=None):
 ##################################################################################################
 ### Billing area ralated views
 ##################################################################################################
+
+
+def billing_homepage(request):
+	"""
+	This is the homepage for the billing and payment area,
+	"""
+	vendor_invoices = VendorInvoice.objects.all().order_by('-date')[:15]
+	customer_invoices = CustomerInvoice.objects.all().order_by('-date')[:15]
+	return render(request, "billing_home.html", {"vendor_invoices": vendor_invoices, "customer_invoices": customer_invoices})
+
+
+
+
+
+
+##################################################################################################
+### Bank|cash area ralated views
+##################################################################################################
+
+
+def bank_homepage(request):
+	"""
+	This is the homepage for the Bank | Cash area
+	"""
+	banks = BankAccount.objects.all()[:15]
+	return render(request, "bank_home.html", {"banks": banks})

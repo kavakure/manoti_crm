@@ -19,7 +19,7 @@ urlpatterns = [
 	url(r'^contact-change-status/(?P<contact_id>[-\w]+)/$', views.contact_change_status, name='contact_change_status'),
 	url(r'^contact-create/$', views.contact_create, name='contact_create'),
 	url(r'^contact-edit/(?P<contact_id>[-\w]+)/$', views.contact_edit, name='contact_edit'),
-	#Commerce related views
+	#Commerce related URLS
 	url(r'^commerce/$', views.commerce_homepage, name='commerce_homepage'),
 	url(r'^proposal-list/$', views.proposal_list, name='proposal_list'),
 	url(r'^proposal-view/(?P<proposal_id>[-\w]+)/$', views.proposal_view, name='proposal_view'),
@@ -36,4 +36,8 @@ urlpatterns = [
 	url(r'^proposal-linked-file-delete/(?P<proposal_id>[-\w]+)/(?P<linked_file_id>[-\w]+)/$', views.proposal_linked_file_delete, name='proposal_linked_file_delete'),
 	url(r'^proposal-attached-file-add/(?P<proposal_id>[-\w]+)/$', views.proposal_attached_file_add, name='proposal_attached_file_add'),
 	url(r'^proposal-attached-file-delete/(?P<proposal_id>[-\w]+)/(?P<attached_file_id>[-\w]+)/$', views.proposal_attached_file_delete, name='proposal_attached_file_delete'),
+    #Billing area ralated URLS
+    url(r'^billing/$', views.billing_homepage, name='billing_homepage'),
+    #Bank|cash area related URLS
+    url(r'^bank/$', views.bank_homepage, name='bank_homepage'),
 ]
