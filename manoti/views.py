@@ -18,11 +18,14 @@ from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, 
 from .models import VendorInvoice, CustomerInvoice
 from .models import BankAccount
 from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm, ProposalAttachedFileForm
+from .forms import BankAccountForm
 from .utils import generate_proposal_reference
 
+@login_required
 def dahshboard(request):
 	return render(request, "dashboard.html")
 
+@login_required
 def third_party_homepage(request):
 	"""
 	THis is the homepage for the Third-party area,
@@ -32,6 +35,7 @@ def third_party_homepage(request):
 	contacts = Contact.objects.all().order_by('-date_added')[:15]
 	return render(request, "third_party_home.html", {"third_parties": third_parties, "contacts": contacts})
 
+@login_required
 def list_third_parties(request):
 	"""
 	List all the Third parties of a given business
@@ -39,6 +43,7 @@ def list_third_parties(request):
 	third_parties = ThirdParty.objects.all().order_by('-date_added')
 	return render(request, "third_party_list.html", {"third_parties": third_parties})
 
+@login_required
 def filtered_list_third_parties(request, thirdparty_type=None):
 	"""
 	List filtered Third parties of a given business by prospect/customer type
@@ -51,6 +56,7 @@ def filtered_list_third_parties(request, thirdparty_type=None):
 
 	return render(request, "third_party_list.html", {"third_parties": third_parties,})
 
+@login_required
 def third_party_view(request, thirdparty_id=None):
 	"""
 	View that displays a given third party
@@ -71,7 +77,7 @@ def third_party_view(request, thirdparty_id=None):
 	}
 	return render(request, "third_party_view.html", ctx)
 
-
+@login_required
 def third_party_create(request):
 	"""This view is used on order to create a Third party"""
 	next_url = request.GET.get('next',None)
@@ -94,9 +100,8 @@ def third_party_create(request):
 	else:
 		third_party_form = ThirdPartyForm()
 	return render(request, 'third_party_form.html', {'third_party_form': third_party_form})
-third_party_create = login_required(third_party_create)
 
-
+@login_required
 def third_party_edit(request, thirdparty_id=None):
 	"""This view is used to modify a Third party"""
 
@@ -128,9 +133,8 @@ def third_party_edit(request, thirdparty_id=None):
 	}
 
 	return render(request, 'third_party_form.html', ctx)
-third_party_edit = login_required(third_party_edit)
 
-
+@login_required
 def third_party_delete(request, thirdparty_id=None):
 	"""Deletes a Third party from the database"""
 
@@ -144,9 +148,8 @@ def third_party_delete(request, thirdparty_id=None):
 		return http.HttpResponseRedirect(reverse('list_third_parties'))
 	else:
 		return http.HttpResponseRedirect(reverse('list_third_parties'))
-third_party_delete = login_required(third_party_delete)
 
-
+@login_required
 def list_contacts(request):
 	"""
 	Lists all the contacts of a given business
@@ -154,6 +157,7 @@ def list_contacts(request):
 	contacts = Contact.objects.all().order_by('-date_added')
 	return render(request, "contact_list.html", {"contacts": contacts})
 
+@login_required
 def filtered_list_contact(request, thirdparty_type=None):
 	"""
 	List filtered contacts of a given business by prospect/customer type
@@ -171,6 +175,7 @@ def filtered_list_contact(request, thirdparty_type=None):
 
 	return render(request, "contact_list.html", {"contacts": contacts})
 
+@login_required
 def contact_view(request, contact_id=None):
 	"""
 	View that displays a given contact
@@ -191,6 +196,7 @@ def contact_view(request, contact_id=None):
 	}
 	return render(request, "contact_view.html", ctx)
 
+@login_required
 def contact_delete(request, contact_id=None):
 	"""Deletes a contact from the database"""
 
@@ -204,8 +210,8 @@ def contact_delete(request, contact_id=None):
 		return http.HttpResponseRedirect(reverse('list_contacts'))
 	else:
 		return http.HttpResponseRedirect(reverse('list_contacts'))
-contact_delete = login_required(contact_delete)
 
+@login_required
 def contact_change_status(request, contact_id=None):
 	"""Changes the status of the contact"""
 
@@ -229,9 +235,8 @@ def contact_change_status(request, contact_id=None):
 			return http.HttpResponseRedirect(reverse('contact_view', kwargs={'contact_id': contact.id}))
 		else:
 			return http.HttpResponseRedirect(reverse('list_contacts'))
-contact_change_status = login_required(contact_change_status)
 
-
+@login_required
 def contact_create(request):
 	"""Creates a contact"""
 	next_url = request.GET.get('next',None)
@@ -251,8 +256,8 @@ def contact_create(request):
 	else:
 		contact_form = ContactForm()
 	return render(request, 'contact_form.html', {'contact_form': contact_form})
-contact_create = login_required(contact_create)
 
+@login_required
 def contact_edit(request, contact_id=None):
 	"""This view is used to modify a contact"""
 
@@ -284,14 +289,13 @@ def contact_edit(request, contact_id=None):
 	}
 
 	return render(request, 'contact_form.html', ctx)
-contact_edit = login_required(contact_edit)
 
 
 ##################################################################################################
 ### Commerce area ralated views
 ##################################################################################################
 
-
+@login_required
 def commerce_homepage(request):
 	"""
 	This is the homepage for the commerce area,
@@ -310,7 +314,7 @@ def commerce_homepage(request):
 	}
 	return render(request, "commerce_home.html", ctx)
 
-
+@login_required
 def proposal_list(request):
 	"""
 	List all the commerical proposals of a given business or filter them by a given keyword
@@ -342,6 +346,7 @@ def proposal_list(request):
 
 	return render(request, "proposal_list.html", {"proposals": proposals})
 
+@login_required
 def proposal_view(request, proposal_id=None):
 	"""
 	View a commercial proposal by it's ID
@@ -376,6 +381,7 @@ def proposal_view(request, proposal_id=None):
 	}
 	return render(request, "proposal_view.html", ctx)
 
+@login_required
 def proposal_create(request):
 	"""This view is used on order to create a commercial proposal"""
 	next_url = request.GET.get('next',None)
@@ -399,9 +405,8 @@ def proposal_create(request):
 	else:
 		proposal_form = ProposalForm()
 	return render(request, 'proposal_form.html', {'proposal_form': proposal_form})
-proposal_create = login_required(proposal_create)
 
-
+@login_required
 def proposal_edit(request, proposal_id=None):
 	"""This view is used to modify a commercial proposal"""
 
@@ -433,8 +438,8 @@ def proposal_edit(request, proposal_id=None):
 	}
 
 	return render(request, 'proposal_form.html', ctx)
-proposal_edit = login_required(proposal_edit)
 
+@login_required
 def proposal_delete(request, proposal_id=None):
 	"""Deletes a commrercial proposal from the database"""
 
@@ -448,8 +453,8 @@ def proposal_delete(request, proposal_id=None):
 		return http.HttpResponseRedirect(reverse('proposal_list'))
 	else:
 		return http.HttpResponseRedirect(reverse('proposal_list'))
-proposal_delete = login_required(proposal_delete)
 
+@login_required
 def proposal_clone(request, proposal_id=None):
 	"""Creates a commrercial proposal clone from the database"""
 
@@ -506,8 +511,8 @@ def proposal_clone(request, proposal_id=None):
 				print("[ERROR] >> %s" % proposal_form.errors) # To-do: add logging to the console
 	else:
 		return http.HttpResponseRedirect(reverse('proposal_list'))
-proposal_clone = login_required(proposal_clone)
 
+@login_required
 def proposal_toggle_validation(request, proposal_id=None):
 	"""Sets the status of a commrercial proposal from the database"""
 
@@ -530,8 +535,8 @@ def proposal_toggle_validation(request, proposal_id=None):
 		return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
 	else:
 		return http.HttpResponseRedirect(reverse('proposal_list'))
-proposal_toggle_validation = login_required(proposal_toggle_validation)
 
+@login_required
 def proposal_set_status(request, proposal_id=None):
 	"""Determines if a commercial proposal is accepted or refused by a third-party"""
 
@@ -557,8 +562,8 @@ def proposal_set_status(request, proposal_id=None):
 		return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
 	else:
 		return http.HttpResponseRedirect(reverse('proposal_list'))
-proposal_set_status = login_required(proposal_set_status)
 
+@login_required
 def proposal_line_add(request, proposal_id=None):
 	"""This view is used to add a item line to a commercial proposal"""
 	proposal = None
@@ -599,8 +604,8 @@ def proposal_line_add(request, proposal_id=None):
 
 
 	return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
-proposal_line_add = login_required(proposal_line_add)
 
+@login_required
 def proposal_line_delete(request, proposal_id=None ,proposal_line_id=None):
 	"""Removing a product/service line from a Commercial proposal"""
 
@@ -631,8 +636,8 @@ def proposal_line_delete(request, proposal_id=None ,proposal_line_id=None):
 		return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
 	else:
 		return http.HttpResponseRedirect(reverse('proposal_list'))
-proposal_line_delete = login_required(proposal_line_delete)
 
+@login_required
 def proposal_toggle_billing_status(request, proposal_id=None):
 	"""Determines if a relative invoice was issued to the thirparty of this commrercial proposal"""
 
@@ -648,8 +653,7 @@ def proposal_toggle_billing_status(request, proposal_id=None):
 		print("[ERROR] >> %s" % e) # To-do: add logging to the console
 		return http.HttpResponseRedirect(reverse('proposal_list'))
 
-proposal_toggle_billing_status = login_required(proposal_toggle_billing_status)
-
+@login_required
 def proposal_linked_file_delete(request, proposal_id=None, linked_file_id=None):
 	"""Removing a linked file from a Commercial proposal"""
 
@@ -669,9 +673,8 @@ def proposal_linked_file_delete(request, proposal_id=None, linked_file_id=None):
 		return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
 	else:
 		return http.HttpResponseRedirect(reverse('proposal_list'))
-proposal_linked_file_delete = login_required(proposal_linked_file_delete)
 
-
+@login_required
 def proposal_linked_file_add(request, proposal_id=None):
 	"""This view is used to add a linked file to a commercial proposal"""
 	proposal = None
@@ -696,7 +699,6 @@ def proposal_linked_file_add(request, proposal_id=None):
 
 
 	return http.HttpResponseRedirect(reverse('proposal_view', kwargs={'proposal_id': proposal.id}))
-proposal_linked_file_add = login_required(proposal_linked_file_add)
 
 @login_required
 def proposal_attached_file_delete(request, proposal_id=None, attached_file_id=None):
@@ -753,7 +755,7 @@ def proposal_attached_file_add(request, proposal_id=None):
 ### Billing area ralated views
 ##################################################################################################
 
-
+@login_required
 def billing_homepage(request):
 	"""
 	This is the homepage for the billing and payment area,
@@ -771,10 +773,54 @@ def billing_homepage(request):
 ### Bank|cash area ralated views
 ##################################################################################################
 
-
+@login_required
 def bank_homepage(request):
 	"""
 	This is the homepage for the Bank | Cash area
 	"""
 	banks = BankAccount.objects.all()[:15]
-	return render(request, "bank_home.html", {"banks": banks})
+	return render(request, "bank_list.html", {"banks": banks})
+
+@login_required
+def bank_view(request, bank_id=None):
+	"""
+	View a bank account by it's ID
+	 """
+	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
+
+	bank   = get_object_or_404(BankAccount, id=bank_id)
+	
+	if errors:
+		error_message = errors[0]
+	else:
+		error_message = None
+
+	ctx = {
+		'bank': bank,
+		'error_message' : error_message,
+	}
+	return render(request, "bank_view.html", ctx)
+
+
+@login_required
+def bank_create(request):
+	"""This view is used on order to create a bank or cash account"""
+	next_url = request.GET.get('next',None)
+	bank_entry = None
+
+	if request.method == 'POST':
+		bank_form = BankAccountForm(request.POST)
+		if bank_form.is_valid():
+			bank = bank_form.save(commit=False)
+			bank.author = request.user # Set the user object here
+			bank.balance = bank.initial_balance # Set the user object here
+			bank.save() # Now you can send it to DB
+			messages.success(request, _('Succcessfully added a Bank | cash account'), extra_tags='alert alert-success alert-dismissable')
+			if next_url:
+				return http.HttpResponseRedirect(reverse('next_url'))
+			else:
+				return http.HttpResponseRedirect(reverse('bank_view', kwargs={'bank_id': bank.id}))
+
+	else:
+		bank_form = BankAccountForm()
+	return render(request, 'bank_form.html', {'bank_form': bank_form})
