@@ -1,0 +1,79 @@
+{% extends "base_bank.html" %}
+{% load static i18n humanize %}
+
+{% block extra_stylesheet %}
+<link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
+{% endblock extra_stylesheet%}
+
+{% block title %}{% trans "Bank entries" %}{% endblock %}
+
+
+{% block main_content %}
+<section id="main-content">
+    <section class="wrapper site-min-height">
+
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9">
+              <h3><i class="fa fa-angle-right"></i> <b>{% trans "Bank entries" %} ({{entries|length}})</b></h3>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right">
+              <a href="{% url 'bank_entry_create' %}"  class="btn btn-success btn-sm">{% trans "Add new entry" %}</a>
+            </div>
+          </div>
+      
+
+
+        <div class="row mt">
+            <div class="col-lg-12">
+                      <div class="content-panel">
+                      <!-- <h4><i class="fa fa-angle-right"></i> Most 15 recent Third Parties</h4> -->
+                          <section>
+                             <table class="table table-bordered table-striped table-condensed">
+                                  <thead>
+                                  <tr>
+                                      <th>{% trans "Ref." %}</th>
+                                      <th>{% trans "Description" %}</th>
+                                      <th>{% trans "Oper. Date" %}</th>
+                                      <th>{% trans "Value Date" %}</th>
+                                      <th>{% trans "Type" %}</th>
+                                      <th>{% trans "Number" %}</th>
+                                      <th>{% trans "Third-party/User" %}</th>
+                                      <th>{% trans "Debit" %}</th>
+                                      <th>{% trans "Credit" %}</th>
+                                      <th>{% trans "Balance" %}</th>
+                                      <th>{% trans "Account stat." %}</th>
+                                      <th>{% trans "Actions" %}</th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+                                  {% for entry in entries %}
+                                  <tr>
+                                    <td> <a href="{% url 'bank_entry_view' entry.id %}">{{entry.id}}</a></td>
+                                    <td> <a href="{% url 'bank_entry_view' entry.id %}">{{entry.label|default:"-----"|truncatechars:30 }}</a></td>
+                                    <td>{{entry.date|date:"d N Y"}}</td>
+                                    <td>{{entry.value_date|date:"d N Y"}}</td>
+                                    <td>{{entry.payment_type}}</td>
+                                    <td>{{entry.check_transfer_number}}</td>
+                                    <td>#To-do</td>
+                                    <td> {% if entry.debit %} {{entry.debit}} {{bank.currency}}{% endif %}</td>
+                                    <td> {% if entry.credit %} {{entry.credit}} {{bank.currency}}{% endif %}</td>
+                                    <td> {% if entry.balance %} {{entry.balance}} {{bank.currency}}{% endif %}</td>
+                                    <td>#To-do</td>
+                                    <td>#To-do</td>
+                                  </tr>
+                                  {% endfor %}
+                                  </tbody>
+                              </table>
+                          </section>
+                  </div><!-- /content-panel -->
+               </div><!-- /col-lg-4 --> 
+        </div><!-- /row -->
+                  
+              </div><! --/row -->
+          </section>
+      </section>
+
+      <!--main content end-->
+
+
+{% endblock %}
