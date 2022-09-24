@@ -16,9 +16,9 @@ from datetime import datetime
 
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices, ProposalLinkedFile, ProposalAttachedFile
 from .models import VendorInvoice, CustomerInvoice
-from .models import BankAccount
+from .models import BankAccount, BankAccountLinkedFile, BankAccountAttachedFile, BankEntry, BankEntryAttachedFile
 from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm, ProposalAttachedFileForm
-from .forms import BankAccountForm
+from .forms import BankAccountForm, BankAccountEditForm, BankAccountLinkedFileForm, BankAccountAttachedFileForm, BankEntryForm, BankEntryAttachedFileForm
 from .utils import generate_proposal_reference
 
 @login_required
@@ -260,6 +260,7 @@ def contact_create(request):
 @login_required
 def contact_edit(request, contact_id=None):
 	"""This view is used to modify a contact"""
+	editing = False
 
 	if contact_id:
 		editing = True
@@ -768,13 +769,12 @@ def billing_homepage(request):
 
 
 
-
 ##################################################################################################
 ### Bank|cash area ralated views
 ##################################################################################################
 
 @login_required
-def bank_homepage(request):
+def bank_list(request):
 	"""
 	This is the homepage for the Bank | Cash area
 	"""
@@ -789,6 +789,12 @@ def bank_view(request, bank_id=None):
 	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
 
 	bank   = get_object_or_404(BankAccount, id=bank_id)
+
+	linked_file = BankAccountLinkedFile(bank=bank)
+	link_form = BankAccountLinkedFileForm(instance=linked_file)
+
+	attached_file = BankAccountAttachedFile(bank=bank)
+	attached_form = BankAccountAttachedFileForm(instance=attached_file)
 	
 	if errors:
 		error_message = errors[0]
@@ -797,6 +803,8 @@ def bank_view(request, bank_id=None):
 
 	ctx = {
 		'bank': bank,
+		'link_form': link_form,
+		'attached_form': attached_form,
 		'error_message' : error_message,
 	}
 	return render(request, "bank_view.html", ctx)
@@ -824,3 +832,231 @@ def bank_create(request):
 	else:
 		bank_form = BankAccountForm()
 	return render(request, 'bank_form.html', {'bank_form': bank_form})
+
+@login_required
+def bank_edit(request, bank_id=None):
+	"""This view is used to modify a finacncial account"""
+
+	if bank_id:
+		editing = True
+		bank = get_object_or_404(BankAccount, id=bank_id)
+	else:
+		return http.HttpResponseRedirect(reverse('bank_list'))
+		bank = None
+
+	initial_data = {}
+	next_url = request.GET.get('next',None)
+
+	if request.POST and bank_id:
+		bank = get_object_or_404(BankAccount, id=bank_id)
+		initial_data = model_to_dict(bank, fields=[], exclude=['date_added'])
+		bank_form = BankAccountEditForm(request.POST or None, request.FILES or None, instance=bank)
+		if bank_form.is_valid():
+			bank_form.save()
+			messages.success(request, _('Succcessfully saved changes to the the Third-party'), extra_tags='alert alert-success alert-dismissable')
+			return http.HttpResponseRedirect(reverse('bank_view', kwargs={'bank_view': bank.id}))
+	else:
+		bank_form = BankAccountEditForm(request.POST or None, request.FILES or None, instance=bank)
+
+	ctx = {
+		'bank_form':bank_form,
+		'editing': editing,
+		'bank': bank, 
+		'next': next_url
+	}
+
+	return render(request, 'bank_form.html', ctx)
+
+@login_required
+def bank_delete(request, bank_id=None):
+	"""
+	Deletes a financnial account from the database
+	"""
+
+	if request.method == 'POST':
+		
+		try:
+			bank = BankAccount.objects.get(id=bank_id)
+			if len(bank.bankentry_set.all()) == 0:
+				bank.delete()
+				messages.success(request,  _('Succcessfully deleted the account'), extra_tags='alert alert-success alert-dismissable')
+			else:
+				messages.success(request,  _('You can not delete a financial insitution that has entries to it'), extra_tags='alert alert-success alert-dismissable')
+				return http.HttpResponseRedirect(reverse('bank_view', kwargs={'bank_id': bank.id}))
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('bank_list'))
+
+	else:
+		return http.HttpResponseRedirect(reverse('bank_list'))
+
+@login_required
+def bank_linked_file_delete(request, bank_id=None, linked_file_id=None):
+	"""Removing a linked file from a bank account"""
+
+	try:
+		bank = BankAccount.objects.get(id=bank_id)
+		linked_file = BankAccountLinkedFile.objects.get(id=linked_file_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		bank, linked_file= None, None
+
+	if request.method == 'POST' and bank!=None and linked_file!= None:
+		try:
+			linked_file.delete()
+			messages.success(request,  _('Succcessfully deleted the linked file'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('bank_view', kwargs={'bank_id': bank.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('bank_list'))
+
+@login_required
+def bank_linked_file_add(request, bank_id=None):
+	"""This view is used to add a linked file to a bank account"""
+	bank = None
+
+	try:
+		bank = BankAccount.objects.get(id=bank_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('bank_list'))
+
+	if bank != None:
+		if request.method == 'POST':
+			bank_linked_file_form = BankAccountLinkedFileForm(request.POST)
+			if bank_linked_file_form.is_valid():
+				link = bank_linked_file_form.save(commit=False)
+				link.timestamp = timezone.now()
+				link.save() # Now you can send it to DB
+				messages.success(request, _('Succcessfully added a linked file to the bank account'), extra_tags='alert alert-success alert-dismissable')
+			else:
+				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
+				print("[ERROR] >>> %s" % bank_linked_file_form.errors.as_data())
+
+
+	return http.HttpResponseRedirect(reverse('bank_view', kwargs={'bank_id': bank.id}))
+
+@login_required
+def bank_attached_file_delete(request, bank_id=None, attached_file_id=None):
+	"""Removing an attached file from a bank account"""
+
+	try:
+		bank = BankAccount.objects.get(id=bank_id)
+		attached_file = BankAccountAttachedFile.objects.get(id=attached_file_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		bank, attached_file = None, None
+
+	if request.method == 'POST' and bank!=None and attached_file!= None:
+		try:
+			attached_file.delete()
+			messages.success(request,  _('Succcessfully deleted the attached file from thebank account'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('bank_view', kwargs={'bank_id': bank.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('bank_list'))
+
+@login_required
+def bank_attached_file_add(request, bank_id=None):
+	"""This view is used to add a file as an attachment to a bank account"""
+	bank = None
+
+	try:
+		bank = BankAccount.objects.get(id=bank_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('bank_list'))
+
+	if bank != None:
+
+		attached_file_form = BankAccountAttachedFileForm(request.POST or None,
+								 request.FILES or None)
+
+		if request.method == 'POST':
+			if attached_file_form.is_valid():
+				attachment = attached_file_form.save(commit=False)
+				doc_file = request.FILES['attachment']
+				attachment.timestamp = timezone.now()
+				attachment.save() # Now you can send it to DB
+				messages.success(request, _('Succcessfully attached a file to the bank account'), extra_tags='alert alert-success alert-dismissable')
+			else:
+				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
+				print("[ERROR] >>> %s" % attached_file_form.errors.as_data())
+
+
+	return http.HttpResponseRedirect(reverse('bank_view', kwargs={'bank_id': bank.id}))
+
+
+@login_required
+def bank_entry_list(request):
+	"""
+	This will list all the bank entries recorded into the database
+	"""
+	entries = BankEntry.objects.all()
+	return render(request, "bank_entry_list.html", {"entries": entries})
+
+@login_required
+def bank_entry_view(request, entry_id=None):
+	"""
+	View a bank entry by it's ID
+	 """
+	initial_data = {}
+	next_url = request.GET.get('next',None)
+	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
+
+	entry   = get_object_or_404(BankEntry, id=entry_id)
+	entry_form = BankEntryForm(instance=entry)
+
+	attached_file = BankEntryAttachedFile(entry=entry)
+	attached_form = BankEntryAttachedFileForm(instance=attached_file)
+	
+	if errors:
+		error_message = errors[0]
+	else:
+		error_message = None
+
+	if request.POST and contact_id:
+		entry = get_object_or_404(BankEntry, id=entry_id)
+		initial_data = model_to_dict(entry, fields=[], exclude=['author', 'balance'])
+		entry_form = BankEntryForm(request.POST or None, request.FILES or None, instance=entry)
+		if entry_form.is_valid():
+			item = entry_form.save(commit=False)
+			item.author = request.user # Set the user object here
+			item.balance = item.bank.balance # update the bank balance here
+			messages.success(request, _('Succcessfully saved changes to the bank entry'), extra_tags='alert alert-success alert-dismissable')
+			return http.HttpResponseRedirect(reverse('bank_entry_view', kwargs={'entry_id': entry.id}))
+	else:
+		entry_form = BankEntryForm(request.POST or None, request.FILES or None, instance=entry)
+
+	ctx = {
+		'entry': entry,
+		'entry_form': entry_form,
+		'attached_form': attached_form,
+		'error_message' : error_message,
+	}
+	return render(request, "bank_entry_view.html", ctx)
+
+@login_required
+def bank_entry_create(request):
+	"""This view is used to add a bank entriy to a bank or cash account"""
+	next_url = request.GET.get('next',None)
+	bank_entry = None
+
+	if request.method == 'POST':
+		bank_entry_form = BankEntryForm(request.POST)
+		if bank_form.is_valid():
+			bank = bank_form.save(commit=False)
+			bank.author = request.user # Set the user object here
+			bank.balance = bank.initial_balance # Set the user object here
+			bank.save() # Now you can send it to DB
+			messages.success(request, _('Succcessfully added an entry'), extra_tags='alert alert-success alert-dismissable')
+			if next_url:
+				return http.HttpResponseRedirect(reverse('next_url'))
+			else:
+				return http.HttpResponseRedirect(reverse('bank_view', kwargs={'bank_id': bank.id}))
+
+	else:
+		bank_form = BankAccountForm()
+	return render(request, 'bank_entry_form.html', {'bank_form': bank_form})
