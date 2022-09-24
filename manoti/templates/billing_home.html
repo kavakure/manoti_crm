@@ -191,12 +191,12 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for po in purchase_orders %}
-                      {% if not po.is_validated %}
+                    {% for invoice in vendor_invoices %}
+                      {% if not invoice.is_validated %}
                       <tr>
-                          <td> <b><a href="{{po.get_absolute_url}}">{{po.reference}}</b></a></td>
-                          <td>{{po.third_party.name}}</td>
-                          <td>{{po.amount_incl_tax|intcomma}} Fbu</td>
+                          <td> <b><a href="#">{{invoice.reference}}</b></a></td>
+                          <td>{{invoice.third_party.name}}</td>
+                          <td>{{invoice.total_tax_incl|intcomma }} {{invoice.third_party.business.main_currency}}</td>
                       </tr>
                     {% endif %}
                     {% endfor %}
