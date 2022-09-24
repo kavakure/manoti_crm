@@ -266,7 +266,7 @@ class Contact(models.Model):
 	bus_phone         = models.CharField(_("Business Phone Number"), blank=True, null=True, max_length=30, help_text=_("The Office or business phone number of the contact"))
 	mobile_phone      = models.CharField(_("Mobile Phone Number"), blank=True, null=True, max_length=30, help_text=_("The mobile phone number of the contact"))
 	email             = models.EmailField(_("Email"), blank=True, max_length=255, help_text=_("The email address of the contact"))
-	is_private 		  = models.BooleanField(_("Visibilty"), default=False)
+	is_private 		  = models.BooleanField(_("Is private"), default=True, help_text=_("Is this entry private to the the user that added it ?"))
 	is_active 		  = models.BooleanField(_("Status"), default=True)
 	alert 			  = models.BooleanField(_("Alerts"), default=False)
 	date_of_birth 	  = models.DateField(_("Date of birth"), blank=True, null=True)
@@ -462,7 +462,7 @@ BANK_ACCOUNT_TYPE_CHOICES = (
 class BankAccount(models.Model):
 	# 
 	author 			= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
-	is_private 		= models.BooleanField(_("Visibilty"), default=True)
+	is_private 		= models.BooleanField(_("Is private"), default=True, help_text=_("Is this entry private to the the user that added it ?"))
 	business        = models.ForeignKey(Business, verbose_name=_("Business"), blank=False, null=False, on_delete=models.CASCADE)
 	reference       = models.CharField(_("Reference"), max_length=200, blank=False, null=False)
 	account_type    = models.CharField(_("Account type"), max_length=200, blank=False, null=False, choices=BANK_ACCOUNT_TYPE_CHOICES)
@@ -571,7 +571,7 @@ VENDOR_INVOICE_CHOICES = (
 class VendorInvoice(models.Model):
 	# 
 	author 				= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
-	is_private 		 	= models.BooleanField(_("Visibilty"), default=False)
+	is_private 		  	= models.BooleanField(_("Is private"), default=True, help_text=_("Is this entry private to the the user that added it ?"))
 	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft", unique=True)
 	third_party 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Vendor"), blank=False, null=False, on_delete=models.CASCADE)
 	vendor_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
@@ -659,7 +659,7 @@ CUSTOMER_INVOICE_CHOICES = (
 class CustomerInvoice(models.Model):
 	# 
 	author 				= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
-	is_private 		 	= models.BooleanField(_("Visibilty"), default=False)
+	is_private 			= models.BooleanField(_("Is private"), default=True, help_text=_("Is this entry private to the the user that added it ?"))
 	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft", unique=True)
 	third_party 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Customer"), blank=False, null=False, on_delete=models.CASCADE)
 	customer_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
