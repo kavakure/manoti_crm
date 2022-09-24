@@ -79,7 +79,7 @@
                             </a>
                         </li>
                         <li class="dropdown">
-                            <a href="{% url 'bank_homepage' %}">
+                            <a href="{% url 'bank_list' %}">
                                 <span style='font-size:20px; text-align: center;'>&#128179;</span>
                             </a>
                         </li>
@@ -115,10 +115,10 @@
                     
                   {% block sidebar_links %}
 
-                    <li><a  href="{% url 'bank_homepage' %}"><b>{% trans "Banks | Cash" %}</b></a></li>
-                    <li><a  href="#">{% trans "New financial account" %}</a></li>
-                    <li><a  href="{% url 'bank_homepage' %}">{% trans "List" %}</a></li>
-                    <li><a  href="#">{% trans "List entries" %}</a></li>
+                    <li><a  href="{% url 'bank_list' %}"><b>{% trans "Banks | Cash" %}</b></a></li>
+                    <li><a  href="{% url 'bank_create' %}">{% trans "New financial account" %}</a></li>
+                    <li><a  href="{% url 'bank_list' %}">{% trans "List" %}</a></li>
+                    <li><a  href="{% url 'bank_entry_list' %}">{% trans "List entries" %}</a></li> 
                     <li><a  href="#">{% trans "List entries/category" %}</a></li>
                     <li><a  href="#">{% trans "Internal transfer" %}</a></li>
                     <hr>
