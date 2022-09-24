@@ -115,17 +115,17 @@
                     
                   {% block sidebar_links %}
 
-                    <li><a  href="{% url 'billing_homepage' %}"><b>{% trans "Vendor Invoices" %}</b></a></li>
+                    <li><a  href="{% url 'vendor_invoice_home' %}"><b>{% trans "Vendor Invoices" %}</b></a></li>
                     <li><a  href="#">{% trans "New invoice" %}</a></li>
                     <li class="sub-menu dcjq-parent-li">
                         <a href="javascript:;" class="{% block vendor_invoice_active_link_class %}{% endblock %} dcjq-parent">
                             <span>{% trans "List" %}</span>
                         <span class="dcjq-icon"></span></a>
                         <ul class="sub" style="display: none; overflow: hidden;">
-                            <li><a href="#">{% trans "Full list" %}</a></li>
-                            <li><a href="#">{% trans "Drafts" %}</a></li>
-                            <li><a href="#">{% trans "Paid" %}</a></li>
-                            <li><a href="#">{% trans "Not Paid" %}</a></li>
+                            <li><a href="{% url 'vendor_invoice_list' %}">{% trans "Full list" %}</a></li> 
+                            <li><a href="{% url 'vendor_invoice_list' %}?list_filter=draft">{% trans "Drafts" %}</a></li>
+                            <li><a href="{% url 'vendor_invoice_list' %}?list_filter=paid">{% trans "Paid" %}</a></li>
+                            <li><a href="{% url 'vendor_invoice_list' %}?list_filter=not_paid">{% trans "Not Paid" %}</a></li>
                         </ul>
                     </li>
                     <li><a href="#">{% trans "Payments" %}</a></li>
