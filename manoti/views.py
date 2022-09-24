@@ -765,8 +765,69 @@ def billing_homepage(request):
 	customer_invoices = CustomerInvoice.objects.all().order_by('-date')[:15]
 	return render(request, "billing_home.html", {"vendor_invoices": vendor_invoices, "customer_invoices": customer_invoices})
 
+def vendor_invoice_home(request):
+	"""
+	This is the homepage for the vendor inovices,
+	"""
+	invoices = VendorInvoice.objects.filter(is_validated=True).order_by('-date')[:15]
+	drafts = VendorInvoice.objects.filter(is_validated=False).order_by('-date')[:15]
+	unpaid = VendorInvoice.objects.filter(is_paid=False).order_by('-date')[:15]
 
+	ctx = {
+		'invoices': invoices,
+		'drafts' : drafts,
+		'unpaid' : unpaid,
+	}
 
+	return render(request, "vendor_invoice_home.html", ctx)
+
+@login_required
+def vendor_invoice_list(request):
+	"""
+	List all the vendor invoices of a given business and/or filter them by a given keyword
+	"""
+
+	list_filter = request.GET.get('list_filter',None)
+
+	invoices = []
+
+	if list_filter == 'paid': # filter the vendor invoices by paid status
+		invoices = VendorInvoice.objects.filter(is_paid=True).order_by('-date')
+
+	elif list_filter == 'not_paid': # filter the vendor invoices by paid status
+		invoices = VendorInvoice.objects.filter(is_paid=False).order_by('-date')
+
+	elif list_filter == 'draft': # filter the vendor invoices by validations status
+		invoices = VendorInvoice.objects.filter(is_validated=False).order_by('-date')
+
+	elif list_filter == 'abandoned': # filter the vendor invoices by abandoned status
+		invoices = VendorInvoice.objects.filter(is_abandoned=True).order_by('-date')
+
+	else:
+		invoices = VendorInvoice.objects.all().order_by('-date')
+
+	return render(request, "vendor_invoice_list.html", {"invoices": invoices})
+
+@login_required
+def vendor_invoice_view(request, invoice_id=None):
+	"""
+	View that displays a given third party
+	 """
+
+	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
+
+	invoice = get_object_or_404(VendorInvoice, id=invoice_id)
+
+	if errors:
+		error_message = errors[0]
+	else:
+		error_message = None
+
+	ctx = {
+		'invoice': invoice,
+		'error_message' : error_message,
+	}
+	return render(request, "vendor_invoice_view.html", ctx)
 
 
 ##################################################################################################
