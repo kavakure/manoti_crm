@@ -521,7 +521,7 @@ SENS_CHOICES = (
 class BankEntry(models.Model):
 	# 
 	author 			  = models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
-	is_private 		  = models.BooleanField(_("Visibilty"), default=True)
+	is_private 		  = models.BooleanField(_("Is private"), default=True, help_text=_("Is this entry private to the the user that added it ?"))
 	date 	  		  = models.DateTimeField(_("Operation date"), blank=True)
 	value_date 	 	  = models.DateTimeField(_("value date"), blank=True)
 	label          	  = models.TextField(_("Description/Label"), max_length=200, blank=True, default="Miscellaneous payment")
