@@ -10,6 +10,7 @@ from django.contrib.admin.widgets import AdminDateWidget
 
 from django.contrib.auth.models import User
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, ProposalLinkedFile, ProposalAttachedFile, BankAccount
+from .models import BankAccountAttachedFile, BankAccountLinkedFile, BankEntry, BankEntryAttachedFile
 
 
 class ThirdPartyForm(forms.ModelForm):
@@ -58,8 +59,8 @@ class ProposalForm(forms.ModelForm):
 		]
 
 		widgets = {
-			'timestamp': DateTimeInput(),
-			'delivery_date': DateInput(),
+			'timestamp': DateTimeInput(attrs={'style': 'width: 200px'}),
+			'delivery_date': DateInput(attrs={'style': 'width: 200px'}),
 		}
 
 class ProposalLineForm(forms.ModelForm):
@@ -107,7 +108,7 @@ class ProposalAttachedFileForm(forms.ModelForm):
 		fields = ['proposal', 'filename', 'attachment'] 
 
 class BankAccountForm(forms.ModelForm):
-	"""Form used to create or edit a commercial proposal"""
+	"""Form used to create a financial institution"""
 
 	class Meta:
 		model = BankAccount
@@ -119,5 +120,60 @@ class BankAccountForm(forms.ModelForm):
 			'entries_late_to_reconcile',
 		]
 		widgets = {
-			'timestamp': DateTimeInput(),
+			'timestamp': DateInput(attrs={'style': 'width: 200px'}),
 		}
+
+class BankAccountEditForm(forms.ModelForm):
+	"""Form used to edit a financial institution"""
+
+	class Meta:
+		model = BankAccount
+
+		exclude = [
+			'author',
+			'balance',
+			'entries_to_reconcile',
+			'entries_late_to_reconcile',
+			'initial_balance',
+			'timestamp',
+		]
+		widgets = {
+			'timestamp': DateInput(),
+		}
+
+class BankAccountLinkedFileForm(forms.ModelForm):
+	"""Form used to add a linked file to a bank account"""
+
+	class Meta:
+		model = BankAccountLinkedFile
+		fields = ['bank', 'label', 'link'] 
+
+
+class BankAccountAttachedFileForm(forms.ModelForm):
+	"""Form used to add a linked file to a bank account"""
+
+	class Meta:
+		model = BankAccountAttachedFile
+		fields = ['bank', 'filename', 'attachment'] 
+
+class BankEntryForm(forms.ModelForm):
+	"""Form used to add an entry to a financial institution"""
+	amount = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'class':'form-control'}))
+
+	class Meta:
+		model = BankEntry
+
+		fields = ['date', 'value_date', 'label', 'amount', 'bank', 'payment_type', 'check_transfer_number', 'check_transfer_sender', 'bank_of_check', 'accounting_account', 'subledger_account']
+
+		widgets = {
+			'date': DateTimeInput(attrs={'style': 'width: 200px'}), 
+			'value_date': DateTimeInput(attrs={'style': 'width: 200px'}), 
+			'label': forms.TextInput(attrs={'rows': '3'}), 
+		}
+
+class BankEntryAttachedFileForm(forms.ModelForm):
+	"""Form used to add a linked file to a bank entry"""
+
+	class Meta:
+		model = BankEntryAttachedFile
+		fields = ['entry', 'filename', 'attachment'] 
