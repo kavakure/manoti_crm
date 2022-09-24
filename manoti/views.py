@@ -771,7 +771,7 @@ def vendor_invoice_home(request):
 	"""
 	invoices = VendorInvoice.objects.filter(is_validated=True).order_by('-date')[:15]
 	drafts = VendorInvoice.objects.filter(is_validated=False).order_by('-date')[:15]
-	unpaid = VendorInvoice.objects.filter(is_paid=False).order_by('-date')[:15]
+	unpaid = VendorInvoice.objects.filter(is_paid=False, is_validated=True).order_by('-date')[:15]
 
 	ctx = {
 		'invoices': invoices,
@@ -795,7 +795,7 @@ def vendor_invoice_list(request):
 		invoices = VendorInvoice.objects.filter(is_paid=True).order_by('-date')
 
 	elif list_filter == 'not_paid': # filter the vendor invoices by paid status
-		invoices = VendorInvoice.objects.filter(is_paid=False).order_by('-date')
+		invoices = VendorInvoice.objects.filter(is_paid=False, is_validated=True).order_by('-date')
 
 	elif list_filter == 'draft': # filter the vendor invoices by validations status
 		invoices = VendorInvoice.objects.filter(is_validated=False).order_by('-date')
