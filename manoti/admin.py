@@ -22,6 +22,14 @@ class ProposalOptions(admin.ModelAdmin):
 	list_display = ('reference', 'customer_reference', 'third_party', 'timestamp', 'amount_incl_tax', 'is_validated', 'is_signed', 'is_billed')
 	inlines = [ProposalLine_Inline, ProposalLinkedFile_Inline, ProposalAttachedFile_Inline]
 
+class  VendorInvoiceAttachedFile_Inline(admin.StackedInline):
+	model = VendorInvoiceAttachedFile
+	extra = 2
+
+class VendorInvoiceOptions(admin.ModelAdmin):
+	list_display = ('reference', 'vendor_reference', 'third_party', 'date', 'total_tax_excl', 'is_validated', 'is_paid', 'is_abandoned')
+	inlines = [VendorInvoiceAttachedFile_Inline]
+
 admin.site.register(Business)
 admin.site.register(BusinessAccountant)
 admin.site.register(SocialNetwork)
@@ -46,6 +54,6 @@ admin.site.register(BankAccountLinkedFile)
 admin.site.register(BankAccountAttachedFile)
 
 admin.site.register(LineType)
-admin.site.register(VendorInvoice)
+admin.site.register(VendorInvoice, VendorInvoiceOptions)
 admin.site.register(CustomerInvoice)
 admin.site.register(StatusChoices)
