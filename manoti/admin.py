@@ -41,6 +41,10 @@ admin.site.register(Proposal, ProposalOptions)
 admin.site.register(PurchaseOrder)
 
 admin.site.register(BankAccount)
+admin.site.register(BankEntry)
+admin.site.register(BankAccountLinkedFile)
+admin.site.register(BankAccountAttachedFile)
+
 admin.site.register(LineType)
 admin.site.register(VendorInvoice)
 admin.site.register(CustomerInvoice)
