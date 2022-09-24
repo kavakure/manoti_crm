@@ -49,7 +49,7 @@
                                   <td>{{bank.account_number}}</td>
                                   <td>#To-do</td>
                                   <td><span class="btn {% if bank.status %}btn-success{%else%}btn-default{%endif%} btn-xs">{{bank.status|yesno:"Open,Closed,Not set"}}</span></td>
-                                  <td>{{bank.balance}} Fbu</td>
+                                  <td>{{bank.balance|intcomma}} {{bank.currency}}</td>
                               </tr>
                               {% endfor %}
                               </tbody>
