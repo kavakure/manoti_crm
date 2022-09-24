@@ -17,10 +17,10 @@
           
           <div class="row">
             <!-- TWITTER PANEL -->
-            <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="col-lg-6 col-md-6 col-sm-12">
                           <div class="darkblue-panel pn">
                             <div class="darkblue-header">
-                    <h5>{% trans "Statistics - Commercial proposals" %}</h5>
+                    <h5>{% trans "Statistics - Customer invoice" %}</h5>
                             </div>
                 <canvas id="serverstatus02" height="120" width="120"></canvas>
                 <script>
@@ -46,9 +46,39 @@
                   </div>
                 </footer>
                           </div><! -- /darkblue panel -->
-            </div><!-- /col-md-4 -->
+            </div><!-- /col-md-6 -->
 
-          
+           <!-- TWITTER PANEL -->
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                          <div class="darkblue-panel pn">
+                            <div class="darkblue-header">
+                    <h5>{% trans "Statistics - Vendor invoice" %}</h5>
+                            </div>
+                <canvas id="serverstatus02" height="120" width="120"></canvas>
+                <script>
+                  var doughnutData = [
+                      {
+                        value: 60,
+                        color:"#68dff0"
+                      },
+                      {
+                        value : 40,
+                        color : "#444c57"
+                      }
+                    ];
+                    var myDoughnut = new Chart(document.getElementById("serverstatus02").getContext("2d")).Doughnut(doughnutData);
+                </script>
+                <p>April 17, 2014</p>
+                <footer>
+                  <div class="pull-left">
+                    <h5><i class="fa fa-hdd-o"></i> 17 GB</h5>
+                  </div>
+                  <div class="pull-right">
+                    <h5>60% Used</h5>
+                  </div>
+                </footer>
+                          </div><! -- /darkblue panel -->
+            </div><!-- /col-md-6 -->
             
           </div><!-- /row -->
           
@@ -59,7 +89,7 @@
 <div class="row mt">
   <div class="col-lg-6 col-md-6 col-sm-12">
             <div class="content-panel">
-            <h4><i class="fa fa-angle-right"></i> {% trans "Latest 10 customers or prospects" %}</h4>
+            <h4><i class="fa fa-angle-right"></i> {% trans "Latest 10 modified Customer invoices" %}</h4>
                 <section id="unseen">
                 <table class="table table-bordered table-striped table-condensed">
                     <thead>
@@ -86,7 +116,7 @@
 
   <div class="col-lg-6 col-md-6 col-sm-12">
             <div class="content-panel">
-            <h4><i class="fa fa-angle-right"></i> {% trans "Vendors: last 10 modified" %}</h4>
+            <h4><i class="fa fa-angle-right"></i> {% trans "Latest 10 modified Vendor invoices" %}</h4>
                 <section id="unseen">
                 <table class="table table-bordered table-striped table-condensed">
                     <thead>
@@ -117,7 +147,7 @@
 
 <div class="col-lg-6 col-md-6 col-sm-12">
             <div class="content-panel">
-            <h4><i class="fa fa-angle-right"></i> {% trans "Draft commercial proposals" %} (#)</h4>
+            <h4><i class="fa fa-angle-right"></i> {% trans "Customer draft invoices " %} (#)</h4>
                 <section id="unseen">
                 <table class="table table-bordered table-striped table-condensed">
                     <thead>
@@ -150,7 +180,7 @@
 
   <div class="col-lg-6 col-md-6 col-sm-12">
             <div class="content-panel">
-            <h4><i class="fa fa-angle-right"></i> {% trans "Draft purchase orders" %} (#)</h4>
+            <h4><i class="fa fa-angle-right"></i> {% trans "Vendor draft invoices" %} (#)</h4>
                 <section id="unseen">
                 <table class="table table-bordered table-striped table-condensed">
                     <thead>
@@ -184,43 +214,6 @@
 
 </div><!-- /row -->
 
-<div class="row mt">
-  <div class="col-lg-6 col-md-6 col-sm-12">
-            <div class="content-panel">
-            <h4><i class="fa fa-angle-right"></i> {% trans "Open commercial proposals" %} (#)</h4>
-                <section id="unseen">
-                <table class="table table-bordered table-striped table-condensed">
-                    <thead>
-                  <tr>
-                        <th>{% trans "Reference" %}</th>
-                        <th>{% trans "Third-party" %}</th>
-                        <th>{% trans "Amount" %}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for prop in proposals %}
-                      {% if prop.is_validated %}
-                      <tr>
-                          <td> <a href="{{prop.get_absolute_url}}">{{prop.reference}}</a></td>
-                          <td>{{prop.third_party.name}}</td>
-                          <td>{{prop.amount_incl_tax|intcomma}} Fbu</td>
-                      </tr>
-                    {% endif %}
-                    {% endfor %}
-                      <tr>
-                          <td></td>
-                          <td align="right"><b>{% trans "Total" %}</b></td>
-                          <td><b>###</b></td>
-                      </tr>
-                    </tbody>
-                </table>
-                </section>
-        </div><!-- /content-panel -->
-     </div><!-- /col-lg-6 col-md-6 col-sm-12-->
-
-     
-                  
-              </div><! --/row -->
           </section>
       </section>
 
