@@ -38,6 +38,9 @@ urlpatterns = [
 	url(r'^proposal-attached-file-delete/(?P<proposal_id>[-\w]+)/(?P<attached_file_id>[-\w]+)/$', views.proposal_attached_file_delete, name='proposal_attached_file_delete'),
 	#Billing area ralated URLS
 	url(r'^billing/$', views.billing_homepage, name='billing_homepage'),
+	url(r'^vendor-invoice-view/(?P<invoice_id>[-\w]+)/$', views.vendor_invoice_view, name='vendor_invoice_view'),
+	url(r'^vendor-invoice-list/$', views.vendor_invoice_list, name='vendor_invoice_list'),
+	url(r'^vendor-invoice-home/$', views.vendor_invoice_home, name='vendor_invoice_home'),
 	#Bank|cash area related URLS
 	url(r'^bank/$', views.bank_list, name='bank_list'),
 	url(r'^bank-view/(?P<bank_id>[-\w]+)/$', views.bank_view, name='bank_view'),
