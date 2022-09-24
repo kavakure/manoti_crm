@@ -1,0 +1,274 @@
+{% extends "base_bank.html" %} {% load static i18n widget_tweaks humanize %}
+
+{% block title %}{% trans 'Bank entry' %}:{{entry.id}} {% endblock %}
+
+{% block extra_stylesheet %}
+<link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
+
+<style>
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+{% endblock extra_stylesheet%}
+
+
+{% block main_content %}
+<section id="main-content">
+    <section class="wrapper site-min-height">
+
+
+
+      <div class="content-panel" style="margin-top: 5px;">
+
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9" style="padding-left: 20px;">
+              <h3><i class="fa fa-angle-right"></i> <b>{{entry.id}}</b></h3> 
+              <p><b>{{entry.label}}</b></p>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
+              <p style="font-size: 18px;"><a href="{% url 'bank_entry_list' %}"><b>{% trans 'Back to list' %}</b></a> </p>
+            </div>
+          </div>
+
+      </div>
+        
+      <div class="content-panel" style="margin-top: 15px;">
+        <div class="tab">
+          <button class="tablinks" onclick="openCity(event, 'bank_account')">{% trans "Bank Entry" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'linked_files')">{% trans "Linked files" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'log')">{% trans "log" %}</button>
+        </div>
+
+        <div id="bank_account" class="tabcontent" style="display: block;">
+          <!-- =========================================================================================== -->
+
+            <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    
+
+                              <form enctype="multipart/form-data" action="" method="post" id="thirdparty_form">
+                                {% csrf_token %}
+                                  {{ entry_form.non_field_errors }}
+
+                                {% if contact_form.errors %}
+                                <p class="alert alert-danger"><b>{% trans "Please correct the following error:" %}</b> </p> 
+                                {% endif %}
+
+                                {% for hidden in entry_form.hidden_fields %}
+                                  {{ hidden }}
+                                {% endfor %}
+
+                                {% for field in entry_form.visible_fields %}
+                                  <div class="form-group">
+                                    <label for="{{ field.id_for_label }}" class="col-sm-2 col-sm-2 control-label">{{ field.label }}</label>
+                                    <div class="col-sm-10">
+                                      {% render_field field class="form-control" %}
+                                      
+                                      {% if field.errors %}
+                                        {% for error in field.errors %}
+                                          <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ field.errors|join:", " }}</span><br>
+                                        {% endfor %}
+                                      {% else %}
+                                          <span class="help-block">{{field.help_text}}.</span>
+                                      {% endif %}
+
+                                    </div>
+                                    
+
+                                  </div>
+                                {% endfor %}
+
+                                <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 40px;">
+                                 <div class="pull-left"><a href="javascript:void(0);" onclick="history.back()" class="btn btn-default">&#8678; {% trans "Cancel" %}</a></div>
+                                 <div class="pull-right"><button type="button" class="btn btn-success" data-toggle="modal" data-target="#delete_modal">{% trans 'Update' %}</button></div>
+                                <div>
+
+                              </form>
+                </div>  
+
+
+            </div>
+          </div>
+
+
+            
+         <!-- =========================================================================================== -->
+        </div>
+
+
+
+
+        <div id="linked_files" class="tabcontent">
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <h4>{% trans "Attached files and documents" %}</h4>
+            <table class="table table-condensed">
+                <tbody>
+                <tr>
+                    <td>{% trans "Number of attached files/documents" %}</td>
+                    <td align="left"> #To-do</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+          </div>
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+              <h4>{% trans "Attach a new file/document" %}</h4>
+
+
+<!-- ########################################### -->
+              <form enctype="multipart/form-data" action="#" class="form-inline" method="post" id="bank_attached_form" role="form">
+
+                 {% csrf_token %}
+                  {{ attached_form.non_field_errors }}
+
+
+                  <div class="form-group">
+                      {{attached_form.bank.as_hidden }}
+                  </div>
+                  <div class="form-group">
+                      {% render_field attached_form.filename class="form-control" placeholder="Filename" %}
+                  </div>
+                  <div class="form-group">
+                      {% render_field attached_form.attachment class="form-control" %}
+                  </div> 
+                  <button type="submit" class="btn btn-theme">{% trans "Add" %}</button>
+              </form>
+<!-- ########################################### -->
+
+            </div>
+          </div>
+
+
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <h4>{% trans "Attached files and documents" %}</h4>
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>{% trans "Document" %}</th>
+                    <th>{% trans "Size" %}</th>
+                    <th>{% trans "Date" %}</th>
+                    <th> </th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for file in bank.bankaccountattachedfile_set.all %}
+                <tr>
+                    <td><a href="#">{{file.filename}}</a></td>
+                    <td> ---- </td>
+                    <td>{{file.timestamp}}</td>
+                    <td>
+                      <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_attached_file_modal{{file.id}}">&#128683;</button>
+                    </td>
+                </tr>
+
+                <!-- Modal -->
+                  <div class="modal fade" id="delete_attached_file_modal{{file.id}}" role="dialog">
+                    <div class="modal-dialog">
+                    
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          <h4 class="modal-title">{% trans 'Delete attached file' %}?</h4>
+                        </div>
+                        <div class="modal-body">
+                          <div class = "alert alert-danger" style="padding-top: 10px;">
+                                    <form method="post" action="{% url 'bank_attached_file_delete' bank.id file.id %}">{% csrf_token %}
+                                    {% trans " Are you sure you want to delete the file:" %} <b>{{file.filename}}</b>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                                  <div class="pull-left">
+                                      <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes' %}"/>
+                                  </form>
+                                  </div>
+                                      </form>
+                                  <div class="pull-right">
+                                      <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                  </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- End Modal -->
+
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+
+
+      <div id="log" class="tabcontent">
+          <h3>#To-do</h3>
+          <p>Lorem Ipsum is simply dummy text of the printing and typesetting</p> 
+      </div>
+
+        
+    </section>
+</section>
+
+
+
+
+{% endblock %}
+
+
+{% block extra_javascript %}
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+{% endblock extra_javascript %}
