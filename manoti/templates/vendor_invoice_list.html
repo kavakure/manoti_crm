@@ -1,0 +1,83 @@
+{% extends "base_billing.html" %}
+{% load static i18n humanize %}
+
+{% block extra_stylesheet %}
+<link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
+{% endblock extra_stylesheet%}
+
+{% block title %}{% trans "Vendor Invoices " %}{% endblock %}
+
+{% block vendor_invoice_active_link_class %}active{% endblock %}
+
+{% block main_content %}
+<section id="main-content">
+    <section class="wrapper site-min-height">
+
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9">
+              <h3><i class="fa fa-angle-right"></i> <b>{% trans "Vendor Invoices " %}({{invoices|length}})</b></h3>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right">
+              <a href="{% url 'proposal_create' %}"  class="btn btn-success btn-sm">{% trans "Add a new vendor invoice" %}</a>
+            </div>
+          </div>
+      
+
+
+        <div class="row mt">
+            <div class="col-lg-12">
+                      <div class="content-panel">
+                      <!-- <h4><i class="fa fa-angle-right"></i> Most 15 recent Third Parties</h4> -->
+                          <section>
+                            <table class="table table-bordered table-striped table-condensed">
+                              <thead>
+                              <tr>
+                                  <th>{% trans "Reference" %}</th>
+                                  <th>{% trans "Ref. Vendor" %}</th>
+                                  <th>{% trans "Invoice date" %}</th>
+                                  <th>{% trans "Due date" %}</th>
+                                  <th>{% trans "Third-party" %}</th>
+                                  <th>{% trans "Payment term" %}</th>
+                                  <th>{% trans "Payment type" %}</th>
+                                  <th>{% trans "Amount (tex. incl)" %}</th>
+                                  <th>{% trans "Author" %}</th>
+                                  <th>{% trans "Status" %}</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              {% for invoice in invoices %}
+                              <tr>
+                                  <td><b> <a href="{{invoice.get_absolute_url}}">{{invoice.reference}}<b></a></td>
+                                  <td>{{invoice.vendor_reference}}</td>
+                                  <td>{{invoice.date|date:"d N Y"}}</td>
+                                  <td>{{invoice.payment_due|date:"d N Y"}}</td>
+                                  <td><a href="{{invoice.third_party.get_absolute_url}}">{{invoice.third_party.name}}<b></a></td>
+                                  <td>{{invoice.payment_terms }}</td>
+                                  <td>{{invoice.payment_type }}</td>
+                                  <td align="right">{{invoice.total_tax_incl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                                  <td>{{invoice.author}}</td>
+                                  <td align="left"> 
+                                    {% if invoice.is_paid %} 
+                                    <span class="btn btn-success btn-xs">{% trans 'Paid' %}</span>
+                                    {% else %}
+                                    <span class="btn btn-default btn-xs">{% trans 'Unpaid' %}</span>
+                                    {% endif %}
+
+                                  </td>
+                              </tr>
+                              {% endfor %}
+                              </tbody>
+                          </table>
+                          </section>
+                  </div><!-- /content-panel -->
+               </div><!-- /col-lg-4 --> 
+        </div><!-- /row -->
+                  
+              </div><! --/row -->
+          </section>
+      </section>
+
+      <!--main content end-->
+
+
+{% endblock %}
