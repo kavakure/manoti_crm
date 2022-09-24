@@ -331,6 +331,7 @@ class ProposalDocumentTemplate(models.Model):
 class Proposal(models.Model):
 	# 
 	author 			= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
+	is_private 		  	= models.BooleanField(_("Is private"), default=True, help_text=_("Is this entry private to the the user that added it ?"))
 	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
 	reference_number = models.IntegerField(_("Reference number"), blank=False, null=False, default=1)
 	customer_reference = models.CharField(_("Customer reference"), max_length=200, blank=True, null=True)
@@ -572,7 +573,8 @@ class VendorInvoice(models.Model):
 	# 
 	author 				= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
 	is_private 		  	= models.BooleanField(_("Is private"), default=True, help_text=_("Is this entry private to the the user that added it ?"))
-	reference      		= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft", unique=True)
+	reference_number 	= models.IntegerField(_("Reference number"), blank=False, null=False, default=1)
+	reference      		= models.CharField(_("Internal Reference"), max_length=200, blank=False, null=False, default="Draft", unique=True)
 	third_party 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Vendor"), blank=False, null=False, on_delete=models.CASCADE)
 	vendor_reference    = models.CharField(_("Reference Vendor"), max_length=200, blank=False, null=False, default="Draft")
 	vendor_invoice_type = models.CharField(_("Status"), choices=VENDOR_INVOICE_CHOICES, default="standard", max_length=200, blank=False, null=False)
@@ -587,12 +589,17 @@ class VendorInvoice(models.Model):
 	total_tax_excl 		= models.IntegerField(_("Amount (excl. tax)"), default=0)
 	tax_amount 	  		= models.IntegerField(_("Amount tax"), default=0)
 	total_tax_incl 	  	= models.IntegerField(_("Amount (inc. tax)"), default=0)
-	total_payment 	  	= models.IntegerField(_("Amount (inc. tax)"), default=0)
+	total_payment 	  	= models.IntegerField(_("Total payment"), default=0)
 	is_validated		= models.BooleanField(_("Validated ?"), default=False)
 	is_abandoned		= models.BooleanField(_("Abandoned ?"), default=False)
+	is_paid				= models.BooleanField(_("Is paid ?"), default=False)
 
 	def __str__(self):
 		return self.reference
+
+	def get_absolute_url(self):
+		return reverse('vendor_invoice_view', kwargs={'invoice_id': self.id})
+
 
 class VendorInvoiceLinkedFile(models.Model):
 	# 
