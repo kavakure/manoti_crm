@@ -4,6 +4,8 @@ from django.utils.translation import get_language, ugettext, ugettext_lazy as _
 from .validators import validate_file_size, validate_image_file_extension, validate_document_file_extension
 import boto3
 from decouple import config
+# from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.generic import GenericForeignKey
 
 from django.urls import reverse
 
@@ -382,7 +384,8 @@ class ProposalAttachedFile(models.Model):
 	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True )
 	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True, auto_now_add=True)
-
+	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
+	
 	def __str__(self):
 		return self.filename
 
@@ -459,7 +462,7 @@ BANK_ACCOUNT_TYPE_CHOICES = (
 class BankAccount(models.Model):
 	# 
 	author 			= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
-	is_private 		= models.BooleanField(_("Visibilty"), default=False)
+	is_private 		= models.BooleanField(_("Visibilty"), default=True)
 	business        = models.ForeignKey(Business, verbose_name=_("Business"), blank=False, null=False, on_delete=models.CASCADE)
 	reference       = models.CharField(_("Reference"), max_length=200, blank=False, null=False)
 	account_type    = models.CharField(_("Account type"), max_length=200, blank=False, null=False, choices=BANK_ACCOUNT_TYPE_CHOICES)
@@ -484,17 +487,17 @@ class BankAccount(models.Model):
 	accounting_account = models.CharField(_("Accounting account"), max_length=200, blank=True, null=True)
 	entries_to_reconcile = models.IntegerField(_("Entries to reconcile"), blank=True, null=True, default=0)
 	entries_late_to_reconcile = models.IntegerField(_("Entries late to reconcile"), blank=True, null=True, default=0)
+	can_be_reconciled 		= models.BooleanField(_("Can be reconciled"), default=False)
 
 	def __str__(self):
 		return self.reference
 		
 class BankAccountLinkedFile(models.Model):
 	# 
-	bank 		  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
-	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
-	link       		  = models.URLField(_("Link"), blank=True, max_length=900)
-	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
-	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
+	bank 		  	= models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
+	label         	= models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	link       		= models.URLField(_("Link"), blank=True, max_length=900)
+	timestamp 		= models.DateTimeField(_("Timestamp"), blank=True)
 
 	def __str__(self):
 		return self.filename
@@ -502,9 +505,10 @@ class BankAccountLinkedFile(models.Model):
 class BankAccountAttachedFile(models.Model):
 	# 
 	bank 	 	  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
-	filename          = models.CharField(_("Name"), max_length=200, blank=True, help_text=_("The name of the file"))
+	filename          = models.CharField(_("Name"), max_length=300, blank=True, help_text=_("The name of the file"))
 	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
 	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
+	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
 
 	def __str__(self):
 		return self.filename
@@ -516,10 +520,13 @@ SENS_CHOICES = (
 
 class BankEntry(models.Model):
 	# 
-	date 	  		  = models.DateTimeField(_("Date"), blank=True)
+	author 			  = models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
+	is_private 		  = models.BooleanField(_("Visibilty"), default=True)
+	date 	  		  = models.DateTimeField(_("Operation date"), blank=True)
 	value_date 	 	  = models.DateTimeField(_("value date"), blank=True)
-	label          	  = models.CharField(_("Label"), max_length=200, blank=True, default="Miscellaneous payment")
-	amount 			  = models.IntegerField(_("Amount"))
+	label          	  = models.TextField(_("Description/Label"), max_length=200, blank=True, default="Miscellaneous payment")
+	debit 			  = models.IntegerField(_("Debit"), blank=True, null=True, default=0)
+	credit 			  = models.IntegerField(_("Credit"), blank=True, null=True, default=0)
 	bank 	  	  	  = models.ForeignKey(BankAccount, verbose_name=_("Bank Account"), null=True, on_delete=models.CASCADE)
 	payment_type 	  = models.ForeignKey(PaymentType, verbose_name=_("Payment Type"), null=True, on_delete=models.CASCADE)
 	check_transfer_number = models.CharField(_("Number (Check/Transfer N°)"), max_length=200, blank=True)
@@ -527,10 +534,30 @@ class BankEntry(models.Model):
 	bank_of_check 	  = models.CharField(_("Bank (Bank of Check)"), max_length=200, blank=True)
 	accounting_account  = models.CharField(_("Accounting account"), max_length=200, blank=True)
 	subledger_account = models.CharField(_("Subledger account"), max_length=200, blank=True)
-	sens 			  = models.FloatField(_("Sens"), choices=SENS_CHOICES, help_text=_("For an accounting account of a customer, use Credit to record a payment you have received\nFor an accounting account of a supplier, use Debit to record a payment you made"))
+	category = models.CharField(_("Category"), max_length=200, blank=True)
+	balance	= models.IntegerField(_("balance"), blank=True, null=True)
+	# content_type	= models.ForeignKey(ContentType)
+	# object_id		= models.PositiveIntegerField()
+	# content_object	= GenericForeignKey('content_type', 'object_id')
 	
 	def __str__(self):
 		return self.label
+
+	class Meta:
+		verbose_name = _("Bank Entry")
+		verbose_name_plural = _("Bank Entries")
+
+class BankEntryAttachedFile(models.Model):
+	# 
+	entry 	 	  	  = models.ForeignKey(BankEntry, verbose_name=_("Bank Entry"), null=True, on_delete=models.CASCADE)
+	filename          = models.CharField(_("Name"), max_length=300, blank=True, help_text=_("The name of the file"))
+	attachment        = models.FileField(_("File attached"), upload_to='media/uploads', blank=True, validators=[validate_file_size,])
+	timestamp 		  = models.DateTimeField(_("Timestamp"), blank=True)
+	save_original_name = models.BooleanField(_("Save with original file name"), default=False, help_text=_("Save file on server with name 'PR##############-Original filename' (otherwise 'Original filename')"))
+
+	def __str__(self):
+		return self.filename
+
 
 # ========================================================================
 # Billing and payment area
