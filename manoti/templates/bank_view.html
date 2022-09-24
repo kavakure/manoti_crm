@@ -1,0 +1,679 @@
+{% extends "base_bank.html" %} {% load static i18n widget_tweaks humanize %}
+
+{% block title %}{{bank.reference}} - {{bank.name}} {% endblock %}
+
+{% block extra_stylesheet %}
+<link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
+
+<style>
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+{% endblock extra_stylesheet%}
+
+
+{% block main_content %}
+<section id="main-content">
+    <section class="wrapper site-min-height">
+
+
+
+      <div class="content-panel" style="margin-top: 5px;">
+
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9">
+              <h3><i class="fa fa-angle-right"></i> <b>{{bank.reference}}</b></h3> 
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
+              <p style="font-size: 18px;"><a href="{% url 'bank_list' %}"><b>{% trans 'Back to list' %}</b></a> </p>
+            </div>
+          </div>
+
+            <div class="row mt">
+                <div class="col-lg-9 col-md-9 col-sm-9">
+                    <section >
+                      <table class="table table-condensed">
+                        <tbody>
+                          <tr>
+                            <td><i class="fa fa-angle-right"></i> {{bank.name}}</td>
+                          </tr>
+                          <tr>
+                            <td><i class="fa fa-angle-right"></i> {{bank.state_province}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </section>
+               </div> 
+               <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
+                <span class="btn {% if bank.status %}btn-success{%else%}btn-default{%endif%} btn-block">{{bank.status|yesno:"Open,Closed,Not set"}}</span>
+               </div> 
+            </div>
+      </div>
+        
+      <div class="content-panel" style="margin-top: 15px;">
+        <div class="tab">
+          <button class="tablinks" onclick="openCity(event, 'bank_account')">{% trans "Bank Account" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'bank_entries')">{% trans "Bank entries" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'planned_entries')">{% trans "Planned entries" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'monthly_reports')">{% trans "Monthly reporting" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'graphs')">{% trans "Graphs" %}</button>
+          {% if bank.can_be_reconciled %}
+            <button class="tablinks" onclick="openCity(event, 'account_statments')">{% trans "Account statements" %}</button>
+          {% endif%}
+          <button class="tablinks" onclick="openCity(event, 'linked_files')">{% trans "Linked files" %}</button>
+        </div>
+
+        <div id="bank_account" class="tabcontent" style="display: block;">
+          <!-- =========================================================================================== -->
+
+            <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>{% trans "Account type" %}</td>
+                          <td> {{bank.account_type}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Currency" %}</td>
+                          <td> {{bank.currency}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Can be reconciled" %}</td>
+                          <td>{{bank.can_be_reconciled|yesno:"Yes,No,Not set"}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Minimum allowed balance" %}</td>
+                          <td>{{bank.minimum_allowed_balance|intcomma}} {{bank.currency}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Minimum desired balance" %}</td>
+                          <td>{{bank.minimum_desired_balance|intcomma}} {{bank.currency}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Accounting account" %}</td>
+                          <td>{{bank.accounting_account}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </div>  
+
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>{% trans "Bank name" %}</td>
+                          <td>{{bank.name}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Account number" %}</td>
+                          <td>{{bank.account_number}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "IBAN account number" %}</td>
+                          <td>{{bank.iban_number}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "BIC/SWIFT code" %}</td>
+                          <td>{{bank.swift}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Creditor Identifier - ICS (Direct debit order)" %}</td>
+                          <td>{{bank.amount_excl_tax|intcomma}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Creditor Identifier - ICS (Credit transfer)" %}</td>
+                          <td>{{bank.amount_excl_tax|intcomma}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Bank address" %}</td>
+                          <td>{{bank.address}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Account owner name" %}</td>
+                          <td>{{bank.account_owner_name}}</td>
+                        </tr>
+
+
+                        <tr>
+                          <td>{% trans "Account owner address" %}</td>
+                          <td>{{bank.account_owner_address}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Comment" %}</td>
+                          <td>{{bank.comment}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </div> 
+
+            </div>
+
+            <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+
+
+
+
+                <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 40px;">
+                  {% if bank.bankentry_set.all|length == 0 %}
+                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
+                  {% endif %}
+                  <a href="{% url 'bank_edit' bank.id %}" class="btn btn-success">{% trans 'Modify' %}</a>
+                  
+                  
+
+                </div>
+            </div>
+
+
+            
+         <!-- =========================================================================================== -->
+        </div>
+
+
+        <div id="bank_entries" class="tabcontent">
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>{% trans "Ref." %}</th>
+                    <th>{% trans "Description" %}</th>
+                    <th>{% trans "Oper. Date" %}</th>
+                    <th>{% trans "Value Date" %}</th>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "Number" %}</th>
+                    <th>{% trans "Third-party/User" %}</th>
+                    <th>{% trans "Debit" %}</th>
+                    <th>{% trans "Credit" %}</th>
+                    <th>{% trans "Balance" %}</th>
+                    <th>{% trans "Account stat." %}</th>
+                    <th>{% trans "Actions" %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for entry in bank.bankentry_set.all %}
+                <tr>
+                    <td> <a href="#">{{entry.id}}</a></td>
+                    <td>{{entry.label|default:"-----"|truncatechars:30 }}</td>
+                    <td>{{entry.date|date:"d N Y"}}</td>
+                    <td>{{entry.value_date|date:"d N Y"}}</td>
+                    <td>{{entry.payment_type}}</td>
+                    <td>{{entry.check_transfer_number}}</td>
+                    <td>#To-do</td>
+                    <td> {% if entry.debit %} {{entry.debit}} {{bank.currency}}{% endif %}</td>
+                    <td> {% if entry.credit %} {{entry.credit}} {{bank.currency}}{% endif %}</td>
+                    <td> {% if entry.balance %} {{entry.balance}} {{bank.currency}}{% endif %}</td>
+                    <td>#To-do</td>
+                    <td>#To-do</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+          </div>
+          </div>
+        </div>
+
+        <div id="planned_entries" class="tabcontent">
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>{% trans "Ref." %}</th>
+                    <th>{% trans "Description" %}</th>
+                    <th>{% trans "Oper. Date" %}</th>
+                    <th>{% trans "Value Date" %}</th>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "Number" %}</th>
+                    <th>{% trans "Third-party/User" %}</th>
+                    <th>{% trans "Debit" %}</th>
+                    <th>{% trans "Credit" %}</th>
+                    <th>{% trans "Balance" %}</th>
+                    <th>{% trans "Account stat." %}</th>
+                    <th>{% trans "Actions" %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for planned_entry in bank.bankentry_set.all %}
+                <tr>
+                    <td> <a href="#">{{planned_entry.id}}</a></td>
+                    <td>{{planned_entry.label|default:"-----"|truncatechars:30 }}</td>
+                    <td>{{planned_entry.date|date:"d N Y"}}</td>
+                    <td>{{planned_entry.value_date|date:"d N Y"}}</td>
+                    <td>{{planned_entry.payment_type}}</td>
+                    <td>{{planned_entry.check_transfer_number}}</td>
+                    <td>#To-do</td>
+                    <td> {% if planned_entry.debit %} {{planned_entry.debit}} {{bank.currency}}{% endif %}</td>
+                    <td> {% if planned_entry.credit %} {{planned_entry.credit}} {{bank.currency}}{% endif %}</td>
+                    <td> {% if planned_entry.balance %} {{planned_entry.balance}} {{bank.currency}}{% endif %}</td>
+                    <td>#To-do</td>
+                    <td>#To-do</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+          </div>
+          </div>
+        </div>
+
+        <div id="linked_files" class="tabcontent">
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <h4>{% trans "Attached files and documents" %}</h4>
+            <table class="table table-condensed">
+                <tbody>
+                <tr>
+                    <td>{% trans "Number of attached files/documents" %}</td>
+                    <td align="left"> #To-do</td>
+                </tr>
+                <tr>
+                    <td>{% trans "Total size of attached files/documents" %}</td>
+                    <td align="left"> #To-do</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+          </div>
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+              <h4>{% trans "Attach a new file/document" %}</h4>
+
+
+<!-- ########################################### -->
+              <form enctype="multipart/form-data" action="{% url 'bank_attached_file_add' bank.id %}" class="form-inline" method="post" id="bank_attached_form" role="form">
+
+                 {% csrf_token %}
+                  {{ attached_form.non_field_errors }}
+
+
+                  <div class="form-group">
+                      {{attached_form.bank.as_hidden }}
+                  </div>
+                  <div class="form-group">
+                      {% render_field attached_form.filename class="form-control" placeholder="Filename" %}
+                  </div>
+                  <div class="form-group">
+                      {% render_field attached_form.attachment class="form-control" %}
+                  </div> 
+                  <button type="submit" class="btn btn-theme">{% trans "Add" %}</button>
+              </form>
+<!-- ########################################### -->
+
+            </div>
+          </div>
+
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+              <h4>{% trans "Link a new file/document" %}</h4>
+
+
+<!-- ########################################### -->
+              <form enctype="multipart/form-data" action="{% url 'bank_linked_file_add' bank.id %}" class="form-inline" method="post" id="bank_linked_form" role="form">
+
+                 {% csrf_token %}
+                  {{ link_form.non_field_errors }}
+
+                  {% for hidden in link_form.hidden_fields %}
+                    {{ hidden }}
+                  {% endfor %}
+
+                  <div class="form-group">
+                      {{link_form.bank.as_hidden }}
+                  </div>
+                  <div class="form-group">
+                      {% render_field link_form.label class="form-control" placeholder="Label" %}
+                  </div>
+                  <div class="form-group">
+                      {% render_field link_form.link class="form-control" placeholder="URL" %}
+                  </div>
+                  <button type="submit" class="btn btn-theme">{% trans "Add" %}</button>
+              </form>
+<!-- ########################################### -->
+
+            </div>
+          </div>
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <h4>{% trans "Attached files and documents" %}</h4>
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>{% trans "Document" %}</th>
+                    <th>{% trans "Size" %}</th>
+                    <th>{% trans "Date" %}</th>
+                    <th> </th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for file in bank.bankaccountattachedfile_set.all %}
+                <tr>
+                    <td><a href="#">{{file.filename}}</a></td>
+                    <td> ---- </td>
+                    <td>{{file.timestamp}}</td>
+                    <td>
+                      <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_attached_file_modal{{file.id}}">&#128683;</button>
+                    </td>
+                </tr>
+
+                <!-- Modal -->
+                  <div class="modal fade" id="delete_attached_file_modal{{file.id}}" role="dialog">
+                    <div class="modal-dialog">
+                    
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          <h4 class="modal-title">{% trans 'Delete attached file' %}?</h4>
+                        </div>
+                        <div class="modal-body">
+                          <div class = "alert alert-danger" style="padding-top: 10px;">
+                                    <form method="post" action="{% url 'bank_attached_file_delete' bank.id file.id %}">{% csrf_token %}
+                                    {% trans " Are you sure you want to delete the file:" %} <b>{{file.filename}}</b>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                                  <div class="pull-left">
+                                      <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes' %}"/>
+                                  </form>
+                                  </div>
+                                      </form>
+                                  <div class="pull-right">
+                                      <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                  </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- End Modal -->
+
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+          </div>
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <h4>{% trans "Linked files and documents" %}</h4>
+                <table class="table table-bordered table-striped table-condensed">
+                    <thead>
+                    <tr>
+                        <th>{% trans "Link" %}</th>
+                        <th>{% trans "Date" %}</th>
+                        <th>{% trans "Size" %}</th>
+                        <th> </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for link in bank.bankaccountlinkedfile_set.all %}
+                    <tr>
+                        <td><a href="{{link.link}}" target="_Blank">{{link.label}}</a></td>
+                        <td>{{link.timestamp}}</td>
+                        <td></td>
+                        <td>
+                          <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_linked_file_modal{{link.id}}">&#128683;</button>
+                        </td>
+                    </tr>
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_linked_file_modal{{link.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete linked file' %}?</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="{% url 'bank_linked_file_delete' bank.id link.id %}">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the file:" %} <b>{{link.label}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+          </div>
+
+
+        </div>
+
+        <div id="monthly_reports" class="tabcontent">
+
+          <div class="row mt">
+            
+            <div class="col-md-4 col-sm-4 mb">
+              <h4>{% trans "Movements - Month" %}:</h4>
+                  <div class="stock card">
+                    <div class="stock-chart">
+                        <div id="chart"></div>
+                </div>
+                <div class="stock current-price">
+                  <div class="row">
+                        <div class="info col-sm-6 col-xs-6"><abbr>AAPL</abbr>
+                            <time>Yesterday</time>
+                    </div>
+                  <div class="changes col-sm-6 col-xs-6">
+                    <div class="value up"><i class="fa fa-caret-up hidden-sm hidden-xs"></i> 694.00</div>
+                    <div class="change hidden-sm hidden-xs">+4.95 (3.49%)</div>
+                  </div>
+                  </div>
+                </div>
+                <div class="summary">
+                        <strong>18.3 M</strong> <span>SHARES TRADED</span>
+                </div>
+                  </div>
+            </div>
+
+            <div class="col-md-4 col-sm-4 mb">
+              <h4>{% trans "Balance - Month" %}:</h4>
+                  <div class="stock card">
+                    <div class="stock-chart">
+                        <div id="chart"></div>
+                </div>
+                <div class="stock current-price">
+                  <div class="row">
+                        <div class="info col-sm-6 col-xs-6"><abbr>AAPL</abbr>
+                            <time>Yesterday</time>
+                    </div>
+                  <div class="changes col-sm-6 col-xs-6">
+                    <div class="value up"><i class="fa fa-caret-up hidden-sm hidden-xs"></i> 694.00</div>
+                    <div class="change hidden-sm hidden-xs">+4.95 (3.49%)</div>
+                  </div>
+                  </div>
+                </div>
+                <div class="summary">
+                        <strong>18.3 M</strong> <span>SHARES TRADED</span>
+                </div>
+                  </div>
+            </div>
+          </div>
+
+
+
+        </div>
+
+      <div id="graphs" class="tabcontent">
+
+
+          <div class="row mt">
+            
+            <div class="col-md-4 col-sm-4 mb">
+              <h4>{% trans "Movements - Month" %}:</h4>
+                  <div class="stock card">
+                    <div class="stock-chart">
+                        <div id="chart"></div>
+                </div>
+                <div class="stock current-price">
+                  <div class="row">
+                        <div class="info col-sm-6 col-xs-6"><abbr>AAPL</abbr>
+                            <time>Yesterday</time>
+                    </div>
+                  <div class="changes col-sm-6 col-xs-6">
+                    <div class="value up"><i class="fa fa-caret-up hidden-sm hidden-xs"></i> 694.00</div>
+                    <div class="change hidden-sm hidden-xs">+4.95 (3.49%)</div>
+                  </div>
+                  </div>
+                </div>
+                <div class="summary">
+                        <strong>18.3 M</strong> <span>SHARES TRADED</span>
+                </div>
+                  </div>
+            </div>
+
+
+            <div class="col-md-4 col-sm-4 mb">
+              <!-- REVENUE PANEL -->
+              <div class="green-panel pn">
+                <div class="green-header">
+                  <h5>REVENUE</h5>
+                </div>
+                <div class="chart mt">
+                  <div class="sparkline" data-type="line" data-resize="true" data-height="75" data-width="90%" data-line-width="1" data-line-color="#fff" data-spot-color="#fff" data-fill-color="" data-highlight-line-color="#fff" data-spot-radius="4" data-data="[200,135,667,333,526,996,564,123,890,464,655]"><canvas width="320" height="75" style="display: inline-block; width: 320px; height: 75px; vertical-align: top;"></canvas></div>
+                </div>
+                <p class="mt"><b>$ 17,980</b><br>Month Income</p>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="content-panel">
+                    <h4><i class="fa fa-angle-right"></i> Line</h4>
+                    <div class="panel-body text-center">
+                        <canvas id="line" height="300" width="400" style="width: 400px; height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+          </div>
+
+      </div>
+
+      <div id="account_statments" class="tabcontent">
+          <h3>#To-do</h3>
+          <p>Lorem Ipsum is simply dummy text of the printing and typesetting</p> 
+      </div>
+
+        
+    </section>
+</section>
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="delete_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Delete' %} {{bank.reference}} ? </h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class = "alert alert-danger" style="padding-top: 10px;">
+                              <form method="post" action="{% url 'bank_delete' bank.id %}">{% csrf_token %}
+                              {% trans "Are you sure you wish to delete" %} <b>{{bank.reference}} -- {{bank.name}}</b> {% trans "and all the information assoicated with it" %}?
+                              <br> <b>{% trans "N.B: This action can not be undone!" %}</b>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes I am sure: Proceed & Delete' %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-right">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+{% endblock %}
+
+
+{% block extra_javascript %}
+
+
+
+<!--script for this page-->
+<script src="{% static 'assets/js/chart-master/Chart.js' %}"></script>
+<script src="{% static 'assets/js/chartjs-conf.js' %}"></script>
+<script src="{% static 'assets/js/sparkline-chart.js' %}"></script>
+
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+{% endblock extra_javascript %}
