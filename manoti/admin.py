@@ -26,9 +26,13 @@ class  VendorInvoiceAttachedFile_Inline(admin.StackedInline):
 	model = VendorInvoiceAttachedFile
 	extra = 2
 
+class  VendorInvoiceLine_Inline(admin.StackedInline):
+	model = VendorInvoiceLine
+	extra = 2
+
 class VendorInvoiceOptions(admin.ModelAdmin):
 	list_display = ('reference', 'vendor_reference', 'third_party', 'date', 'total_tax_excl', 'is_validated', 'is_paid', 'is_abandoned')
-	inlines = [VendorInvoiceAttachedFile_Inline]
+	inlines = [VendorInvoiceLine_Inline, VendorInvoiceAttachedFile_Inline]
 
 admin.site.register(Business)
 admin.site.register(BusinessAccountant)
