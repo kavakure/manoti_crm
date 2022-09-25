@@ -569,6 +569,14 @@ VENDOR_INVOICE_CHOICES = (
 	("credit", 'Credit Note'),
 )
 
+CUSTOMER_INVOICE_CHOICES = (
+	("standard", 'Standard invoice'),
+	("downpayment", 'Downpayment invoice'),
+	("replacement", 'Replacement invoice'),
+	("credit", 'Credit Note'),
+	("template", 'Template Invoice'),
+)
+
 class VendorInvoice(models.Model):
 	# 
 	author 				= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
@@ -599,6 +607,16 @@ class VendorInvoice(models.Model):
 
 	def get_absolute_url(self):
 		return reverse('vendor_invoice_view', kwargs={'invoice_id': self.id})
+
+	def is_late(self):
+		# if self.payment_due - self.date == 30:
+		# return self.timestamp + dt.timedelta(self.validity_duration)
+		pass
+
+	class Meta:
+		verbose_name = _("Vendor Invoice")
+		verbose_name_plural = _("Vendor Invoices")
+		ordering = ('date',)
 
 
 class VendorInvoiceLinkedFile(models.Model):
@@ -633,6 +651,8 @@ class VendorInvoiceLine(models.Model):
 	unit_price_tax_incl = models.IntegerField(_("Unit price (Tax incl.)"))
 	discount 		  = models.IntegerField(_("Discount"), blank=True, default=0)
 	quantity 		  = models.IntegerField(_("Qty"), blank=False, default=1)
+	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"), blank=True, default=0)
+	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"), blank=True, default=0)
 
 	def __str__(self):
 		return self.description
@@ -655,13 +675,6 @@ class VendorInvoiceContact(models.Model):
 	def __str__(self):
 		return self.contact
 
-CUSTOMER_INVOICE_CHOICES = (
-	("standard", 'Standard invoice'),
-	("downpayment", 'Downpayment invoice'),
-	("replacement", 'Replacement invoice'),
-	("credit", 'Credit Note'),
-	("template", 'Template Invoice'),
-)
 
 class CustomerInvoice(models.Model):
 	# 
