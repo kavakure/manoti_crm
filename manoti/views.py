@@ -995,7 +995,6 @@ def bank_linked_file_add(request, bank_id=None):
 				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
 				print("[ERROR] >>> %s" % bank_linked_file_form.errors.as_data())
 
-
 	return http.HttpResponseRedirect(reverse('bank_view', kwargs={'bank_id': bank.id}))
 
 @login_required
