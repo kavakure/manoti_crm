@@ -10,7 +10,7 @@ from django.contrib.admin.widgets import AdminDateWidget
 
 from django.contrib.auth.models import User
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, ProposalLinkedFile, ProposalAttachedFile, BankAccount
-from .models import BankAccountAttachedFile, BankAccountLinkedFile, BankEntry, BankEntryAttachedFile
+from .models import BankAccountAttachedFile, BankAccountLinkedFile, BankEntry, BankEntryAttachedFile, VendorInvoiceLinkedFile, VendorInvoiceAttachedFile
 
 
 class ThirdPartyForm(forms.ModelForm):
@@ -177,3 +177,18 @@ class BankEntryAttachedFileForm(forms.ModelForm):
 	class Meta:
 		model = BankEntryAttachedFile
 		fields = ['entry', 'filename', 'attachment'] 
+
+class VendorInvoiceLinkedFileForm(forms.ModelForm): 
+	"""Form used to add a linked file to a Vendor Invoice"""
+
+	class Meta:
+		model = VendorInvoiceLinkedFile
+		fields = ['vendor_invoice', 'filename', 'link'] 
+
+
+class VendorInvoiceAttachedFileForm(forms.ModelForm):
+	"""Form used to add a linked file to a Vendor Invoice"""
+
+	class Meta:
+		model = VendorInvoiceAttachedFile
+		fields = ['vendor_invoice', 'filename', 'attachment'] 
