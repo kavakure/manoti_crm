@@ -1,4 +1,4 @@
-from .models import ThirdParty, Contact, Proposal
+from .models import ThirdParty, Contact, Proposal, VendorInvoice
 from datetime import datetime
 
 def generate_third_party_codes():
@@ -39,6 +39,27 @@ def generate_proposal_reference():
 		draft_number = 1
 	else:
 		draft_number = all_proposals.reference_number+1
+
+	codes = {
+		'draft_number': draft_number,
+		'validated_number' : validated_number,
+	}
+	return codes
+
+
+def generate_vendor_invoice_reference():
+
+	invoices = VendorInvoice.objects.all().order_by('-timestamp').first()
+	validated_invoices = VendorInvoice.objects.filter(is_validated=True).order_by('-timestamp').first()
+	if validated_invoices == None:
+		invoice_number = 1
+	else:
+		invoice_number = validated_invoices.reference_number+1
+
+	if invoices == None:
+		draft_number = 1
+	else:
+		draft_number = invoices.reference_number+1
 
 	codes = {
 		'draft_number': draft_number,
