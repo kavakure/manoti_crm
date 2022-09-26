@@ -1,0 +1,809 @@
+{% extends "base_billing.html" %} {% load static i18n widget_tweaks humanize %}
+
+{% block title %}{{invoice.reference}} - {{invoice.third_party}} {% endblock %}
+
+{% block extra_stylesheet %}
+<link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
+
+<style>
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+{% endblock extra_stylesheet%}
+
+
+{% block main_content %}
+<section id="main-content">
+    <section class="wrapper site-min-height">
+
+
+
+      <div class="content-panel" style="margin-top: 5px;">
+
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9">
+              <h3><i class="fa fa-angle-right"></i> <b>{{invoice.reference}}</b></h3> 
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
+              <p style="font-size: 18px;"><a href="{% url 'vendor_invoice_list' %}"><b>{% trans 'Back to list' %}</b></a> </p>
+            </div>
+          </div>
+
+            <div class="row mt">
+                <div class="col-lg-9 col-md-9 col-sm-9">
+                    <section >
+                      <table class="table table-condensed">
+                        <tbody>
+                          <tr>
+                            <td style="font-size: 16px;"><i class="fa fa-angle-right"></i> {% trans "Ref. vendor" %}: {{invoice.vendor_reference}}</td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 16px;"><i class="fa fa-angle-right"></i> {% trans "Third-party " %}: <a href="{{invoice.third_party.get_absolute_url}}">{{invoice.third_party}}</a> <a href="#">({% trans "Other invoices" %})</a></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </section>
+               </div> 
+               <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
+                <span class="btn {% if invoice.is_paid %}btn-success{%else%}btn-default{%endif%} btn-block"><b>{{invoice.is_paid|yesno:"Paid,Unpaid,Not set"}}</b></span>
+               </div> 
+            </div>
+      </div>
+        
+      <div class="content-panel" style="margin-top: 15px;">
+        <div class="tab">
+          <button class="tablinks" onclick="openCity(event, 'bank_account')">{% trans "Vendor Invoice" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'contact_addresses')">{% trans "Contact/addresses" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'notes')">{% trans "Notes" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'linked_files')">{% trans "Linked files" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'log')">{% trans "Log" %}</button>
+        </div>
+
+        <div id="bank_account" class="tabcontent" style="display: block;">
+          <!-- =========================================================================================== -->
+
+            <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>{% trans "type" %}</td>
+                          <td align="right"><span class="btn btn-default btn-xs">{{invoice.payment_type}} </span></td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Discounts" %}</td>
+                          <td align="right"> #To-do</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Label" %}</td>
+                          <td align="right">{{invoice.label}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Invoice date" %}</td>
+                          <td align="right">{{invoice.date|date:"d N Y"}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Payment terms" %}</td>
+                          <td align="right">{{invoice.payment_terms}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Payment Type" %}</td>
+                          <td align="right">{{invoice.payment_type}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Bank account" %}</td>
+                          <td align="right">{{invoice.bank_account}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </div>  
+
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>{% trans "Amount (excl. tax)" %}</td>
+                          <td align="right">{{invoice.total_tax_excl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Amount tax" %}</td>
+                          <td align="right">{{invoice.tax_amount|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Amount (inc. tax)" %}</td>
+                          <td align="right">{{invoice.total_tax_incl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <table class="table table-bordered table-striped table-condensed">
+                        <thead>
+                        <tr>
+                            <th>{% trans "Payments" %}</th>
+                            <th>{% trans "Date" %}</th>
+                            <th>{% trans "Type" %}</th>
+                            <th>{% trans "Bank account  " %}</th>
+                            <th>{% trans "Amount  " %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for entry in bank.bankentry_set.all %}
+                        <tr>
+                            <td> <a href="#">{{entry.id}}</a></td>
+                            <td>{{entry.label|default:"-----"|truncatechars:30 }}</td>
+                            <td>{{entry.date|date:"d N Y"}}</td>
+                            <td>{{entry.value_date|date:"d N Y"}}</td>
+                            <td>{{entry.payment_type}}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>{% trans "Already paid (without credit notes and down payments)" %}</td>
+                          <td align="right">{{invoice.total_tax_excl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Billed" %}</td>
+                          <td align="right">{{invoice.tax_amount|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Remaining unpaid" %}</td>
+                          <td align="right">{{invoice.total_tax_incl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                </div> 
+
+            </div>
+
+                <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+              <div class="col-lg-12 col-md-12 col-sm-12">
+                  <table class="table table-bordered table-striped table-condensed">
+                      <thead>
+                      <tr>
+                          <th>{% trans "Type" %}</th>
+                          <th>{% trans "Description" %}</th>
+                          <th align="right">{% trans "Sales tax" %}</th>
+                          <th align="right">{% trans "U.P. (net)" %}</th>
+                          <th align="right">{% trans "Qty" %}</th>
+                          <th align="right">{% trans "Disc." %}</th>
+                          <th align="right">{% trans "Total (excl.)" %}</th>
+                          {% if not invoice.is_validated %}<th align="right">{% trans "Action" %}</th>{% endif %}
+
+                      </tr>
+                      </thead>
+                      <tbody>
+                      {% for line in invoice.vendorinvoiceline_set.all %} 
+                      <tr>
+                          <td>{{line.line_type}}</td>
+                          <td>{{line.description}}</td>
+                          <td align="right">{{line.sales_tax}} %</td>
+                          <td align="right">{{line.unit_price_tax_excl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                          <td align="right">{{line.quantity|intcomma }}</td>
+                          <td align="right">{{line.discount|intcomma|default:"0"}}  {{invoice.third_party.business.main_currency}}</td>
+                          <td align="right">{{line.total_tax_excl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                          {% if not invoice.is_validated %}
+                          <td align="right">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-warning btn-xs">{% trans "Modify" %}</button>
+                                <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_line_modal{{line.id}}"><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% trans "Delete" %}</button>
+                            </div>
+                          </td>
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_line_modal{{line.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete product line?' %}</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="{% url 'vendor_invoice_line_delete' invoice.id line.id %}">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the product line:" %} <b>{{line.description}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
+                          {% endif %}
+                      </tr>
+                      {% endfor %}
+
+                      {% if not invoice.is_validated %}
+                      <form enctype="multipart/form-data" action="#" class="form-inline" method="post" id="proposal_line_form" role="form">
+                        {% csrf_token %}
+                        {{ line_form.non_field_errors }}
+
+                        {% for hidden in line_form.hidden_fields %}
+                          {{ hidden }}
+                        {% endfor %}
+                      <tr>
+                        <td align="left"> 
+                          {% render_field line_form.line_type class="form-control" %}
+                          {% if line_form.line_type.errors %}
+                            {% for error in line_form.line_type.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.line_type.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.description class="form-control" rows="3" cols="20" %}
+                          {% if line_form.description.errors %}
+                            {% for error in line_form.description.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.description.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="right"> 
+                          {% if proposal.third_party.business.sales_tax_is_used %} 18% {% else %} 0% {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.unit_price class="form-control" %}
+                          {% if line_form.unit_price.errors %}
+                            {% for error in line_form.unit_price.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.unit_price.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.quantity class="form-control" %}
+                          {% if line_form.quantity.errors %}
+                            {% for error in line_form.quantity.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.quantity.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.discount class="form-control" %}
+                          {% if line_form.discount.errors %}
+                            {% for error in line_form.discount.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.discount.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> </td>
+                        <td align="right"> 
+                         <button type="submit" class="btn btn-success" ><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% if editing %}{% trans "Modify" %}{% else %}{% trans "Add" %}{% endif %}</button>
+                         </form> 
+                        </td>
+                      </tr>
+                      {% endif %}
+                      </tbody>
+                  </table>
+                </div>
+            </div>
+
+            <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+
+
+
+
+                <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 40px;">
+                  {% if bank.bankentry_set.all|length == 0 %}
+                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
+                  {% endif %}
+                  <a href="#" class="btn btn-success">{% trans 'Modify' %}</a>
+                  
+                  
+
+                </div>
+            </div>
+
+
+            <div class="row mt">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h4><b><i class="fa fa-angle-right"></i> {% trans "Linked files" %}</b></h4>
+                <table class="table table-bordered table-striped table-condensed">
+                    <thead>
+                    <tr>
+                        <th>{% trans "Link" %}</th>
+                        <th>{% trans "Date" %}</th>
+                        <th> </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for file in invoice.vendorinvoiceattachedfile_set.all %}
+                    <tr>
+                        <td><a href="#">{{file.filename}}</a></td>
+                        <td>{{file.timestamp}}</td>
+                        <td>
+                          <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_attached_file_modal{{file.id}}">&#128683;</button>
+                        </td>
+                    </tr>
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_attached_file_modal{{file.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete attached file' %}?</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="{% url 'vendor_invoice_attached_file_delete' invoice.id file.id %}">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the file:" %} <b>{{file.filename}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes' %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
+                    {% endfor %}
+                    {% for link in invoice.vendorinvoicelinkedfile_set.all %}
+                    <tr>
+                        <td><a href="{{link.link}}" target="_Blank">{{link.label}}</a></td>
+                        <td>{{link.timestamp}}</td>
+                        <td>
+                          <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_linked_file_modal{{link.id}}">&#128683;</button>
+                        </td>
+                    </tr>
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_linked_file_modal{{link.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete linked file' %}?</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="{% url 'vendor_invoice_linked_file_delete' inovice.id %}">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the file:" %} <b>{{link.label}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes' %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+              </div>  
+            
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                      <h4><b><i class="fa fa-angle-right"></i> {% trans "Events on proposal" %}</b></h4>
+                      <table class="table">
+                        <tbody>
+                          <tr>
+                            <td> #To-Do</td>
+                          </tr>
+                        </tbody>
+                      </table>
+              </div>  
+            </div>
+         <!-- =========================================================================================== -->
+        </div>
+
+
+        <div id="contact_addresses" class="tabcontent">
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9">
+              <h4><i class="fa fa-angle-right"></i> {% trans "Contacts/addresses for" %} {{invoice.third_party.name}}</h4>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right">
+              <a href="#"  class="btn btn-success btn-sm">{% trans "Add a new contact" %}</a>
+            </div>
+          </div>
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Job Position" %}</th>
+                    <th>{% trans "Address" %}</th>
+                    <th>{% trans "Default contact/address" %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for contact in invoice.third_party.contact_set.all %}
+                <tr>
+                    <td> <a href="{{contact.get_absolute_url}}">{{contact.first_name}} {{contact.last_name}}</a></td>
+                    <td>{{contact.job_title|default:"-----"|truncatechars:30 }}</td>
+                    <td>{{contact.address|default:"-----"|truncatechars:50 }}</td>
+                    <td>{{contact.phone}}</td>
+                    <td>
+                      <span class="btn {% if thp.status %}btn-success{% else %}btn-danger{% endif %} btn-xs">{{thp.status|yesno:"Open,Closed,Not set"}}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+          </div>
+          </div>
+        </div>
+
+        <div id="linked_files" class="tabcontent">
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+
+            <table class="table">
+              <tbody>
+                <tr>
+                  <td>{% trans "type" %}</td>
+                  <td align="left"><span class="btn btn-default btn-xs">{{invoice.payment_type}} </span></td>
+                </tr>
+                <tr>
+                  <td>{% trans "Label" %}</td>
+                  <td align="left">{{invoice.label}}</td>
+                </tr>
+                <tr>
+                  <td>{% trans "Amount (excl. tax)" %}</td>
+                  <td align="left">{{invoice.total_tax_excl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                </tr>
+                <tr>
+                  <td>{% trans "Amount tax" %}</td>
+                  <td align="left">{{invoice.tax_amount|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                </tr>
+                <tr>
+                  <td>{% trans "Amount (inc. tax)" %}</td>
+                  <td align="left">{{invoice.total_tax_incl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h4>{% trans "Attached files and documents" %}</h4>
+            <table class="table table-condensed">
+                <tbody>
+                <tr>
+                    <td>{% trans "Number of attached files/documents" %}</td>
+                    <td align="left"> {{invoice.v.all|length}}</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+          </div>
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+              <h4>{% trans "Attach a new file/document" %}</h4>
+
+
+<!-- ########################################### -->
+              <form enctype="multipart/form-data" action="{% url 'vendor_invoice_attached_file_add' invoice.id %}" class="form-inline" method="post" id="bank_attached_form" role="form">
+
+                 {% csrf_token %}
+                  {{ attached_form.non_field_errors }}
+
+
+                  <div class="form-group">
+                      {{attached_form.vendor_invoice.as_hidden }}
+                  </div>
+                  <div class="form-group">
+                      {% render_field attached_form.filename class="form-control" placeholder="Filename" %}
+                  </div>
+                  <div class="form-group">
+                      {% render_field attached_form.attachment class="form-control" %}
+                  </div> 
+                  <button type="submit" class="btn btn-theme">{% trans "Add" %}</button>
+              </form>
+<!-- ########################################### -->
+
+            </div>
+          </div>
+
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+              <h4>{% trans "Link a new file/document" %}</h4>
+
+
+<!-- ########################################### -->
+              <form enctype="multipart/form-data" action="{% url 'vendor_invoice_linked_file_add' invoice.id %}" class="form-inline" method="post" id="bank_linked_form" role="form">
+
+                 {% csrf_token %}
+                  {{ link_form.non_field_errors }}
+
+                  {% for hidden in link_form.hidden_fields %}
+                    {{ hidden }}
+                  {% endfor %}
+
+                  <div class="form-group">
+                      {{link_form.vendor_invoice.as_hidden }}
+                  </div>
+                  <div class="form-group">
+                      {% render_field link_form.filename class="form-control" placeholder="Label" %}
+                  </div>
+                  <div class="form-group">
+                      {% render_field link_form.link class="form-control" placeholder="URL" %}
+                  </div>
+                  <button type="submit" class="btn btn-theme">{% trans "Add" %}</button>
+              </form>
+<!-- ########################################### -->
+
+            </div>
+          </div>
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <h4>{% trans "Attached files and documents" %}</h4>
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>{% trans "Document" %}</th>
+                    <th>{% trans "Size" %}</th>
+                    <th>{% trans "Date" %}</th>
+                    <th> </th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for file in invoice.vendorinvoiceattachedfile_set.all %}
+                <tr>
+                    <td><a href="#">{{file.filename}}</a></td>
+                    <td> ---- </td>
+                    <td>{{file.timestamp}}</td>
+                    <td>
+                      <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_attached_file_modal{{file.id}}">&#128683;</button>
+                    </td>
+                </tr>
+
+                <!-- Modal -->
+                  <div class="modal fade" id="delete_attached_file_modal{{file.id}}" role="dialog">
+                    <div class="modal-dialog">
+                    
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          <h4 class="modal-title">{% trans 'Delete attached file' %}?</h4>
+                        </div>
+                        <div class="modal-body">
+                          <div class = "alert alert-danger" style="padding-top: 10px;">
+                                    <form method="post" action="#">{% csrf_token %}
+                                    {% trans " Are you sure you want to delete the file:" %} <b>{{file.filename}}</b>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                                  <div class="pull-left">
+                                      <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes' %}"/>
+                                  </form>
+                                  </div>
+                                      </form>
+                                  <div class="pull-right">
+                                      <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                  </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- End Modal -->
+
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+          </div>
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <h4>{% trans "Linked files and documents" %}</h4>
+                <table class="table table-bordered table-striped table-condensed">
+                    <thead>
+                    <tr>
+                        <th>{% trans "Link" %}</th>
+                        <th>{% trans "Date" %}</th>
+                        <th>{% trans "Size" %}</th>
+                        <th> </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for link in invoice.vendorinvoicelinkedfile_set.all %}
+                    <tr>
+                        <td><a href="{{link.link}}" target="_Blank">{{link.label}}</a></td>
+                        <td>{{link.timestamp}}</td>
+                        <td></td>
+                        <td>
+                          <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_linked_file_modal{{link.id}}">&#128683;</button>
+                        </td>
+                    </tr>
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_linked_file_modal{{link.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete linked file' %}?</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="#">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the file:" %} <b>{{link.label}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans "Yes" %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+          </div>
+
+
+        </div>
+
+        <div id="notes" class="tabcontent">
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+              <table class="table table-condensed">
+                  <tbody>
+                  <tr>
+                      <td>{% trans "Private note" %}</td>
+                      <td align="left">{{invoice.note_private}}</td>
+                  </tr>
+                  <tr>
+                      <td>{% trans "Public note" %}</td>
+                      <td align="left"> {{invoice.note_public}}</td>
+                  </tr>
+                  </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+
+
+      <div id="log" class="tabcontent">
+          <h3>#To-do</h3>
+          <p>Lorem Ipsum is simply dummy text of the printing and typesetting</p> 
+      </div>
+
+        
+    </section>
+</section>
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="delete_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Delete' %} {{bank.reference}} ? </h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class = "alert alert-danger" style="padding-top: 10px;">
+                              <form method="post" action="#">{% csrf_token %}
+                              {% trans "Are you sure you wish to delete" %} <b>{{bank.reference}} -- {{bank.name}}</b> {% trans "and all the information assoicated with it" %}?
+                              <br> <b>{% trans "N.B: This action can not be undone!" %}</b>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes I am sure: Proceed & Delete' %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-right">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+{% endblock %}
+
+
+{% block extra_javascript %}
+
+
+
+<!--script for this page-->
+<script src="{% static 'assets/js/chart-master/Chart.js' %}"></script>
+<script src="{% static 'assets/js/chartjs-conf.js' %}"></script>
+<script src="{% static 'assets/js/sparkline-chart.js' %}"></script>
+
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+{% endblock extra_javascript %}
