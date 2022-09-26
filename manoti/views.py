@@ -15,10 +15,11 @@ from datetime import datetime
 
 
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices, ProposalLinkedFile, ProposalAttachedFile
-from .models import VendorInvoice, CustomerInvoice
+from .models import VendorInvoice, CustomerInvoice, VendorInvoiceLinkedFile, VendorInvoiceAttachedFile
 from .models import BankAccount, BankAccountLinkedFile, BankAccountAttachedFile, BankEntry, BankEntryAttachedFile
 from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm, ProposalAttachedFileForm
 from .forms import BankAccountForm, BankAccountEditForm, BankAccountLinkedFileForm, BankAccountAttachedFileForm, BankEntryForm, BankEntryAttachedFileForm
+from .forms import VendorInvoiceLinkedFileForm, VendorInvoiceAttachedFileForm
 from .utils import generate_proposal_reference
 
 @login_required
@@ -818,6 +819,12 @@ def vendor_invoice_view(request, invoice_id=None):
 
 	invoice = get_object_or_404(VendorInvoice, id=invoice_id)
 
+	linked_file = VendorInvoiceLinkedFile(vendor_invoice=invoice)
+	link_form = VendorInvoiceLinkedFileForm(instance=linked_file)
+
+	attached_file = VendorInvoiceAttachedFile(vendor_invoice=invoice)
+	attached_form = VendorInvoiceAttachedFileForm(instance=attached_file)
+
 	if errors:
 		error_message = errors[0]
 	else:
@@ -825,9 +832,109 @@ def vendor_invoice_view(request, invoice_id=None):
 
 	ctx = {
 		'invoice': invoice,
+		'link_form': link_form,
+		'attached_form': attached_form,
 		'error_message' : error_message,
 	}
 	return render(request, "vendor_invoice_view.html", ctx)
+
+@login_required
+def vendor_invoice_linked_file_delete(request, invoice_id=None, linked_file_id=None):
+	"""Removing a linked file from a Vendor Invoice"""
+
+	try:
+		invoice = VendorInvoice.objects.get(id=invoice_id)
+		linked_file = VendorInvoiceLinkedFile.objects.get(id=linked_file_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		invoice, linked_file = None, None
+
+	if request.method == 'POST' and invoice !=None and linked_file!= None:
+		try:
+			linked_file.delete()
+			messages.success(request,  _('Succcessfully deleted the linked file'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+@login_required
+def vendor_invoice_linked_file_add(request, invoice_id=None):
+	"""This view is used to add a linked file to a Vendor Invoice"""
+	invoice = None
+
+	try:
+		invoice = VendorInvoice.objects.get(id=invoice_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+	if invoice != None:
+		if request.method == 'POST':
+			vendor_invoice_linked_file_form = VendorInvoiceLinkedFileForm(request.POST)
+			if vendor_invoice_linked_file_form.is_valid():
+				link = vendor_invoice_linked_file_form.save(commit=False)
+				link.timestamp = timezone.now()
+				link.save() # Now you can send it to DB
+				messages.success(request, _('Succcessfully added a linked file to the vendor invoice'), extra_tags='alert alert-success alert-dismissable')
+			else:
+				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
+				print("[ERROR] >>> %s" % vendor_invoice_linked_file_form.errors.as_data())
+
+
+	return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+
+@login_required
+def vendor_invoice_attached_file_delete(request, invoice_id=None, attached_file_id=None):
+	"""Removing an attached file from a Vendor Invoice"""
+
+	try:
+		invoice = VendorInvoice.objects.get(id=invoice_id)
+		attached_file = VendorInvoiceAttachedFile.objects.get(id=attached_file_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		invoice, attached_file = None, None
+
+	if request.method == 'POST' and invoice !=None and attached_file!= None:
+		try:
+			attached_file.delete()
+			messages.success(request,  _('Succcessfully deleted the attached file from the vendor invoice'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+@login_required
+def vendor_invoice_attached_file_add(request, invoice_id=None):
+	"""This view is used to add a file as an attachment to a vendor invoice"""
+	invoice = None
+
+	try:
+		invoice = VendorInvoice.objects.get(id=invoice_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+	if invoice != None:
+
+		attached_file_form = VendorInvoiceAttachedFileForm(request.POST or None,
+								 request.FILES or None)
+
+		if request.method == 'POST':
+			if attached_file_form.is_valid():
+				attachment = attached_file_form.save(commit=False)
+				doc_file = request.FILES['attachment']
+				attachment.timestamp = timezone.now()
+				attachment.save() # Now you can send it to DB
+				messages.success(request, _('Succcessfully attached a file to the vendor invoice'), extra_tags='alert alert-success alert-dismissable')
+			else:
+				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
+				print("[ERROR] >>> %s" % attached_file_form.errors.as_data())
+
+
+	return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
 
 
 ##################################################################################################
