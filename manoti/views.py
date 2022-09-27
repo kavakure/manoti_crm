@@ -1359,8 +1359,8 @@ def bank_entry_create(request):
 
 	if request.method == 'POST':
 		bank_entry_form = BankEntryForm(request.POST)
-		if bank_form.is_valid():
-			bank = bank_form.save(commit=False)
+		if bank_entry_form.is_valid():
+			bank = bank_entry_form.save(commit=False)
 			bank.author = request.user # Set the user object here
 			bank.balance = bank.initial_balance # Set the user object here
 			bank.save() # Now you can send it to DB
@@ -1371,5 +1371,5 @@ def bank_entry_create(request):
 				return http.HttpResponseRedirect(reverse('bank_view', kwargs={'bank_id': bank.id}))
 
 	else:
-		bank_form = BankAccountForm()
-	return render(request, 'bank_entry_form.html', {'bank_form': bank_form})
+		bank_entry_form = BankEntryForm()
+	return render(request, 'bank_entry_form.html', {'bank_entry_form': bank_entry_form})
