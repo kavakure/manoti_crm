@@ -15,12 +15,12 @@ from datetime import datetime
 
 
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices, ProposalLinkedFile, ProposalAttachedFile
-from .models import VendorInvoice, CustomerInvoice, VendorInvoiceLinkedFile, VendorInvoiceAttachedFile
+from .models import VendorInvoice, CustomerInvoice, VendorInvoiceLinkedFile, VendorInvoiceAttachedFile, VendorInvoiceLine
 from .models import BankAccount, BankAccountLinkedFile, BankAccountAttachedFile, BankEntry, BankEntryAttachedFile
 from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm, ProposalAttachedFileForm
 from .forms import BankAccountForm, BankAccountEditForm, BankAccountLinkedFileForm, BankAccountAttachedFileForm, BankEntryForm, BankEntryAttachedFileForm
-from .forms import VendorInvoiceLinkedFileForm, VendorInvoiceAttachedFileForm
-from .utils import generate_proposal_reference
+from .forms import VendorInvoiceLinkedFileForm, VendorInvoiceAttachedFileForm, VendorInvoiceForm, VendorInvoiceLineForm
+from .utils import generate_proposal_reference, generate_vendor_invoice_reference
 
 @login_required
 def dahshboard(request):
@@ -825,6 +825,8 @@ def vendor_invoice_view(request, invoice_id=None):
 	attached_file = VendorInvoiceAttachedFile(vendor_invoice=invoice)
 	attached_form = VendorInvoiceAttachedFileForm(instance=attached_file)
 
+	line_form  = VendorInvoiceLineForm()
+
 	if errors:
 		error_message = errors[0]
 	else:
@@ -834,6 +836,7 @@ def vendor_invoice_view(request, invoice_id=None):
 		'invoice': invoice,
 		'link_form': link_form,
 		'attached_form': attached_form,
+		'line_form': line_form,
 		'error_message' : error_message,
 	}
 	return render(request, "vendor_invoice_view.html", ctx)
@@ -936,6 +939,149 @@ def vendor_invoice_attached_file_add(request, invoice_id=None):
 
 	return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
 
+@login_required
+def vendor_invoice_create(request):
+	"""This view creates a new vendor invoice """
+	next_url = request.GET.get('next',None)
+	invoice_entry = None
+	ref = generate_vendor_invoice_reference()
+
+	if request.method == 'POST':
+		invoice_form = VendorInvoiceForm(request.POST)
+		if invoice_form.is_valid():
+			invoice = invoice_form.save(commit=False)
+			invoice.author = request.user # Set the user object here
+			invoice.reference_number = ref['draft_number']
+			invoice.reference  = "PROV%s" % str(ref['draft_number']).zfill(3)
+			invoice.save() # Now you can send it to DB
+			messages.success(request, _('Succcessfully saved created a draft vendor invoice'), extra_tags='alert alert-success alert-dismissable')
+			if next_url:
+				return http.HttpResponseRedirect(reverse('next_url'))
+			else:
+				return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+
+	else:
+		invoice_form = VendorInvoiceForm()
+	return render(request, 'invoice_form.html', {'invoice_form': invoice_form})
+
+@login_required
+def vendor_invoice_delete(request, invoice_id=None):
+	"""Deletes a vendor invoice from the database"""
+
+	if request.method == 'POST':
+		try:
+			invoice = VendorInvoice.objects.get(id=invoice_id)
+			invoice.delete()
+			messages.success(request,  _('Succcessfully deleted the vendor invoice'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+	else:
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+@login_required
+def vendor_invoice_line_add(request, invoice_id=None):
+	"""This view is used to add a item line to a vendor invoice"""
+	invoice = None
+	try:
+		invoice = VendorInvoice.objects.get(id=invoice_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+	if invoice != None:
+		if request.method == 'POST':
+			invoice_line_form = VendorInvoiceLineForm(request.POST)
+			if invoice_line_form.is_valid():
+				line = invoice_line_form.save(commit=False)
+				line.vendor_invoice = invoice
+
+				if invoice.third_party.sales_tax_is_used:
+					line.sales_tax = 18
+				else:
+					line.sales_tax = 0
+
+				if line.unit_price_tax_incl == None:
+					line.unit_price_tax_incl = 0
+
+				if line.unit_price_tax_incl != 0 and line.sales_tax != 0:
+					line.unit_price_tax_excl = line.unit_price_tax_incl/118*100
+
+				elif line.unit_price_tax_incl != 0 and line.sales_tax == 0:
+					line.unit_price_tax_excl = line.unit_price_tax_incl
+
+				line.total_tax_excl = line.unit_price_tax_excl * line.quantity
+				line.total_tax_incl = line.unit_price_tax_incl * line.quantity
+				line.save() # Now you can send it to DB
+
+				invoice.total_tax_excl +=  line.total_tax_excl
+				if invoice.third_party.sales_tax_is_used:
+					invoice.tax_amount =  invoice.total_tax_excl*18/100
+				
+				invoice.total_tax_incl =  invoice.total_tax_excl + invoice.tax_amount 
+
+				invoice.save()
+
+				messages.success(request, _('Succcessfully added a line to the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
+			else:
+				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
+				print("[ERROR] >>> %s" % proposal_line_form.errors.as_data())
+
+
+	return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+
+@login_required
+def vendor_invoice_line_delete(request, invoice_id=None, invoice_line_id=None):
+	"""Removing a product/service line from a vendor invoice"""
+
+	try:
+		invoice = VendorInvoice.objects.get(id=invoice_id)
+		invoice_line = VendorInvoiceLine.objects.get(id=invoice_line_id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		invoice, invoice_line = None, None
+
+	if request.method == 'POST' and invoice !=None and invoice_line!= None:
+		try:
+			
+			invoice.total_tax_excl -= invoice_line.total_tax_excl
+			invoice.tax_amount = invoice.total_tax_excl*18/100
+			invoice.total_tax_incl = invoice.total_tax_excl + invoice.tax_amount 
+
+			invoice.save()
+
+			invoice_line.delete()
+
+			messages.success(request,  _('Succcessfully deleted the line from the vendor invoice'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+
+login_required
+def vendor_invoice_toggle_validation(request, invoice_id=None):
+	"""Sets the validation status of a vendor invoice in the database"""
+
+	if request.method == 'POST':
+		try:
+			invoice = VendorInvoice.objects.get(id=invoice_id)
+			if invoice.is_validated:
+				invoice.is_validated = False
+				invoice.reference_number = generate_vendor_invoice_reference()['draft_number']
+				invoice.reference =  "PROV%s" % str(generate_vendor_invoice_reference()['draft_number']).zfill(3)
+			else:
+				invoice.is_validated = True
+				invoice.reference_number =  generate_vendor_invoice_reference()['validated_number']
+				invoice.reference =  "PR%s-%s" % (datetime.now().strftime("%y%m"), str(generate_vendor_invoice_reference()['validated_number']).zfill(3)) 
+			invoice.save()
+			messages.success(request,  _('Succcessfully edited the vednor invoice'), extra_tags='alert alert-success alert-dismissable')
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
 
 ##################################################################################################
 ### Bank|cash area ralated views
