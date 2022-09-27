@@ -874,7 +874,7 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <form enctype="multipart/form-data" action="{% url 'vendor_invoice_line_add' invoice.id %}" class="form-inline" onsubmit="return validateForm()" method="post" name="vendor_invoice_line_form" id="vendor_invoice_line_form" role="form">
+                          <form enctype="multipart/form-data" action="{% url 'vendor_invoice_line_add' invoice.id %}" class="form-inline" onsubmit="return validateForm()" method="post" name="vendor_invoice_line_edit_form{{line.id}}" id="vendor_invoice_line_form" role="form">
                                {% csrf_token %}
                                   {{ line_form.non_field_errors }}
 
