@@ -9,12 +9,14 @@ from manoti import views, urls
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^', include('hello.urls')),
-    url(r'^crm/', include('manoti.urls')),
-    path("admin/", admin.site.urls),
+	url(r'^', include('hello.urls')),
+	url(r'^crm/', include('manoti.urls')),
+	path("admin/", admin.site.urls),
+	path('accounts/', include('django_registration.backends.activation.urls')),
+	path('accounts/', include('django.contrib.auth.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
