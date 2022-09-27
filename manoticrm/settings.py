@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'registration',
     'django.contrib.humanize',
     'widget_tweaks',
     'storages',
@@ -212,3 +213,5 @@ SERVER_EMAIL = config('SERVER_EMAIL')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')   
 EMAIL_BACKEND = config('EMAIL_BACKEND')
 EMAIL_SUBJECT_PREFIX = config('EMAIL_SUBJECT_PREFIX')
+
+ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window
