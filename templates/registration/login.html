@@ -1,4 +1,4 @@
-{% load static i18n %}
+{% load static i18n widget_tweaks %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -34,26 +34,51 @@
 	  <div id="login-page">
 	  	<div class="container">
 	  	
-		      <form class="form-login" action="index.html">
+		      <form class="form-login" method="post" action="{% url 'login' %}">
+		      	{% csrf_token %}
 		        <h2 class="form-login-heading">{% trans "sign in now" %}</h2>
 		        <div class="login-wrap">
-		            <input type="text" class="form-control" placeholder="User ID" autofocus>
-		            <br>
-		            <input type="password" class="form-control" placeholder="Password">
-		            <label class="checkbox">
-		                <span class="pull-right">
-		                    <a data-toggle="modal" href="login.html#myModal"> {% trans "Forgot Password" %}?</a>
-		
-		                </span>
-		            </label>
-		            <button class="btn btn-theme btn-block" href="index.html" type="submit"><i class="fa fa-lock"></i> {% trans "SIGN IN" %}</button>
+
+		        	{% if form.errors %}
+							<p>{% trans "Your username and password didn't match. Please try again." %}</p>
+							{% endif %}
+
+							{% if next %}
+							    {% if user.is_authenticated %}
+							    <p>{% trans "Your account doesn't have access to this page. To proceed, please login with an account that has access" %}.</p>
+							    {% else %}
+							    <p>{% trans "Please login to continue" %}.</p>
+							    {% endif %}
+							{% endif %}
+
+							
+
+							<div class="form-group">
+								{% render_field form.username class="form-control" placeholder="{{ form.username.label_tag }}" autofocus="autofocus"%}
+                {% if field.errors %}
+                  {% for error in form.username.errors %}
+                    <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ form.username.errors|join:", " }}</span><br>
+                  {% endfor %}
+                {% endif %}
+							</div>
+
+							<div class="form-group">
+								{% render_field form.password class="form-control" placeholder="{{ form.password.label_tag }}" %}
+                {% if field.errors %}
+                  {% for error in form.password.errors %}
+                    <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ form.password.errors|join:", " }}</span><br>
+                  {% endfor %}
+                {% endif %}
+							</div>
+							<input type="hidden" name="next" value="{{ next }}">
+
+		            <input class="btn btn-theme btn-block"  type="submit" value="{% trans 'SIGN IN' %}">
 		            <hr>
 		            
 		            <div class="login-social-link centered">
-		            <p>{% trans "or you can sign in via your social network" %}</p>
-		                <button class="btn btn-facebook" type="submit"><i class="fa fa-facebook"></i> Facebook</button>
-		                <button class="btn btn-twitter" type="submit"><i class="fa fa-twitter"></i> Twitter</button>
+		            <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
 		            </div>
+
 		            <div class="registration">
 		                {% trans "Don't have an account yet" %}?<br/>
 		                <a class="" href="#">
@@ -62,28 +87,6 @@
 		            </div>
 		
 		        </div>
-		
-		          <!-- Modal -->
-		          <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="myModal" class="modal fade">
-		              <div class="modal-dialog">
-		                  <div class="modal-content">
-		                      <div class="modal-header">
-		                          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-		                          <h4 class="modal-title">{% trans "Forgot Password ?" %}</h4>
-		                      </div>
-		                      <div class="modal-body">
-		                          <p>{% trans "Enter your e-mail address below to reset your password" %}.</p>
-		                          <input type="text" name="email" placeholder="Email" autocomplete="off" class="form-control placeholder-no-fix">
-		
-		                      </div>
-		                      <div class="modal-footer">
-		                          <button data-dismiss="modal" class="btn btn-default" type="button">{% trans "Cancel" %}</button>
-		                          <button class="btn btn-theme" type="button">{% trans "Submit" %}</button>
-		                      </div>
-		                  </div>
-		              </div>
-		          </div>
-		          <!-- modal -->
 		
 		      </form>	  	
 	  	
