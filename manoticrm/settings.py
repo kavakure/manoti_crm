@@ -82,7 +82,7 @@ ROOT_URLCONF = "manoticrm.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ['templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -94,6 +94,8 @@ TEMPLATES = [
         },
     }
 ]
+
+
 
 WSGI_APPLICATION = "manoticrm.wsgi.application"
 
