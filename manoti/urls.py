@@ -45,6 +45,11 @@ urlpatterns = [
 	url(r'^vendor-invoice-linked-file-delete/(?P<invoice_id>[-\w]+)/(?P<linked_file_id>[-\w]+)/$', views.vendor_invoice_linked_file_delete, name='vendor_invoice_linked_file_delete'),
 	url(r'^vendor-invoice-attached-file-add/(?P<invoice_id>[-\w]+)/$', views.vendor_invoice_attached_file_add, name='vendor_invoice_attached_file_add'),
 	url(r'^vendor-invoice-attached-file-delete/(?P<invoice_id>[-\w]+)/(?P<attached_file_id>[-\w]+)/$', views.vendor_invoice_attached_file_delete, name='vendor_invoice_attached_file_delete'),
+	url(r'^vendor-invoice-create/$', views.vendor_invoice_create, name='vendor_invoice_create'),
+	url(r'^vendor-invoice-delete/(?P<invoice_id>[-\w]+)/$', views.vendor_invoice_delete, name='vendor_invoice_delete'),
+	url(r'^vendor-invoice-line-add/(?P<invoice_id>[-\w]+)/$', views.vendor_invoice_line_add, name='vendor_invoice_line_add'),
+	url(r'^vendor-invoice-line-delete/(?P<invoice_id>[-\w]+)/(?P<invoice_line_id>[-\w]+)/$', views.vendor_invoice_line_delete, name='vendor_invoice_line_delete'),
+	url(r'^vendor-invoice-toggle-validation/(?P<invoice_id>[-\w]+)/$', views.vendor_invoice_toggle_validation, name='vendor_invoice_toggle_validation'),
 	#Bank|cash area related URLS
 	url(r'^bank/$', views.bank_list, name='bank_list'),
 	url(r'^bank-view/(?P<bank_id>[-\w]+)/$', views.bank_view, name='bank_view'),
