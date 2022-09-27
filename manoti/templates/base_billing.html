@@ -116,7 +116,7 @@
                   {% block sidebar_links %}
 
                     <li><a  href="{% url 'vendor_invoice_home' %}"><b>{% trans "Vendor Invoices" %}</b></a></li>
-                    <li><a  href="#">{% trans "New invoice" %}</a></li>
+                    <li><a  href="{% url 'vendor_invoice_create' %}">{% trans "New invoice" %}</a></li>
                     <li class="sub-menu dcjq-parent-li">
                         <a href="javascript:;" class="{% block vendor_invoice_active_link_class %}{% endblock %} dcjq-parent">
                             <span>{% trans "List" %}</span>
