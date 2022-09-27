@@ -10,7 +10,7 @@ from django.contrib.admin.widgets import AdminDateWidget
 
 from django.contrib.auth.models import User
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, ProposalLinkedFile, ProposalAttachedFile, BankAccount
-from .models import BankAccountAttachedFile, BankAccountLinkedFile, BankEntry, BankEntryAttachedFile, VendorInvoiceLinkedFile, VendorInvoiceAttachedFile
+from .models import BankAccountAttachedFile, BankAccountLinkedFile, BankEntry, BankEntryAttachedFile, VendorInvoiceLinkedFile, VendorInvoiceAttachedFile, VendorInvoice, VendorInvoiceLine
 
 
 class ThirdPartyForm(forms.ModelForm):
@@ -192,3 +192,53 @@ class VendorInvoiceAttachedFileForm(forms.ModelForm):
 	class Meta:
 		model = VendorInvoiceAttachedFile
 		fields = ['vendor_invoice', 'filename', 'attachment'] 
+
+class VendorInvoiceForm(forms.ModelForm):
+	"""Form used to create or edit a commercial proposal"""
+
+	class Meta:
+		model = VendorInvoice
+
+		exclude = [
+			'author',
+			'reference',
+			'reference_number',
+			'total_tax_excl',
+			'tax_amount',
+			'total_tax_incl',
+			'is_validated',
+			'is_abandoned',
+			'is_paid',
+			'total_payment',
+		]
+
+		widgets = {
+			'date': DateTimeInput(attrs={'style': 'width: 200px'}),
+			'payment_due': DateInput(attrs={'style': 'width: 200px'}),
+		}
+
+class VendorInvoiceLineForm(forms.ModelForm):
+	"""Form used to create or edit a commercial proposal"""
+	sales_tax = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'style': 'width: 80px', 'class':'form-control'}))
+	line_id = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'class':'form-control'}))
+
+	class Meta:
+		model = VendorInvoiceLine
+		widgets = {
+			 'quantity': forms.NumberInput(attrs={'style': 'width: 80px'}),
+			 'sku': forms.TextInput(attrs={'style': 'width: 90px'}),
+			 'sales_tax': forms.NumberInput(attrs={'style': 'width: 80px'}),
+			 'unit_price_tax_excl': forms.NumberInput(attrs={'style': 'width: 80px'}),
+			 'unit_price_tax_incl': forms.NumberInput(attrs={'style': 'width: 80px'}),
+			 'quantity': forms.NumberInput(attrs={'style': 'width: 80px', 'placeholder':'XXX'}),
+			 'discount': forms.NumberInput(attrs={'style': 'width: 80px'}),
+			 'quantity': forms.NumberInput(attrs={'style': 'width: 80px'}),
+			 'total_tax_excl': forms.NumberInput(attrs={'style': 'width: 80px'}),
+			}
+		exclude = [
+			'vendor_invoice',
+			'total_tax_incl',
+			'total_tax_excl',
+			'line_id,'
+			
+		]
