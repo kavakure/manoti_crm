@@ -80,7 +80,14 @@
                     </section>
                </div> 
                <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
-                <span class="btn {% if invoice.is_paid %}btn-success{%else%}btn-default{%endif%} btn-block"><b>{{invoice.is_paid|yesno:"Paid,Unpaid,Not set"}}</b></span>
+                {% if invoice.is_validated %}
+                <span class="btn btn-warning btn-block"><b>{% trans "Not paid" %}</b></span>
+                {% elif invoice.is_paid %}
+                <span class="btn btn-success btn-block"><b>{% trans "Paid" %}</b></span>
+                {%else%}
+                <span class="btn btn-default btn-block"><b>{% trans "Draft (awaiting validation) " %}</b></span>
+                {%endif%}
+                
                </div> 
             </div>
       </div>
@@ -178,11 +185,11 @@
                       <tbody>
                         <tr>
                           <td>{% trans "Already paid (without credit notes and down payments)" %}</td>
-                          <td align="right">{{invoice.total_tax_excl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                          <td align="right">{{invoice.total_payment|intcomma}} {{invoice.third_party.business.main_currency}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Billed" %}</td>
-                          <td align="right">{{invoice.tax_amount|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                          <td align="right">{{invoice.total_tax_incl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
                         </tr>
                         <tr>
                           <td>{% trans "Remaining unpaid" %}</td>
@@ -202,11 +209,12 @@
                       <tr>
                           <th>{% trans "Type" %}</th>
                           <th>{% trans "Description" %}</th>
+                          <th align="right">{% trans "Vendor SKU" %}</th>
                           <th align="right">{% trans "Sales tax" %}</th>
                           <th align="right">{% trans "U.P. (net)" %}</th>
+                          <th align="right">{% trans "U.P. (inc. tax)" %}</th>
                           <th align="right">{% trans "Qty" %}</th>
                           <th align="right">{% trans "Disc." %}</th>
-                          <th align="right">{% trans "Total (excl.)" %}</th>
                           {% if not invoice.is_validated %}<th align="right">{% trans "Action" %}</th>{% endif %}
 
                       </tr>
@@ -216,15 +224,16 @@
                       <tr>
                           <td>{{line.line_type}}</td>
                           <td>{{line.description}}</td>
+                          <td align="right">{{line.sku}}</td>
                           <td align="right">{{line.sales_tax}} %</td>
                           <td align="right">{{line.unit_price_tax_excl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
-                          <td align="right">{{line.quantity|intcomma }}</td>
-                          <td align="right">{{line.discount|intcomma|default:"0"}}  {{invoice.third_party.business.main_currency}}</td>
-                          <td align="right">{{line.total_tax_excl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                          <td align="right">{{line.unit_price_tax_incl|intcomma }} {{invoice.third_party.business.main_currency}}</td>
+                          <td align="right">{{line.quantity|intcomma|default:"0"}}</td>
+                          <td align="right">{{line.discount|intcomma}} %</td>
                           {% if not invoice.is_validated %}
                           <td align="right">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-warning btn-xs">{% trans "Modify" %}</button>
+                                <button type="button" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#edit_line_modal{{line.id}}">{% trans "Modify" %}</button>
                                 <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_line_modal{{line.id}}"><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% trans "Delete" %}</button>
                             </div>
                           </td>
@@ -264,7 +273,7 @@
                       {% endfor %}
 
                       {% if not invoice.is_validated %}
-                      <form enctype="multipart/form-data" action="#" class="form-inline" method="post" id="proposal_line_form" role="form">
+                      <form enctype="multipart/form-data" action="{% url 'vendor_invoice_line_add' invoice.id %}" class="form-inline" onsubmit="return validateForm()" method="post" name="vendor_invoice_line_form" id="vendor_invoice_line_form" role="form">
                         {% csrf_token %}
                         {{ line_form.non_field_errors }}
 
@@ -289,13 +298,29 @@
                           {% endif %}
                         </td>
                         <td align="right"> 
-                          {% if proposal.third_party.business.sales_tax_is_used %} 18% {% else %} 0% {% endif %}
+                          {% render_field line_form.sku class="form-control" %}
+                          {% if line_form.sku.errors %}
+                            {% for error in line_form.sku.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.sku.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="right"> 
+                          {% if invoice.third_party.sales_tax_is_used %} 18% {% else %} 0% {% endif %}
                         </td>
                         <td align="left"> 
-                          {% render_field line_form.unit_price class="form-control" %}
-                          {% if line_form.unit_price.errors %}
-                            {% for error in line_form.unit_price.errors %}
-                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.unit_price.errors|join:", " }}</span><br>
+                          {% render_field line_form.unit_price_tax_excl class="form-control" %}
+                          {% if line_form.unit_price_tax_excl.errors %}
+                            {% for error in line_form.unit_price_tax_excl.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.unit_price_tax_excl.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.unit_price_tax_incl class="form-control" %}
+                          {% if line_form.unit_price_tax_incl.errors %}
+                            {% for error in line_form.unit_price_tax_incl.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.unit_price_tax_incl.errors|join:", " }}</span><br>
                             {% endfor %}
                           {% endif %}
                         </td>
@@ -315,7 +340,6 @@
                             {% endfor %}
                           {% endif %}
                         </td>
-                        <td align="left"> </td>
                         <td align="right"> 
                          <button type="submit" class="btn btn-success" ><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% if editing %}{% trans "Modify" %}{% else %}{% trans "Add" %}{% endif %}</button>
                          </form> 
@@ -333,10 +357,18 @@
 
 
                 <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 40px;">
-                  {% if bank.bankentry_set.all|length == 0 %}
+                  {% if invoice.vendorinvoiceline_set.all|length != 0 %}
+                    {% if invoice.is_validated %}
+                    <a href="#" class="btn btn-success">{% trans 'Enter payment' %}</a>
+                    <button type="button"  data-toggle="modal" data-target="#toggle_validation_modal" class="btn btn-success">{% trans 'Re-open' %}</button>
+                    {% else %}
+                    <button type="button"  data-toggle="modal" data-target="#toggle_validation_modal" class="btn btn-success">{% trans 'Validate' %}</button>
+                    {% endif %}
+                  {% endif %}
+                  {% if invoice.vendorpayment_set.all|length == 0 %}
                   <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
                   {% endif %}
-                  <a href="#" class="btn btn-success">{% trans 'Modify' %}</a>
+                  <a href="#" class="btn btn-success">{% trans 'Clone' %}</a>
                   
                   
 
@@ -416,7 +448,7 @@
                                       </div>
                                       <div class="modal-body">
                                         <div class = "alert alert-danger" style="padding-top: 10px;">
-                                                  <form method="post" action="{% url 'vendor_invoice_linked_file_delete' inovice.id %}">{% csrf_token %}
+                                                  <form method="post" action="{% url 'vendor_invoice_linked_file_delete' invoice.id %}">{% csrf_token %}
                                                   {% trans " Are you sure you want to delete the file:" %} <b>{{link.label}}</b>
                                         </div>
                                       </div>
@@ -754,12 +786,12 @@
                 <div class="modal-content">
                   <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">{% trans 'Delete' %} {{bank.reference}} ? </h4>
+                    <h4 class="modal-title">{% trans 'Delete' %} {{invoice.reference}} ? </h4>
                   </div>
                   <div class="modal-body">
                     <div class = "alert alert-danger" style="padding-top: 10px;">
-                              <form method="post" action="#">{% csrf_token %}
-                              {% trans "Are you sure you wish to delete" %} <b>{{bank.reference}} -- {{bank.name}}</b> {% trans "and all the information assoicated with it" %}?
+                              <form method="post" action="{% url 'vendor_invoice_delete' invoice.id %}">{% csrf_token %}
+                              {% trans "Are you sure you wish to delete" %} <b>{{invoice.reference}} </b> {% trans "and all the information assoicated with it" %}?
                               <br> <b>{% trans "N.B: This action can not be undone!" %}</b>
                     </div>
                   </div>
@@ -777,6 +809,138 @@
               </div>
             </div>
             <!-- End Modal -->
+
+
+        <!-- Modal -->
+            <div class="modal fade" id="toggle_validation_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% if invoice.is_validated %}{% trans 'Re-open' %}{% else %}{% trans 'Validate' %}{% endif %} {{invoice.reference}} ?</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class = "alert alert-warning" style="padding-top: 10px;">
+                              <form method="post" action="{% url 'vendor_invoice_toggle_validation' invoice.id %}">{% csrf_token %}
+                              {% if invoice.is_validated %} 
+                              {% trans "Are you sure you want to open back the vendor invoice" %} <b>{{invoice.reference}}</b> 
+                              {% else %}
+                              <b> {% trans "Are you sure you want to validate this vendor invoice" %} </b> 
+                              {% endif %}
+                              
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-right">
+                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="&#9989; {% trans 'Yes' %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-left">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+
+            {% for line in invoice.vendorinvoiceline_set.all %} 
+                      <!-- Modal -->
+            <div class="modal fade" id="edit_line_modal{{line.id}}" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content" style="width:720px;">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Edit' %} {{line.description}}</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div style="padding-top: 10px;">
+   
+                      <table class="table table-bordered table-striped table-condensed">
+                        <thead>
+                          <tr>
+                              <th>{% trans "Type" %}</th>
+                              <th>{% trans "Description" %}</th>
+                              <th align="right">{% trans "Vendor SKU" %}</th>
+                              <th align="right">{% trans "Sales tax" %}</th>
+                              <th align="right">{% trans "U.P. (net)" %}</th>
+                              <th align="right">{% trans "U.P. (inc. tax)" %}</th>
+                              <th align="right">{% trans "Qty" %}</th>
+                              <th align="right">{% trans "Disc." %}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <form enctype="multipart/form-data" action="{% url 'vendor_invoice_line_add' invoice.id %}" class="form-inline" onsubmit="return validateForm()" method="post" name="vendor_invoice_line_form" id="vendor_invoice_line_form" role="form">
+                               {% csrf_token %}
+                                  {{ line_form.non_field_errors }}
+
+                                  {% for hidden in line_form.hidden_fields %}
+                                    {{ hidden }}
+                                  {% endfor %}
+
+                      <tr>
+                        <td align="left"> 
+                          <select name="line_type" class="form-control" required="" id="id_line_type">
+                          <option value="" selected="">---------</option>
+
+                          <option value="1">Product</option>
+                          <option value="2">Service</option>
+                          
+                          {% for select in line.linetype_set.all %}
+                          <option value="3">XXXXX</option>
+                           {% endfor %}
+
+                        </select>
+                        </td>
+                        <td align="left"> 
+                          <textarea name="description" cols="20" rows="3" class="form-control" required="" id="id_description" style="width: 136px; height: 204px;" value="{{line.description}}" ></textarea>
+                        </td>
+                        <td align="right"> 
+                          <input type="text" name="sku" style="width: 90px" maxlength="200" class="form-control" id="id_sku" value="{{line.sku}}">
+                        </td>
+                        <td align="right"> 
+                          {% if invoice.third_party.sales_tax_is_used %} 18% {% else %} 0% {% endif %}
+                        </td>
+                        <td align="left"> 
+                          <input type="number" name="unit_price_tax_excl" style="width: 80px" class="form-control" id="id_unit_price_tax_excl" value="{{line.unit_price_tax_excl}}">
+                        </td>
+                        <td align="left"> 
+                          <input type="number" name="unit_price_tax_incl" style="width: 80px" class="form-control" id="id_unit_price_tax_incl" value="{{line.unit_price_tax_incl}}">
+                        </td>
+                        <td align="left"> 
+                          <input type="number" name="quantity" style="width: 80px" class="form-control" id="id_quantity" value="{{line.quantity}}">
+                        </td>
+                        <td align="left"> 
+                          <input type="number" name="discount" style="width: 80px" class="form-control" id="id_discount" value="{{line.discount}}">
+                        </td>
+                      </tr>
+
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-right">
+                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="{% trans 'Save' %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-left">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+          {% endfor %}
+
+
+
 
 {% endblock %}
 
@@ -804,6 +968,28 @@ function openCity(evt, cityName) {
   }
   document.getElementById(cityName).style.display = "block";
   evt.currentTarget.className += " active";
+}
+</script>
+
+<script type="text/javascript">
+function validateEditForm(form, up_tax_excl, up_tax_incl) {
+  let x = document.forms[form][up_tax_excl].value;
+  let y = document.forms[form][up_tax_incl].value;
+  if (x == "" || y == "") {
+    alert("Please enter a unit price first");
+    return false;
+  }
+}
+</script>
+
+<script type="text/javascript">
+function validateForm() {
+  let x = document.forms["vendor_invoice_line_form"]["id_unit_price_tax_incl"].value;
+  let y = document.forms["vendor_invoice_line_form"]["id_unit_price_tax_excl"].value;
+  if (x == "" || y == "") {
+    alert("Please enter a unit price first");
+    return false;
+  }
 }
 </script>
 {% endblock extra_javascript %}
