@@ -49,12 +49,12 @@ def generate_proposal_reference():
 
 def generate_vendor_invoice_reference():
 
-	invoices = VendorInvoice.objects.all().order_by('-timestamp').first()
-	validated_invoices = VendorInvoice.objects.filter(is_validated=True).order_by('-timestamp').first()
+	invoices = VendorInvoice.objects.all().order_by('-date').first()
+	validated_invoices = VendorInvoice.objects.filter(is_validated=True).order_by('-date').first()
 	if validated_invoices == None:
-		invoice_number = 1
+		validated_number = 1
 	else:
-		invoice_number = validated_invoices.reference_number+1
+		validated_number = validated_invoices.reference_number+1
 
 	if invoices == None:
 		draft_number = 1
