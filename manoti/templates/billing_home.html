@@ -194,7 +194,7 @@
                     {% for invoice in vendor_invoices %}
                       {% if not invoice.is_validated %}
                       <tr>
-                          <td> <b><a href="#">{{invoice.reference}}</b></a></td>
+                          <td> <b><a href="{{invoice.get_absolute_url}}">{{invoice.reference}}</b></a></td>
                           <td>{{invoice.third_party.name}}</td>
                           <td>{{invoice.total_tax_incl|intcomma }} {{invoice.third_party.business.main_currency}}</td>
                       </tr>
