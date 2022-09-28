@@ -222,7 +222,7 @@ class ThirdParty(models.Model):
 	professional_id_6 = models.CharField(_("Professional ID 6"), max_length=200, blank=True, null=True)
 	vat_id            = models.CharField(_("VAT ID"), max_length=200, blank=True, null=True)
 	registre_de_commerce = models.CharField(_("Registre de Commerce"), max_length=200, blank=True, null=True)
-	sales_tax_is_used = models.BooleanField(_("Are Sales tax used by your Company/Organization?"), default=False)
+	sales_tax_is_used = models.BooleanField(_("Are Sales tax used by this thirdparty?"), default=False)
 	third_party_type  = models.ForeignKey(ThirdPartyType, verbose_name=_("Third-party type"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	business_entity_type = models.ForeignKey(BusinessEntityType, verbose_name=_("Business entity type"), blank=True, null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	workforce		  = models.IntegerField(_("workforce"), blank=True, default=1)
