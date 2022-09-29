@@ -356,20 +356,44 @@
 
 
 
-                <div class="col-lg-12 col-md-12 col-sm-12" align="right" style="margin-bottom: 40px;">
-                  {% if invoice.vendorinvoiceline_set.all|length != 0 %}
-                    {% if invoice.is_validated %}
-                    <a href="#" class="btn btn-success">{% trans 'Enter payment' %}</a>
-                    <button type="button"  data-toggle="modal" data-target="#toggle_validation_modal" class="btn btn-success">{% trans 'Re-open' %}</button>
-                    {% else %}
-                    <button type="button"  data-toggle="modal" data-target="#toggle_validation_modal" class="btn btn-success">{% trans 'Validate' %}</button>
+                <div class="col-lg-12 col-md-12 col-sm-12" style="margin-bottom: 40px;">
+
+                  <div class="btn-group pull-left">
+                    <a class="btn btn-success"
+                      href="https://www.example.com" 
+                      target="popup" 
+                      onclick="window.open('https://www.example.com','popup','width=600,height=600'); return false;">
+                        {% trans 'Preview' %}
+                    </a>
+                    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                      <span class="caret"></span>
+                      <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">{% trans 'Download' %}</a></li>
+                      <li><a href="#">{% trans 'Print' %}</a></li>
+                      <li><a href="#">{% trans 'Share via -Email' %}</a></li>
+                      <li class="divider"></li>
+                      <li><a href="#">Separated link</a></li>
+                    </ul>
+                  </div>
+
+                  <div class="pull-right">
+
+                    {% if invoice.vendorinvoiceline_set.all|length != 0 %}
+                      {% if invoice.is_validated %}
+                      <a href="#" class="btn btn-success">{% trans 'Enter payment' %}</a>
+                      <button type="button"  data-toggle="modal" data-target="#toggle_validation_modal" class="btn btn-success">{% trans 'Re-open' %}</button>
+                      {% else %}
+                      <button type="button"  data-toggle="modal" data-target="#toggle_validation_modal" class="btn btn-success">{% trans 'Validate' %}</button>
+                      {% endif %}
                     {% endif %}
-                  {% endif %}
-                  {% if invoice.vendorpayment_set.all|length == 0 %}
-                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
-                  {% endif %}
-                  <a href="#" class="btn btn-success">{% trans 'Clone' %}</a>
+                    {% if invoice.vendorpayment_set.all|length == 0 %}
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
+                    {% endif %}
+                    <a href="#" class="btn btn-success">{% trans 'Clone' %}</a>
                   
+                  </div>
                   
 
                 </div>
@@ -390,7 +414,13 @@
                     <tbody>
                     {% for file in invoice.vendorinvoiceattachedfile_set.all %}
                     <tr>
-                        <td><a href="#">{{file.filename}}</a></td>
+                        <td>
+                          <a href="{{file.attachment.url}}" 
+                            target="popup" 
+                            onclick="window.open('{{file.attachment.url}}','popup','width=600,height=600'); return false;">
+                              {{file.filename}}
+                          </a>
+                        </td>
                         <td>{{file.timestamp}}</td>
                         <td>
                           <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_attached_file_modal{{file.id}}">&#128683;</button>
@@ -643,7 +673,13 @@
 
                 {% for file in invoice.vendorinvoiceattachedfile_set.all %}
                 <tr>
-                    <td><a href="#">{{file.filename}}</a></td>
+                    <td>
+                      <a href="{{file.attachment.url}}" 
+                        target="popup" 
+                        onclick="window.open('{{file.attachment.url}}','popup','width=600,height=600'); return false;">
+                          {{file.filename}}
+                      </a>
+                    </td>
                     <td> ---- </td>
                     <td>{{file.timestamp}}</td>
                     <td>
@@ -702,7 +738,12 @@
                     <tbody>
                     {% for link in invoice.vendorinvoicelinkedfile_set.all %}
                     <tr>
-                        <td><a href="{{link.link}}" target="_Blank">{{link.label}}</a></td>
+                        <td>
+                          <a href="{{link.link}}" 
+                            target="popup" 
+                            onclick="window.open('{{file.attachment.url}}','popup','width=600,height=600'); return false;">
+                              {{link.label}}
+                          </a>
                         <td>{{link.timestamp}}</td>
                         <td></td>
                         <td>
