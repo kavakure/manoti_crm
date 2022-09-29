@@ -826,6 +826,7 @@ def vendor_invoice_view(request, invoice_id=None):
 	attached_form = VendorInvoiceAttachedFileForm(instance=attached_file)
 
 	line_form  = VendorInvoiceLineForm()
+	invoice_form = VendorInvoiceForm()
 
 	if errors:
 		error_message = errors[0]
@@ -837,6 +838,7 @@ def vendor_invoice_view(request, invoice_id=None):
 		'link_form': link_form,
 		'attached_form': attached_form,
 		'line_form': line_form,
+		'invoice_form': invoice_form,
 		'error_message' : error_message,
 	}
 	return render(request, "vendor_invoice_view.html", ctx)
