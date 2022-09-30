@@ -70,10 +70,35 @@
                       <table class="table table-condensed">
                         <tbody>
                           <tr>
-                            <td style="font-size: 16px;"><i class="fa fa-angle-right"></i> {% trans "Ref. vendor" %}: {{invoice.vendor_reference}}</td>
+                            <td style="font-size: 16px; "><i class="fa fa-angle-right"></i> {% trans "Ref. vendor" %}:</td>
+                            <td style="font-size: 16px; ">
+                              <span id="invoice_vendor_reference_label" style="display:block;"> {{invoice.vendor_reference}}   <button onclick="openform('invoice_vendor_reference_label', 'invoice_vendor_reference_form')" class='btn btn-default btn-xs'>🖉</button></span>
+                              <span id="invoice_vendor_reference_form" style="display:none;">
+                                
+                                  <form class="form-inline" action="{% url 'vendor_invoice_edit' invoice.id %}" method="post">{% csrf_token %}
+                                  <div class="form-group">
+                                      {% render_field invoice_form.third_party|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_invoice_type|attr:"hidden" %}
+                                      {% render_field invoice_form.date|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_type|attr:"hidden" %}
+                                      {% render_field invoice_form.bank_account|attr:"hidden" %}
+                                      {% render_field invoice_form.label|attr:"hidden"%}
+                                      {% render_field invoice_form.payment_terms|attr:"hidden"%}
+                                      {% render_field invoice_form.vendor_reference class="form-control" %}
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="button" onclick="openform('invoice_vendor_reference_label', 'invoice_vendor_reference_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                                  </div>
+                                </form>
+
+                              </span>
+                            </td>
                           </tr>
                           <tr>
-                            <td style="font-size: 16px;"><i class="fa fa-angle-right"></i> {% trans "Third-party " %}: <a href="{{invoice.third_party.get_absolute_url}}">{{invoice.third_party}}</a> <a href="#">({% trans "Other invoices" %})</a></td>
+                            <td style="font-size: 16px;"><i class="fa fa-angle-right"></i> {% trans "Third-party " %}:</td>
+                            <td style="font-size: 16px;"> <a href="{{invoice.third_party.get_absolute_url}}">{{invoice.third_party}}</a> <a href="{% url 'vendor_invoice_list' %}?list_filter=third_party&third_party_id={{invoice.third_party.id}}">({% trans "Other invoices" %})</a></td>
                           </tr>
                         </tbody>
                       </table>
@@ -106,35 +131,176 @@
 
             <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
                 <div class="col-lg-6 col-md-6 col-sm-12">
+                  
                     <table class="table">
                       <tbody>
                         <tr>
                           <td>{% trans "type" %}</td>
-                          <td align="right"><span class="btn btn-default btn-xs">{{invoice.payment_type}} </span></td>
+                          <td align="right">
+
+                            <span id="invoice_type_label"style="display:block;">{{invoice.vendor_invoice_type}}  <button onclick="openform('invoice_type_label', 'invoice_type_form')" class='btn btn-default btn-xs'>🖉</button></span>
+                            <span id="invoice_type_form" style="display:none;">
+                              
+                                  <form class="form-inline" action="{% url 'vendor_invoice_edit' invoice.id %}" method="post">{% csrf_token %}
+                                  <div class="form-group">
+                                      {% render_field invoice_form.third_party|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                      {% render_field invoice_form.date|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_terms|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_type|attr:"hidden" %}
+                                      {% render_field invoice_form.bank_account|attr:"hidden" %}
+                                      {% render_field invoice_form.label|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_invoice_type class="form-control" %}
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="button" onclick="openform('invoice_type_label', 'invoice_type_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                                  </div>
+                                  </form>
+                              <span>
+
+                          </td>
                         </tr>
                         <tr>
                           <td>{% trans "Discounts" %}</td>
-                          <td align="right"> #To-do</td>
+                          <td align="right"> 
+                            #To-do
+                            <button class="btn btn-default btn-xs">i</button>
+                          </td>
                         </tr>
                         <tr>
                           <td>{% trans "Label" %}</td>
-                          <td align="right">{{invoice.label}}</td>
+                          <td align="right">
+                            <span id="invoice_label_label" style="display:block;">{{invoice.label}} <button onclick="openform('invoice_label_label', 'invoice_label_form')" class='btn btn-default btn-xs'>🖉</button></span>
+                            <span id="invoice_label_form" style="display:none;">
+                              
+                                  <form class="form-inline" action="{% url 'vendor_invoice_edit' invoice.id %}" method="post">{% csrf_token %}
+                                  <div class="form-group">
+                                      {% render_field invoice_form.third_party|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_invoice_type|attr:"hidden" %}
+                                      {% render_field invoice_form.date|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_terms|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_type|attr:"hidden" %}
+                                      {% render_field invoice_form.bank_account|attr:"hidden" %}
+                                      {% render_field invoice_form.label class="form-control" %}
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="button" onclick="openform('invoice_label_label', 'invoice_label_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                                  </div>
+                                  </form>
+                              <span>
+                          </td>
                         </tr>
                         <tr>
                           <td>{% trans "Invoice date" %}</td>
-                          <td align="right">{{invoice.date|date:"d N Y"}}</td>
+                          <td align="right">
+                            
+                            <span id="invoice_date_label" style="display:block;">{{invoice.date|date:"d N Y"}}  <button onclick="openform('invoice_date_label', 'invoice_date_form')" class='btn btn-default btn-xs'>🖉</button></span>
+                            <span id="invoice_date_form" style="display:none;">
+                              
+                                   <form class="form-inline" action="{% url 'vendor_invoice_edit' invoice.id %}" method="post">{% csrf_token %}
+                                  <div class="form-group">
+
+                                      {% render_field invoice_form.third_party|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_invoice_type|attr:"hidden" %}
+                                      {% render_field invoice_form.date|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_terms|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_type|attr:"hidden" %}
+                                      {% render_field invoice_form.bank_account|attr:"hidden" %}
+                                      {% render_field invoice_form.label|attr:"hidden"%}
+                                      {% render_field invoice_form.date class="form-control" %}
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="button" onclick="openform('invoice_date_label', 'invoice_date_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                                  </div>
+                                  </form>
+                              <span>
+
+                          </td>
                         </tr>
                         <tr>
                           <td>{% trans "Payment terms" %}</td>
-                          <td align="right">{{invoice.payment_terms}}</td>
+                          <td align="right">
+                            <span id="invoice_payment_terms_label" style="display:block;">{{invoice.payment_terms}}  <button onclick="openform('invoice_payment_terms_label', 'invoice_payment_terms_form')" class='btn btn-default btn-xs'>🖉</button></span>
+                            <span id="invoice_payment_terms_form" style="display:none;">
+                              
+                                  <form class="form-inline" action="{% url 'vendor_invoice_edit' invoice.id %}" method="post">{% csrf_token %}
+                                  <div class="form-group">
+                                      {% render_field invoice_form.third_party|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_invoice_type|attr:"hidden" %}
+                                      {% render_field invoice_form.date|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_type|attr:"hidden" %}
+                                      {% render_field invoice_form.bank_account|attr:"hidden" %}
+                                      {% render_field invoice_form.label|attr:"hidden"%}
+                                      {% render_field invoice_form.payment_terms class="form-control" %}
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="button" onclick="openform('invoice_payment_terms_label', 'invoice_payment_terms_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                                  </div>
+                                </form>
+                              <span>
+                          </td>
                         </tr>
                         <tr>
                           <td>{% trans "Payment Type" %}</td>
-                          <td align="right">{{invoice.payment_type}}</td>
+                          <td align="right">
+
+                            <span id="invoice_payment_type_label" style="display:block;">{{invoice.payment_type}}  <button onclick="openform('invoice_payment_type_label', 'invoice_payment_type_form')" class='btn btn-default btn-xs'>🖉</button></span>
+                            <span id="invoice_payment_type_form" style="display:none;">
+                              
+                                  <form class="form-inline" action="{% url 'vendor_invoice_edit' invoice.id %}" method="post">{% csrf_token %}
+                                  <div class="form-group">
+                                      {% render_field invoice_form.third_party|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_invoice_type|attr:"hidden" %}
+                                      {% render_field invoice_form.date|attr:"hidden" %}
+                                      {% render_field invoice_form.bank_account|attr:"hidden" %}
+                                      {% render_field invoice_form.label|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_terms|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_type class="form-control" %}
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="button" onclick="openform('invoice_payment_type_label', 'invoice_payment_type_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                                  </div>
+                                  </form>
+                              <span>
+
+                          </td>
                         </tr>
                         <tr>
                           <td>{% trans "Bank account" %}</td>
-                          <td align="right">{{invoice.bank_account}}</td>
+                          <td align="right">
+
+                            <span id="invoice_bank_account_label" style="display:block;">{{invoice.bank_account}}  <button onclick="openform('invoice_bank_account_label', 'invoice_bank_account_form')" class='btn btn-default btn-xs'>🖉</button></span>
+                            <span id="invoice_bank_account_form" style="display:none;">
+                              
+                                  <form class="form-inline" action="{% url 'vendor_invoice_edit' invoice.id %}" method="post">{% csrf_token %}
+                                  <div class="form-group">
+                                      {% render_field invoice_form.third_party|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_invoice_type|attr:"hidden" %}
+                                      {% render_field invoice_form.date|attr:"hidden" %}
+                                      {% render_field invoice_form.label|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_terms|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_type|attr:"hidden" %}
+
+                                      {% render_field invoice_form.bank_account class="form-control" %}
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="button" onclick="openform('invoice_bank_account_label', 'invoice_bank_account_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                                  </div>
+                                  </form>
+                              <span>
+
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -380,6 +546,8 @@
 
                   <div class="pull-right">
 
+
+                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modify_modal">{% trans 'Modify' %}</button>
                     {% if invoice.vendorinvoiceline_set.all|length != 0 %}
                       {% if invoice.is_validated %}
                       <a href="#" class="btn btn-success">{% trans 'Enter payment' %}</a>
@@ -851,6 +1019,40 @@
             </div>
             <!-- End Modal -->
 
+            <!-- Modal -->
+            <div class="modal fade" id="modify_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Modify' %} {{invoice.reference}} ? </h4>
+                  </div>
+                  <div class="modal-body">
+                      <form method="post" action="{% url 'vendor_invoice_delete' invoice.id %}">{% csrf_token %}
+                        <div class="form-group" style="margin-bottom:50px;">
+                        <label for="{{ invoice_form.vendor_reference.id_for_label }}" class="col-sm-2 col-sm-2 control-label">{{ invoice_form.vendor_reference.label }}</label>
+                        <div class="col-sm-6">
+                          {% render_field invoice_form.vendor_reference class="form-control" placehorder="" %}
+                        </div>
+                      </div>
+                    
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes I am sure: Proceed & Delete' %}"/>
+                            </form>
+                            </div>
+                                
+                            <div class="pull-right">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
 
         <!-- Modal -->
             <div class="modal fade" id="toggle_validation_modal" role="dialog">
@@ -1011,6 +1213,23 @@ function openCity(evt, cityName) {
   evt.currentTarget.className += " active";
 }
 </script>
+
+<script>
+function openform(label_id, form_id) {
+  var form, label;
+  the_form = document.getElementById(form_id);
+  the_label = document.getElementById(label_id);
+  if (the_label.style.display == "block"){
+    the_label.style.display = "none";
+    the_form.style.display = "block";
+  } else {
+    the_label.style.display = "block";
+    the_form.style.display = "none";
+  }
+}
+</script>
+
+
 
 <script type="text/javascript">
 function validateEditForm(form, up_tax_excl, up_tax_incl) {
