@@ -826,7 +826,8 @@ def vendor_invoice_view(request, invoice_id=None):
 	attached_form = VendorInvoiceAttachedFileForm(instance=attached_file)
 
 	line_form  = VendorInvoiceLineForm()
-	invoice_form = VendorInvoiceForm()
+
+	invoice_form = VendorInvoiceForm(request.POST or None, request.FILES or None, instance=invoice)
 
 	if errors:
 		error_message = errors[0]
@@ -965,6 +966,30 @@ def vendor_invoice_create(request):
 	else:
 		invoice_form = VendorInvoiceForm()
 	return render(request, 'invoice_form.html', {'invoice_form': invoice_form})
+
+@login_required
+def vendor_invoice_edit(request, invoice_id=None):
+	"""This view is used to modify a vendor invoice"""
+
+	initial_data = {}
+	next_url = request.GET.get('next',None)
+
+	if request.POST and invoice_id:
+		invoice = get_object_or_404(VendorInvoice, id=invoice_id)
+		initial_data = model_to_dict(invoice, fields=[], exclude=['date_added'])
+		invoice_form = VendorInvoiceForm(request.POST or None, request.FILES or None, instance=invoice)
+		if invoice_form.is_valid():
+			invoice_form.save()
+			messages.success(request, _('Succcessfully saved changes to the invoice'), extra_tags='alert alert-success alert-dismissable')
+			return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+		else:
+			messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
+			print("[ERROR] >>> %s" % invoice_form.errors.as_data())
+			return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+
+
 
 @login_required
 def vendor_invoice_delete(request, invoice_id=None):
