@@ -789,6 +789,11 @@ def vendor_invoice_list(request):
 	"""
 
 	list_filter = request.GET.get('list_filter',None)
+	third_party_id = request.GET.get('third_party',None)
+	try:
+		thp = ThirdParty.objects.get(id=int(third_party_id))
+	except Exception as e:
+		thp = None
 
 	invoices = []
 
@@ -803,6 +808,10 @@ def vendor_invoice_list(request):
 
 	elif list_filter == 'abandoned': # filter the vendor invoices by abandoned status
 		invoices = VendorInvoice.objects.filter(is_abandoned=True).order_by('-date')
+
+	elif list_filter == 'third_party': # filter the vendor invoices by third-party
+		if thp != None:
+			invoices = VendorInvoice.objects.filter(third_party=thp).order_by('-date')
 
 	else:
 		invoices = VendorInvoice.objects.all().order_by('-date')
