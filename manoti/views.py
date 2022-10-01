@@ -412,6 +412,7 @@ def proposal_create(request):
 def proposal_edit(request, proposal_id=None):
 	"""This view is used to modify a commercial proposal"""
 
+	proposal = None
 	if proposal_id:
 		editing = True
 		proposal = get_object_or_404(Proposal, id=thirdparty_id)
@@ -421,9 +422,8 @@ def proposal_edit(request, proposal_id=None):
 	initial_data = {}
 	next_url = request.GET.get('next',None)
 
-	if request.POST and thirdparty_id:
-		thirdparty = get_object_or_404(ThirdParty, id=thirdparty_id)
-		initial_data = model_to_dict(thirdparty, fields=[], exclude=['date_added'])
+	if request.POST and proposal:
+		initial_data = model_to_dict(proposal, fields=[], exclude=['date_added'])
 		third_party_form = ThirdPartyForm(request.POST or None, request.FILES or None, instance=thirdparty)
 		if third_party_form.is_valid():
 			third_party_form.save()
@@ -1061,10 +1061,81 @@ def vendor_invoice_line_add(request, invoice_id=None):
 				messages.success(request, _('Succcessfully added a line to the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
 			else:
 				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
-				print("[ERROR] >>> %s" % proposal_line_form.errors.as_data())
+				print("[ERROR] >>> %s" % invoice_line_form.errors.as_data())
 
 
 	return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+
+@login_required
+def vendor_invoice_line_edit(request, line_id=None, invoice_id=None):
+	"""edit a vendor invoice line item"""
+
+	line = None
+	if line_id:
+		line = get_object_or_404(VendorInvoiceLine, id=line_id)
+		invoice = get_object_or_404(VendorInvoice, id=invoice_id)
+	else:
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+	initial_data = {}
+	next_url = request.GET.get('next',None)
+
+	if request.POST and line:
+		initial_data = model_to_dict(line, fields=[], exclude=['id'])
+		line_form = VendorInvoiceLineForm(request.POST or None, request.FILES or None, instance=line)
+		if line_form.is_valid():
+			line_form.save()
+			messages.success(request, _('Succcessfully saved changes to the line'), extra_tags='alert alert-success alert-dismissable')
+			return http.HttpResponseRedirect(reverse('third_party_view', kwargs={'thirdparty_id': thirdparty.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+
+
+	try:
+		line = VendorInvoiceLine.objects.get(id=line_id)
+		invoice = VendorInvoice.objects.get(id=line.vendor_invoice.id)
+	except Exception as e:
+		print("[ERROR] >> %s" % e) # To-do: add logging to the console
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+	if line != None:
+		if request.method == 'POST':
+			invoice_line_form = VendorInvoiceLineForm(request.POST)
+			if invoice_line_form.is_valid():
+
+				if invoice.third_party.sales_tax_is_used:
+					line.sales_tax = 18
+				else:
+					line.sales_tax = 0
+
+				if line.unit_price_tax_incl == None:
+					line.unit_price_tax_incl = 0
+
+				if line.unit_price_tax_incl != 0 and line.sales_tax != 0:
+					line.unit_price_tax_excl = line.unit_price_tax_incl/118*100
+
+				elif line.unit_price_tax_incl != 0 and line.sales_tax == 0:
+					line.unit_price_tax_excl = line.unit_price_tax_incl
+
+				line.total_tax_excl = line.unit_price_tax_excl * line.quantity
+				line.total_tax_incl = line.unit_price_tax_incl * line.quantity
+				line.save() # Now you can send it to DB
+
+				invoice.total_tax_excl +=  line.total_tax_excl
+				if invoice.third_party.sales_tax_is_used:
+					invoice.tax_amount =  invoice.total_tax_excl*18/100
+				
+				invoice.total_tax_incl =  invoice.total_tax_excl + invoice.tax_amount 
+
+				invoice.save()
+
+				messages.success(request, _('Succcessfully added a line to the commercial proposal'), extra_tags='alert alert-success alert-dismissable')
+			else:
+				messages.success(request, _('Something went wrong'), extra_tags='alert alert-success alert-dismissable')
+				print("[ERROR] >>> %s" % invoice_line_form.errors.as_data())
+
+
+	return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': line.vendor_invoice.id}))
 
 @login_required
 def vendor_invoice_line_delete(request, invoice_id=None, invoice_line_id=None):
