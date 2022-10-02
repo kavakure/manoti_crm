@@ -616,7 +616,7 @@
 
                 <div class="col-lg-12 col-md-12 col-sm-12" style="margin-bottom: 40px;">
 
-                  <div class="btn-group pull-left">
+   <!--                <div class="btn-group pull-left">
                     <a class="btn btn-success"
                       href="https://www.example.com" 
                       target="popup" 
@@ -634,7 +634,7 @@
                       <li class="divider"></li>
                       <li><a href="#">Separated link</a></li>
                     </ul>
-                  </div>
+                  </div> -->
 
                   <div class="pull-right">
 
@@ -1056,11 +1056,39 @@
                   <tbody>
                   <tr>
                       <td>{% trans "Private note" %}</td>
-                      <td align="left">{{invoice.note_private}}</td>
+                      <td align="left">
+                        <span id="invoice_note_private_label" class="other_labels" style="display:block;"><button onclick="openform('invoice_note_private_label', 'invoice_note_private_form')" class='btn btn-default btn-xs'>🖉</button><br>
+                        {{invoice.note_private}}</span>
+                        <span id="invoice_note_private_form" class="other_forms" style="display:none;">
+
+                          <form id="invoice_note_private_form" class="form-inline" action="{% url 'vendor_invoice_edit' invoice.id %}" method="post">{% csrf_token %}
+                              <div class="form-group">
+
+                                  {% render_field invoice_form.third_party|attr:"hidden" %}
+                                  {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                  {% render_field invoice_form.vendor_invoice_type|attr:"hidden" %}
+                                  {% render_field invoice_form.date|attr:"hidden" %}
+                                  {% render_field invoice_form.payment_terms|attr:"hidden" %}
+                                  {% render_field invoice_form.payment_type|attr:"hidden" %}
+                                  {% render_field invoice_form.bank_account|attr:"hidden" %}
+                                  {% render_field invoice_form.label|attr:"hidden"%}
+                                  {% render_field invoice_form.note_private class="form-control" %}
+                              </div>
+                              <div class="btn-group">
+                                <button type="button" onclick="openform('invoice_note_private_label', 'invoice_note_private_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                              </div>
+                                  </form>
+
+                        </span>
+                        
+                      </td>
                   </tr>
                   <tr>
                       <td>{% trans "Public note" %}</td>
-                      <td align="left"> {{invoice.note_public}}</td>
+                      <td align="left">
+                        {{invoice.note_public}}
+                      </td>
                   </tr>
                   </tbody>
             </table>
