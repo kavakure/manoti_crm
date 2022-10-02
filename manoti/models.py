@@ -336,6 +336,7 @@ class ProposalDocumentTemplate(models.Model):
 
 class Proposal(models.Model):
 	# 
+	business         = models.ForeignKey(Business, blank=True, null=True, on_delete=models.CASCADE)
 	author 			= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
 	is_private 		  	= models.BooleanField(_("Is private"), default=True, help_text=_("Is this entry private to the the user that added it ?"))
 	reference      	= models.CharField(_("Reference"), max_length=200, blank=False, null=False, default="Draft")
@@ -585,6 +586,7 @@ CUSTOMER_INVOICE_CHOICES = (
 
 class VendorInvoice(models.Model):
 	# 
+	business         	= models.ForeignKey(Business, blank=True, null=True, on_delete=models.CASCADE)
 	author 				= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
 	is_private 		  	= models.BooleanField(_("Is private"), default=True, help_text=_("Is this entry private to the the user that added it ?"))
 	reference_number 	= models.IntegerField(_("Reference number"), blank=False, null=False, default=1)
