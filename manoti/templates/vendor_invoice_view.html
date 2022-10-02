@@ -226,8 +226,8 @@
                         <tr>
                           <td>{% trans "Payment terms" %}</td>
                           <td align="right">
-                            <span id="invoice_payment_terms_label" class="other_labels" style="display:block;">{{invoice.payment_terms}}  <button onclick="openform('invoice_payment_terms_label', 'invoice_payment_terms_form')" class='btn btn-default btn-xs'>🖉</button></span>
-                            <span id="invoice_payment_terms_form" class="other_forms" style="display:none;">
+                            <span id="invoice_payment_due_label" class="other_labels" style="display:block;">{{invoice.payment_terms}}  <button onclick="openform('invoice_payment_due_label', 'invoice_payment_due_form')" class='btn btn-default btn-xs'>🖉</button></span>
+                            <span id="invoice_payment_due_form" class="other_forms" style="display:none;">
                               
                                   <form class="form-inline" action="{% url 'vendor_invoice_edit' invoice.id %}" method="post">{% csrf_token %}
                                   <div class="form-group">
@@ -239,6 +239,32 @@
                                       {% render_field invoice_form.bank_account|attr:"hidden" %}
                                       {% render_field invoice_form.label|attr:"hidden"%}
                                       {% render_field invoice_form.payment_terms class="form-control" %}
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="button" onclick="openform('invoice_payment_due_label', 'invoice_payment_due_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                                  </div>
+                                </form>
+                              <span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Payment due" %}</td>
+                          <td align="right">
+                            <span id="invoice_payment_terms_label" class="other_labels" style="display:block;">{% if invoice.is_late %} &#128680; {% endif %} {{invoice.payment_due|date:"d N Y"}} <button onclick="openform('invoice_payment_terms_label', 'invoice_payment_terms_form')" class='btn btn-default btn-xs'>🖉</button></span>
+                            <span id="invoice_payment_terms_form" class="other_forms" style="display:none;">
+                              
+                                  <form class="form-inline" action="{% url 'vendor_invoice_edit' invoice.id %}" method="post">{% csrf_token %}
+                                  <div class="form-group">
+                                      {% render_field invoice_form.third_party|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_invoice_type|attr:"hidden" %}
+                                      {% render_field invoice_form.date|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_type|attr:"hidden" %}
+                                      {% render_field invoice_form.bank_account|attr:"hidden" %}
+                                      {% render_field invoice_form.label|attr:"hidden"%}
+                                      {% render_field invoice_form.payment_terms|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_due class="form-control" %}
                                   </div>
                                   <div class="btn-group">
                                     <button type="button" onclick="openform('invoice_payment_terms_label', 'invoice_payment_terms_form')" class="btn btn-default">{% trans "Cancel" %}</button>
@@ -360,7 +386,9 @@
                         </tr>
                         <tr>
                           <td>{% trans "Remaining unpaid" %}</td>
-                          <td align="right">{{invoice.total_tax_incl|intcomma}} {{invoice.third_party.business.main_currency}}</td>
+                          <td align="right" >  
+                          <span style="color:{% if invoice.remaining_unpaid > 0 %}#880000{% else %}#008800{% endif %};font-size:1.7em;"><b>{{invoice.remaining_unpaid|intcomma}} {{invoice.third_party.business.main_currency}}</b></span>
+                          </td>
                         </tr>
                       </tbody>
                     </table>
