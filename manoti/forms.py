@@ -218,9 +218,8 @@ class VendorInvoiceForm(forms.ModelForm):
 		}
 
 class VendorInvoiceLineForm(forms.ModelForm):
-	"""Form used to create or edit a commercial proposal"""
+	"""Form used to add or edit a line of a vendor invoice"""
 	sales_tax = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'style': 'width: 80px', 'class':'form-control'}))
-	line_id = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'class':'form-control'}))
 
 	class Meta:
 		model = VendorInvoiceLine
@@ -239,6 +238,5 @@ class VendorInvoiceLineForm(forms.ModelForm):
 			'vendor_invoice',
 			'total_tax_incl',
 			'total_tax_excl',
-			'line_id,'
 			
 		]
