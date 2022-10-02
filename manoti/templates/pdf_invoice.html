@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+{% load i18n %}
+<html>
+  <head>
+    <title>
+      {% trans "Invoice for order" %} #{{invoice.invoice_number }} | {{shop_name}}
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style type="text/css">/*<![CDATA[*/
+    {% include "pdf/styles.css" %}
+    /*]]>*/</style>
+
+  </head>
+  <body>
+    {% include "pdf/navbar.html" with document_name=_("Invoice") %}
+    <div id="wrapper">
+
+        <div class="row">
+
+          <div class="column_left" >
+            <div id="header">
+  <div id="logo">
+    {% if iconURI %}
+    <img src="{{iconURI}}" />
+    {% endif %}
+  </div>
+
+</div>
+
+<h2><u>{% trans "Seller's information" %}</u></h2>
+<table class="table table-bordered">
+<tbody>
+
+<tr>
+<td>
+
+  <p style="font-size:20px;"><b>{{shopDetails.store_name}}</b></p>
+
+      {% if shopDetails.street1 %}
+        <p>{{shopDetails.street1}}</p>
+        {% endif %}
+        {% if shopDetails.street1 %}
+        <p>{{shopDetails.street2}}</p>
+        {% endif %}
+        <p>
+          {% if shopDetails.city %}{{shopDetails.city}}{% endif %}{% if shopDetails.state or shopDetails.postal_code %},{% endif %}
+          {% if shopDetails.postal_code %}{{shopDetails.postal_code}}{% endif %}
+          {% if shopDetails.state %}{{shopDetails.state}}{% endif %}
+        </p>
+        {% if shopDetails.country %}
+        <p>
+          {{shopDetails.country.name}}
+        </p>
+      {% endif %}
+
+      {% if shopDetails.phone or shopDetails.store_email %}
+        {% if shopDetails.phone %}
+        <p><b>{% trans "Phone" %}:</b> {{shopDetails.phone}}</p>
+        {% endif %}
+        {% if shopDetails.store_email %}
+        <p><b>{% trans "Email" %}:</b> {{shopDetails.store_email}}</p>
+        {% endif %}
+      {% endif %}
+
+      <p><b>NIF: 40001330473</b></p>
+      <p><b>RC: 21395/19</b></p>
+      <hr>
+           {% if invoice.tax == 0 %}
+             <p>{% trans "Subject to VAT" %}: <s>{% trans "YES" %}</s>  <b>&#9745;{% trans "NO" %} </b></p>
+          {% else %}
+              <p>{% trans "Subject to VAT" %}: <b>&#9745;{% trans "YES" %}</b> <s>{% trans "NO" %}</s> </p>
+          {% endif %}
+
+</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ############################################################################################################## -->
+<h2><u>{% trans "Buyer's information" %}</u></h2>
+<table class="table table-bordered">
+<tbody>
+<tr>
+<td>
+  <p style="font-size:20px;"><b>{{invoice.business.name}}</b></p>
+  {% if invoice.adressee %}
+  <p>Att: <b>{{invoice.adressee}}</b></p>
+  {% endif %}
+  <p>{% trans "Phone" %}: <b>{{invoice.business.phone|truncatechars:20}}</b></p>
+  <p>{% trans "Email" %}: <b>{{invoice.business.email|truncatechars:28}}</b></p>
+  <p>{% trans "Website" %}: <b>{{invoice.business.website|truncatechars:28}}</b></p>
+  {% if invoice.bill_street1 %}
+  <p>{{invoice.bill_street1}}</p>
+  {% endif %}
+  {% if invoice.bill_street1 %}
+  <p>{{invoice.bill_street2}}</p>
+  {% endif %}
+  <p>
+    {% if invoice.bill_city %}{{invoice.bill_city}}{% endif %}{% if invoice.bill_state or invoice.bill_postal_code %},{% endif %}
+    {% if invoice.bill_postal_code %}{{invoice.bill_postal_code}}{% endif %}
+    {% if invoice.bill_state %}{{invoice.bill_state}}{% endif %}
+  </p>
+  {% if invoice.bill_country %}
+  <p>
+    {{invoice.bill_country}}
+  </p>
+  {% endif %}
+  <hr>
+  <p>{% trans "Subject to VAT" %}: &#9633;{% trans "YES" %} &#9633;{% trans "NO" %} </p>
+  
+</td>
+</tr>
+
+</tbody>
+</table>
+<!-- ############################################################################################################## -->
+          </div>
+          
+
+          <div class="column_right">
+            <div align="right">
+              <h1>
+                {% trans "Invoice" %} #{{invoice.invoice_number }}
+              </h1>
+              <p><b>{% trans "Date" %}</b>: {{ invoice.time_stamp|date:"DATE_FORMAT"}}</p>
+            </div>
+
+            <div style="margin-top:30px;">
+              <h2>{% trans "Invoice details" %}</h2>
+
+                  
+                        <table class="priced">
+                          <thead>
+                            <tr>
+                              <th>{% trans "Description" %}</th>
+                              <th>{% trans "Quantity" %}</th>
+                              <th>{% trans "Unit price" %}</th>
+                              <th>{% trans "Total" %}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for item in invoice.vacancyinvoiceitem_set.all %}
+                            <tr>
+                              <td>{{item.item}}</td>
+                              <td>{{item.quantity}}</td>
+                              <td>{{item.unit_price}}</td>
+                              <td>{{item.line_total}} </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                              <td colspan="5" class="alert">{% trans "No products!" %}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="price">
+                              <td colspan="3">{% trans "Subtotal" %}</td>
+                              <td>{{invoice.sub_total }}</td>
+                            </tr>
+                            {% if invoice.discount %}
+                            <tr class="price">
+                            <td colspan="3">{% trans "Discount" %}</td>
+                              <td>- {{invoice.item_discount }}</td>
+                            </tr>
+                            {% endif %}
+                          </tbody>
+                        </table>
+
+
+                        <h3>{% trans "Totals" %}</h3>
+                             <table class="priced">
+                               <tbody>
+                                 <tr class="price">
+                                 <td colspan="4">{% trans "Tax" %}</td>
+                                   <td>{{invoice.tax }}</td>
+                                 </tr>
+                                 <tr class="price">
+                                 <td colspan="4" style="background-color:#000000; color: #ffffff; font-size: 14px;">{% trans "Total" %}</td>
+                                   <td style="background-color:#000000; color: #ffffff; font-size: 14px;">{{invoice.total }}</td>
+                                 </tr>
+                                </tbody>
+                              </table>
+
+                <h2>{% trans "Payment information" %}</h2>
+                {% if invoice.balance == 0 %}      
+                    <p>
+                        <b>
+                        {% blocktrans %}
+                        This invoice has been paid in full. Thank you for your business!
+                        {% endblocktrans %}
+                      </b>
+                    </p>
+                
+                {% else %}                
+                  <p>
+                    {% blocktrans with invoice_total=invoice.total  %}
+                    Payment total of <span class="currency">{{invoice_total}}</span>
+                    due to: <b>{{shop_name}}</b> 
+                    {% endblocktrans %}
+                    
+                    {% if shopDetails.street1 %}{{shopDetails.street1}}, {% endif %}{% if shopDetails.street2 %}{{shopDetails.street2}}, {% endif %}
+                    {% if shopDetails.city %}{{shopDetails.city}}, {% endif %}
+                    {% if shopDetails.state %}{{shopDetails.state}}, {% endif %}
+                    {% if shopDetails.postal_code %}{{shopDetails.postal_code}}, {% endif %}
+                    {% if shopDetails.country %}{{shopDetails.country.name}}.{% endif %}
+                  </p>
+                {% endif %}
+
+                {% if credit_card_type %}
+                  {% blocktrans with invoice_date=invoice.time_stamp|date:"DATE_FORMAT" invoice_total=invoice.total  %}
+                  <span class="currency">{{invoice_total}}</span> was charged to your
+                  {{credit_card_type}} card (ending with
+                  <code>{{credit_card_number}}</code>) on <em>{{invoice_date}}</em>.
+                  {% endblocktrans %}
+                {% endif %}
+
+                {% if invoice.notes %}
+                  <h2>{% trans "Notes" %}</h2>
+                  <p>{{invoice.notes|truncatechars:200}}</p>
+                {% endif %}
+
+
+            </div>
+          </div>
+        </div>
+
+
+
+      <div class="row">
+        <div class="column_left">
+          {% if invoice.bank_details %}
+          <h2>{% trans "Bank Details" %}</h2>
+          {% autoescape off %}{{ invoice.bank_details }}{% endautoescape %}
+          {% endif %}
+        </div>
+        <div class="column_right">
+          {% if invoice.status == 'Awaiting Purchase Order' or invoice.status == 'Received Purchase Order' or invoice.status == 'Awaiting payment' or invoice.status == 'Paid' %}
+          <p align="right">{% trans "This document has been digitaly approved" %}<br></p>
+          {% endif %}
+        </div>
+      </div>
+
+  </body>
+</html>
