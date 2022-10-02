@@ -839,6 +839,8 @@ def vendor_invoice_view(request, invoice_id=None):
 	invoice_form = VendorInvoiceForm(request.POST or None, request.FILES or None, instance=invoice)
 	line_types =  LineType.objects.all()
 
+	clone_form = VendorInvoiceForm()
+
 	if errors:
 		error_message = errors[0]
 	else:
@@ -851,6 +853,7 @@ def vendor_invoice_view(request, invoice_id=None):
 		'line_form': line_form,
 		'invoice_form': invoice_form,
 		'line_types': line_types,
+		'clone_form': clone_form,
 		'error_message' : error_message,
 	}
 	return render(request, "vendor_invoice_view.html", ctx)
@@ -1237,12 +1240,77 @@ def vendor_invoice_toggle_validation(request, invoice_id=None):
 			else:
 				invoice.is_validated = True
 				invoice.reference_number =  generate_vendor_invoice_reference()['validated_number']
-				invoice.reference =  "PR%s-%s" % (datetime.now().strftime("%y%m"), str(generate_vendor_invoice_reference()['validated_number']).zfill(3)) 
+				invoice.reference =  "SI%s-%s" % (datetime.now().strftime("%y%m"), str(generate_vendor_invoice_reference()['validated_number']).zfill(3)) 
 			invoice.save()
 			messages.success(request,  _('Succcessfully edited the vednor invoice'), extra_tags='alert alert-success alert-dismissable')
 		except Exception as e:
 			print("[ERROR] >> %s" % e) # To-do: add logging to the console
 		return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+	else:
+		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+
+@login_required
+def vendor_invoice_clone(request, invoice_id=None):
+	"""clones a vendor invoice"""
+
+	if request.method == 'POST':
+		try:
+			invoice = VendorInvoice.objects.get(id=invoice_id)
+		except Exception as e:
+			print("[ERROR] >> %s" % e) # To-do: add logging to the console
+			invoice = None
+			return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+		if invoice != None:
+			invoice_form = ProposalForm(request.POST)
+			if invoice_form.is_valid():
+				clone = VendorInvoice(
+					author 				= invoice.author,
+					is_private 		  	= invoice.is_private,
+					reference_number 	= generate_vendor_invoice_reference()['draft_number'], 
+					third_party 		= invoice_form.cleaned_data['third_party'],
+					vendor_reference    = invoice.vendor_reference,
+					vendor_invoice_type = invoice.vendor_invoice_type,
+					label          	  	= invoice.label,
+					date 	  		  	= timezone.now(),
+					payment_due		  	= invoice.payment_due,
+					payment_terms 		= invoice.payment_terms,
+					payment_type 		= invoice.payment_type,
+					bank_account 		= invoice.bank_account,
+					note_private    	= invoice.note_private,
+					note_public     	= invoice.note_public,
+					total_tax_excl 		= invoice.total_tax_excl,
+					tax_amount 	  		= invoice.tax_amount,
+					total_tax_incl 	  	= invoice.total_tax_incl,
+					total_payment 	  	= invoice.total_payment,
+					remaining_unpaid 	= invoice.remaining_unpaid,
+					is_validated		= invoice.is_validated,
+					is_abandoned		= invoice.is_abandoned,
+					is_paid				= invoice.is_paid,
+				)
+				clone.reference  = "PROV%s" % str(clone.reference_number).zfill(3)
+				clone.save()
+				for line in invoice.vendorinvoiceline_set.all():
+					invoice_line = VendorInvoiceLine(
+						vendor_invoice 	  = clone,
+						line_type 		  = line.line_type,
+						description       = line.description,
+						sku		          = line.sku,
+						sales_tax 		  = line.sales_tax,
+						unit_price_tax_excl = line.unit_price_tax_excl,
+						unit_price_tax_incl = line.unit_price_tax_incl,
+						discount 		  = line.discount,
+						quantity 		  = line.quantity,
+						total_tax_excl 	= line.total_tax_excl,
+						total_tax_incl 	= line.total_tax_incl,
+
+					)
+					invoice_line.save()
+
+				return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': clone.id}))
+			else:
+				print("[ERROR] >> %s" % proposal_form.errors) # To-do: add logging to the console
 	else:
 		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
 
