@@ -1,6 +1,14 @@
 from .models import ThirdParty, Contact, Proposal, VendorInvoice
 from datetime import datetime
 
+#Imports for pdf generation
+from io import BytesIO
+from xhtml2pdf import pisa
+from django.template.loader import get_template
+from django.template import Context, loader
+from django.http import HttpResponse
+from cgi import escape
+
 def generate_third_party_codes():
 
 	ven = ThirdParty.objects.all().order_by('-vendor_code_number').first()
@@ -66,3 +74,13 @@ def generate_vendor_invoice_reference():
 		'validated_number' : validated_number,
 	}
 	return codes
+
+def render_to_pdf(template_src, context_dict):
+	template = get_template(template_src)
+	context = Context(context_dict)
+	html  = template.render(context_dict)
+	result = BytesIO()
+	pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+	if not pdf.err:
+		return HttpResponse(result.getvalue(), content_type='application/pdf')
+	return None
