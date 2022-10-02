@@ -15,7 +15,7 @@ from datetime import datetime
 
 
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices, ProposalLinkedFile, ProposalAttachedFile
-from .models import VendorInvoice, CustomerInvoice, VendorInvoiceLinkedFile, VendorInvoiceAttachedFile, VendorInvoiceLine
+from .models import VendorInvoice, CustomerInvoice, VendorInvoiceLinkedFile, VendorInvoiceAttachedFile, VendorInvoiceLine, LineType
 from .models import BankAccount, BankAccountLinkedFile, BankAccountAttachedFile, BankEntry, BankEntryAttachedFile
 from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm, ProposalAttachedFileForm
 from .forms import BankAccountForm, BankAccountEditForm, BankAccountLinkedFileForm, BankAccountAttachedFileForm, BankEntryForm, BankEntryAttachedFileForm
@@ -837,6 +837,7 @@ def vendor_invoice_view(request, invoice_id=None):
 	line_form  = VendorInvoiceLineForm()
 
 	invoice_form = VendorInvoiceForm(request.POST or None, request.FILES or None, instance=invoice)
+	line_types =  LineType.objects.all()
 
 	if errors:
 		error_message = errors[0]
@@ -849,6 +850,7 @@ def vendor_invoice_view(request, invoice_id=None):
 		'attached_form': attached_form,
 		'line_form': line_form,
 		'invoice_form': invoice_form,
+		'line_types': line_types,
 		'error_message' : error_message,
 	}
 	return render(request, "vendor_invoice_view.html", ctx)
@@ -1030,6 +1032,11 @@ def vendor_invoice_line_add(request, invoice_id=None):
 			invoice_line_form = VendorInvoiceLineForm(request.POST)
 			if invoice_line_form.is_valid():
 				line = invoice_line_form.save(commit=False)
+
+				if line.unit_price_tax_incl == None and line.unit_price_tax_excl == None:
+					messages.success(request, _('Please enter a unit price'), extra_tags='alert alert-danger alert-dismissable')
+					return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+
 				line.vendor_invoice = invoice
 
 				if invoice.third_party.sales_tax_is_used:
@@ -1045,6 +1052,8 @@ def vendor_invoice_line_add(request, invoice_id=None):
 
 				elif line.unit_price_tax_incl != 0 and line.sales_tax == 0:
 					line.unit_price_tax_excl = line.unit_price_tax_incl
+
+				line.unit_price_tax_incl = line.unit_price_tax_excl + line.unit_price_tax_excl * line.sales_tax/100
 
 				line.total_tax_excl = line.unit_price_tax_excl * line.quantity
 				line.total_tax_incl = line.unit_price_tax_incl * line.quantity
@@ -1081,12 +1090,53 @@ def vendor_invoice_line_edit(request, line_id=None, invoice_id=None):
 	next_url = request.GET.get('next',None)
 
 	if request.POST and line:
+		old_total = line.total_tax_excl
+		print(">>>> old line: %s" % line.total_tax_excl)
+		
 		initial_data = model_to_dict(line, fields=[], exclude=['id'])
 		line_form = VendorInvoiceLineForm(request.POST or None, request.FILES or None, instance=line)
 		if line_form.is_valid():
+
+			if line.unit_price_tax_incl == None and line.unit_price_tax_excl == None:
+				messages.success(request, _('Please enter a unit price'), extra_tags='alert alert-danger alert-dismissable')
+				return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
+
+			if invoice.third_party.sales_tax_is_used:
+				line.sales_tax = 18
+			else:
+				line.sales_tax = 0
+
+			if line.unit_price_tax_incl == None:
+				line.unit_price_tax_incl = 0
+
+			if line.unit_price_tax_incl != 0 and line.sales_tax != 0:
+				line.unit_price_tax_excl = line.unit_price_tax_incl/118*100
+
+			elif line.unit_price_tax_incl != 0 and line.sales_tax == 0:
+				line.unit_price_tax_excl = line.unit_price_tax_incl
+
+			line.unit_price_tax_incl = line.unit_price_tax_excl + line.unit_price_tax_excl * line.sales_tax/100
+
+			line.total_tax_excl = line.unit_price_tax_excl * line.quantity
+			line.total_tax_incl = line.unit_price_tax_incl * line.quantity
+
 			line_form.save()
-			messages.success(request, _('Succcessfully saved changes to the line'), extra_tags='alert alert-success alert-dismissable')
-			return http.HttpResponseRedirect(reverse('third_party_view', kwargs={'thirdparty_id': thirdparty.id}))
+
+			new_total = line.total_tax_excl
+			print(">>>> Newline: %s" % line.total_tax_excl)
+
+			# Let us now recalculate the to of the related invoice
+			invoice.total_tax_excl =  invoice.total_tax_excl - old_total + new_total
+			if invoice.third_party.sales_tax_is_used:
+				invoice.tax_amount =  invoice.total_tax_excl*18/100
+			else:
+				invoice.tax_amount =  0
+			
+			invoice.total_tax_incl =  invoice.total_tax_excl + invoice.tax_amount 
+			invoice.save()
+
+			messages.success(request, _('Succcessfully saved changes to the item'), extra_tags='alert alert-success alert-dismissable')
+			return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
 	else:
 		return http.HttpResponseRedirect(reverse('vendor_invoice_view', kwargs={'invoice_id': invoice.id}))
 
@@ -1143,21 +1193,27 @@ def vendor_invoice_line_delete(request, invoice_id=None, invoice_line_id=None):
 
 	try:
 		invoice = VendorInvoice.objects.get(id=invoice_id)
-		invoice_line = VendorInvoiceLine.objects.get(id=invoice_line_id)
+		line = VendorInvoiceLine.objects.get(id=invoice_line_id)
 	except Exception as e:
 		print("[ERROR] >> %s" % e) # To-do: add logging to the console
 		invoice, invoice_line = None, None
 
-	if request.method == 'POST' and invoice !=None and invoice_line!= None:
+	if request.method == 'POST' and invoice !=None and line!= None:
 		try:
 			
-			invoice.total_tax_excl -= invoice_line.total_tax_excl
-			invoice.tax_amount = invoice.total_tax_excl*18/100
-			invoice.total_tax_incl = invoice.total_tax_excl + invoice.tax_amount 
 
+			# Let's recalculate the to of the related invoice
+			invoice.total_tax_excl -= line.total_tax_excl
+			if invoice.third_party.sales_tax_is_used:
+				invoice.tax_amount =  invoice.total_tax_excl*18/100
+			else:
+				invoice.tax_amount =  0
+			
+			invoice.total_tax_incl =  invoice.total_tax_excl + invoice.tax_amount 
 			invoice.save()
 
-			invoice_line.delete()
+			#finaly we delete the line from the invoice
+			line.delete()
 
 			messages.success(request,  _('Succcessfully deleted the line from the vendor invoice'), extra_tags='alert alert-success alert-dismissable')
 		except Exception as e:
