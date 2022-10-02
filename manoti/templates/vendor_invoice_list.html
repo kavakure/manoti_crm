@@ -50,7 +50,7 @@
                                   <td><b> <a href="{{invoice.get_absolute_url}}">{{invoice.reference}}<b></a></td>
                                   <td>{{invoice.vendor_reference}}</td>
                                   <td>{{invoice.date|date:"d N Y"}}</td>
-                                  <td>{{invoice.payment_due|date:"d N Y"}}</td>
+                                  <td>{% if invoice.is_late %}&#128680;{% endif %} {{invoice.payment_due|date:"d N Y"}}</td>
                                   <td><a href="{{invoice.third_party.get_absolute_url}}">{{invoice.third_party.name}}<b></a></td>
                                   <td>{{invoice.payment_terms }}</td>
                                   <td>{{invoice.payment_type }}</td>
