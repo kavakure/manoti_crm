@@ -3,7 +3,7 @@
 <html>
   <head>
     <title>
-      {% trans "Invoice for order" %} #{{invoice.invoice_number }} | {{shop_name}}
+      {% trans "Vendor Invoice" %} # {{invoice.reference }} | {{invoice.business.name}}
     </title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <style type="text/css">/*<![CDATA[*/
@@ -27,6 +27,7 @@
 
 </div>
 
+<!-- ############################################################################################################## -->
 <h2><u>{% trans "Seller's information" %}</u></h2>
 <table class="table table-bordered">
 <tbody>
@@ -34,31 +35,24 @@
 <tr>
 <td>
 
-  <p style="font-size:20px;"><b>{{shopDetails.store_name}}</b></p>
 
-      {% if shopDetails.street1 %}
-        <p>{{shopDetails.street1}}</p>
+  <p style="font-size:20px;"><b>{{invoice.business.name}}</b></p>
+
+        {% if invoice.business.address %}
+        <p>{{invoice.business.address}}</p>
         {% endif %}
-        {% if shopDetails.street1 %}
-        <p>{{shopDetails.street2}}</p>
+        {% if invoice.business.po_box %}
+        <p>{{invoice.business.po_box}}</p>
         {% endif %}
         <p>
-          {% if shopDetails.city %}{{shopDetails.city}}{% endif %}{% if shopDetails.state or shopDetails.postal_code %},{% endif %}
-          {% if shopDetails.postal_code %}{{shopDetails.postal_code}}{% endif %}
-          {% if shopDetails.state %}{{shopDetails.state}}{% endif %}
+          {% if invoice.business.state_province %}{{invoice.business.state_province}}{% endif %}
+            {% if invoice.business.country %}, {{invoice.business.country}}{% endif %}
         </p>
-        {% if shopDetails.country %}
-        <p>
-          {{shopDetails.country.name}}
-        </p>
-      {% endif %}
 
-      {% if shopDetails.phone or shopDetails.store_email %}
-        {% if shopDetails.phone %}
-        <p><b>{% trans "Phone" %}:</b> {{shopDetails.phone}}</p>
-        {% endif %}
-        {% if shopDetails.store_email %}
-        <p><b>{% trans "Email" %}:</b> {{shopDetails.store_email}}</p>
+         {% if invoice.business.phone %}
+        <p><b>{% trans "Phone" %}:</b> {{invoice.business.phone}}</p>
+        {% if invoice.store_email %}
+        <p><b>{% trans "Email" %}:</b> {{invoice.store_email}}</p>
         {% endif %}
       {% endif %}
 
@@ -120,9 +114,9 @@
           <div class="column_right">
             <div align="right">
               <h1>
-                {% trans "Invoice" %} #{{invoice.invoice_number }}
+                {% trans "Vendor invoice" %} # {{invoice.reference }}
               </h1>
-              <p><b>{% trans "Date" %}</b>: {{ invoice.time_stamp|date:"DATE_FORMAT"}}</p>
+              <p><b>{% trans "Date" %}</b>: {{ invoice.date|date:"DATE_FORMAT"}}</p>
             </div>
 
             <div style="margin-top:30px;">
