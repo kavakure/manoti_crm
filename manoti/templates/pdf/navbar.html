@@ -1,8 +1,8 @@
 {% load i18n %}
 <div id="navigation-bar">
   <h2>
-    {% blocktrans with order_id=invoice.id %}
-    Order #{{order_id}} - {{document_name}}
+    {% blocktrans with order_id=invoice.reference %}
+    Order #{{order_id}} 
     {% endblocktrans %}
   </h2>
   <ul>
