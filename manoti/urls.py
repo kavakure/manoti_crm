@@ -52,6 +52,7 @@ urlpatterns = [
 	url(r'^vendor-invoice-line-edit/(?P<line_id>[-\w]+)/(?P<invoice_id>[-\w]+)/$', views.vendor_invoice_line_edit, name='vendor_invoice_line_edit'),
 	url(r'^vendor-invoice-line-delete/(?P<invoice_id>[-\w]+)/(?P<invoice_line_id>[-\w]+)/$', views.vendor_invoice_line_delete, name='vendor_invoice_line_delete'),
 	url(r'^vendor-invoice-toggle-validation/(?P<invoice_id>[-\w]+)/$', views.vendor_invoice_toggle_validation, name='vendor_invoice_toggle_validation'),
+	url(r'^vendor-invoice-clone/(?P<invoice_id>[-\w]+)/$', views.vendor_invoice_clone, name='vendor_invoice_clone'),
 	#Bank|cash area related URLS
 	url(r'^bank/$', views.bank_list, name='bank_list'),
 	url(r'^bank-view/(?P<bank_id>[-\w]+)/$', views.bank_view, name='bank_view'),
