@@ -238,5 +238,6 @@ class VendorInvoiceLineForm(forms.ModelForm):
 			'vendor_invoice',
 			'total_tax_incl',
 			'total_tax_excl',
+			'remaining_unpaid',
 			
 		]
