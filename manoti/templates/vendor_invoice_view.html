@@ -46,6 +46,7 @@
 </style>
 {% endblock extra_stylesheet%}
 
+{% block messages %}xxxx {% endblock %}
 
 {% block main_content %}
 <section id="main-content">
@@ -386,8 +387,10 @@
                       </tr>
                       </thead>
                       <tbody>
-                      {% for line in invoice.vendorinvoiceline_set.all %} 
-                      <form enctype="multipart/form-data" action="{% url 'vendor_invoice_line_edit' line.id invoice.id %}" class="form-inline" onsubmit="return validateForm()" method="post" name="vendor_invoice_line_edit_form{{line.id}}" id="vendor_invoice_line_form" role="form">
+                      {% for line in invoice.vendorinvoiceline_set.all %}
+
+
+                      <form enctype="multipart/form-data" action="{% url 'vendor_invoice_line_edit' line.id invoice.id %}" class="form-inline"  method="post" name="vendor_invoice_line_edit_form{{line.id}}" id="vendor_invoice_line_edit_form{{line.id}}" role="form">
 
                                   {% csrf_token %}
                                   {{ line_form.non_field_errors }}
@@ -395,56 +398,58 @@
                       <tr>
                           <td>
                           <span class="value{{line.id}}" style="display:block;">{{line.line_type}}</span>
-                           <input type="text" name="line_id" style="width: 90px" maxlength="200" class="form-control" id="line_id" value="{{line.id}}">
                           <span class="form{{line.id}}" style="display:none;">
+                            <input type="hidden" name="line_id" id="id_id" value="{{line.id}}">
                             <select name="line_type" class="form-control" required="" id="id_line_type">
-                              <option value="" selected="">---------</option>
+                              <option value="{{line.line_type.value}}" selected="{{line.line_type.value}}">{{line.line_type.key}}</option>
 
-                              <option value="1">Product</option>
-                              <option value="2">Service</option>
+                              {% for type in line_types %}
+                              <option value="{{type.value}}">{{type.key}}</option>
+                              {% endfor %}
+
                             </select>
                           </span>
                           </td>
                           <td>
                             <span class="value{{line.id}}" style="display:block;">{{line.description}}</span>
                             <span class="form{{line.id}}" style="display:none;">
-                              <textarea name="description" cols="5" rows="3" class="form-control" required="" id="id_description"  value="{{line.description}}" ></textarea>
+                              <textarea name="description" cols="5" rows="3" class="form-control" required="" id="id_description{{line.id}}">{{line.description}}</textarea>
                             </span>
                           </td>
                           <td align="right">
                             <span class="value{{line.id}}" style="display:block;">{{line.sku}}</span>
                             <span class="form{{line.id}}" style="display:none;">
-                              <input type="text" name="sku" style="width: 90px" maxlength="200" class="form-control" id="id_sku" value="{{line.sku}}">
+                              <input type="text" name="sku" style="width: 90px" maxlength="200" class="form-control" id="id_sku{{line.id}}" value="{{line.sku}}">
                             </span>
                           </td>
                           <td align="right">
                             <span class="value{{line.id}}" style="display:block;">{{line.sales_tax}} %</span>
                             <span class="form{{line.id}}" style="display:none;">
-                              <input type="text" name="sales_tax" style="width: 90px" maxlength="200" class="form-control" id="id_sales_tax" value="{{line.sales_tax}}" disabled>
+                              <input type="text" name="sales_tax" style="width: 90px" maxlength="200" class="form-control" id="id_sales_tax{{line.id}}" value="{{line.sales_tax}}" disabled>
                             </span>
                           </td>
                           <td align="right">
                             <span class="value{{line.id}}" style="display:block;">{{line.unit_price_tax_excl|intcomma}} {{invoice.third_party.business.main_currency}}</span>
                             <span class="form{{line.id}}" style="display:none;">
-                              <input type="number" name="unit_price_tax_excl" style="width: 80px" class="form-control" id="id_unit_price_tax_excl" value="{{line.unit_price_tax_excl}}">
+                              <input type="number" name="unit_price_tax_excl" style="width: 80px" class="form-control" id="id_unit_price_tax_excl{{line.id}}" value="{{line.unit_price_tax_excl}}">
                             </span>
                           </td>
                           <td align="right">
                             <span class="value{{line.id}}" style="display:block;">{{line.unit_price_tax_incl|intcomma }} {{invoice.third_party.business.main_currency}}</span>
                             <span class="form{{line.id}}" style="display:none;">
-                              <input type="number" name="unit_price_tax_incl" style="width: 80px" class="form-control" id="id_unit_price_tax_incl" value="{{line.unit_price_tax_incl}}">
+                              <input type="number" name="unit_price_tax_incl" style="width: 80px" class="form-control" id="id_unit_price_tax_incl{{line.id}}" disabled>
                             </span>
                           </td>
                           <td align="right">
                             <span class="value{{line.id}}" style="display:block;">{{line.quantity|intcomma|default:"0"}}</span>
                             <span class="form{{line.id}}" style="display:none;">
-                             <input type="number" name="quantity" style="width: 80px" class="form-control" id="id_quantity" value="{{line.quantity}}">
+                             <input type="number" name="quantity" style="width: 80px" class="form-control" id="id_quantity{{line.id}}" value="{{line.quantity}}">
                             </span>
                           </td>
                           <td align="right">
                             <span class="value{{line.id}}" style="display:block;">{{line.discount|intcomma}} %</span>
                             <span class="form{{line.id}}" style="display:none;">
-                             <input type="number" name="discount" style="width: 80px" class="form-control" id="id_discount" value="{{line.discount}}">
+                             <input type="number" name="discount" style="width: 80px" class="form-control" id="id_discount{{line.id}}" value="{{line.discount}}">
                             </span>
                           </td>
                           {% if not invoice.is_validated %}
@@ -459,6 +464,7 @@
                             </div>
                           </form>
                           </td>
+                          {% endif %}
 
                               <!-- Modal -->
                                 <div class="modal fade" id="delete_line_modal{{line.id}}" role="dialog">
@@ -490,12 +496,12 @@
                                 </div>
                                 <!-- End Modal -->
 
-                          {% endif %}
+                          
                       </tr>
                       {% endfor %}
 
                       {% if not invoice.is_validated %}
-                      <form enctype="multipart/form-data" action="{% url 'vendor_invoice_line_add' invoice.id %}" class="form-inline" onsubmit="return validateForm()" method="post" name="vendor_invoice_line_form" id="vendor_invoice_line_form" role="form">
+                      <form enctype="multipart/form-data" action="{% url 'vendor_invoice_line_add' invoice.id %}" class="form-inline" onsubmit="return validateForm()" method="post" name="vendor_invoice_add_line_form" id="vendor_invoice_add_line_form" role="form">
                         {% csrf_token %}
                         {{ line_form.non_field_errors }}
 
@@ -541,7 +547,7 @@
                           {% endif %}
                         </td>
                         <td align="left"> 
-                          {% render_field line_form.unit_price_tax_incl class="form-control" %}
+                          {% render_field line_form.unit_price_tax_incl|attr:"disabled" class="form-control" %}
                           {% if line_form.unit_price_tax_incl.errors %}
                             {% for error in line_form.unit_price_tax_incl.errors %}
                               <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.unit_price_tax_incl.errors|join:", " }}</span><br>
@@ -1114,97 +1120,6 @@
             <!-- End Modal -->
 
 
-            {% for line in invoice.vendorinvoiceline_set.all %} 
-                      <!-- Modal -->
-            <div class="modal fade" id="edit_line_modal{{line.id}}" role="dialog">
-              <div class="modal-dialog">
-              
-                <div class="modal-content" style="width:720px;">
-                  <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">{% trans 'Edit' %} {{line.description}}</h4>
-                  </div>
-                  <div class="modal-body">
-                    <div style="padding-top: 10px;">
-   
-                      <table class="table table-bordered table-striped table-condensed">
-                        <thead>
-                          <tr>
-                              <th>{% trans "Type" %}</th>
-                              <th>{% trans "Description" %}</th>
-                              <th align="right">{% trans "Vendor SKU" %}</th>
-                              <th align="right">{% trans "Sales tax" %}</th>
-                              <th align="right">{% trans "U.P. (net)" %}</th>
-                              <th align="right">{% trans "U.P. (inc. tax)" %}</th>
-                              <th align="right">{% trans "Qty" %}</th>
-                              <th align="right">{% trans "Disc." %}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <form enctype="multipart/form-data" action="{% url 'vendor_invoice_line_add' invoice.id %}" class="form-inline" onsubmit="return validateForm()" method="post" name="vendor_invoice_line_edit_form{{line.id}}" id="vendor_invoice_line_form" role="form">
-                               {% csrf_token %}
-
-
-                      <tr>
-                        <td align="left"> 
-                          <select name="line_type" class="form-control" required="" id="id_line_type">
-                          <option value="" selected="">---------</option>
-
-                          <option value="1">Product</option>
-                          <option value="2">Service</option>
-                          
-                          {% for select in line.linetype_set.all %}
-                          <option value="3">XXXXX</option>
-                           {% endfor %}
-
-                        </select>
-                        </td>
-                        <td align="left"> 
-                          <textarea name="description" cols="20" rows="3" class="form-control" required="" id="id_description" style="width: 136px; height: 204px;" value="{{line.description}}" ></textarea>
-                        </td>
-                        <td align="right"> 
-                          <input type="text" name="sku" style="width: 90px" maxlength="200" class="form-control" id="id_sku" value="{{line.sku}}">
-                        </td>
-                        <td align="right"> 
-                          {% if invoice.third_party.sales_tax_is_used %} 18% {% else %} 0% {% endif %}
-                        </td>
-                        <td align="left"> 
-                          <input type="number" name="unit_price_tax_excl" style="width: 80px" class="form-control" id="id_unit_price_tax_excl" value="{{line.unit_price_tax_excl}}">
-                        </td>
-                        <td align="left"> 
-                          <input type="number" name="unit_price_tax_incl" style="width: 80px" class="form-control" id="id_unit_price_tax_incl" value="{{line.unit_price_tax_incl}}">
-                        </td>
-                        <td align="left"> 
-                          <input type="number" name="quantity" style="width: 80px" class="form-control" id="id_quantity" value="{{line.quantity}}">
-                        </td>
-                        <td align="left"> 
-                          <input type="number" name="discount" style="width: 80px" class="form-control" id="id_discount" value="{{line.discount}}">
-                        </td>
-                      </tr>
-
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                            <div class="pull-right">
-                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="{% trans 'Save' %}"/>
-                            </form>
-                            </div>
-                                </form>
-                            <div class="pull-left">
-                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
-                            </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End Modal -->
-          {% endfor %}
-
-
-
-
 {% endblock %}
 
 
@@ -1213,9 +1128,6 @@
 
 
 <!--script for this page-->
-<script src="{% static 'assets/js/chart-master/Chart.js' %}"></script>
-<script src="{% static 'assets/js/chartjs-conf.js' %}"></script>
-<script src="{% static 'assets/js/sparkline-chart.js' %}"></script>
 
 
 <script>
