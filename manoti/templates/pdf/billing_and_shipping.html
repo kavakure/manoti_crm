@@ -1,0 +1,38 @@
+{% load i18n %}
+
+<h2><u>{% trans "Buyer's information" %}</u></h2>
+<table class="table table-bordered">
+<tbody>
+<tr>
+<td>
+  <p style="font-size:20px;"><b>{{invoice.business.name}}</b></p>
+  {% if invoice.adressee %}
+  <p>Att: <b>{{invoice.adressee}}</b></p>
+  {% endif %}
+  <p>{% trans "Phone" %}: <b>{{invoice.business.phone|truncatechars:20}}</b></p>
+  <p>{% trans "Email" %}: <b>{{invoice.business.email|truncatechars:28}}</b></p>
+  <p>{% trans "Website" %}: <b>{{invoice.business.website|truncatechars:28}}</b></p>
+  {% if invoice.bill_street1 %}
+  <p>{{invoice.bill_street1}}</p>
+  {% endif %}
+  {% if invoice.bill_street1 %}
+  <p>{{invoice.bill_street2}}</p>
+  {% endif %}
+  <p>
+    {% if invoice.bill_city %}{{invoice.bill_city}}{% endif %}{% if invoice.bill_state or invoice.bill_postal_code %},{% endif %}
+    {% if invoice.bill_postal_code %}{{invoice.bill_postal_code}}{% endif %}
+    {% if invoice.bill_state %}{{invoice.bill_state}}{% endif %}
+  </p>
+  {% if invoice.bill_country %}
+  <p>
+    {{invoice.bill_country}}
+  </p>
+  {% endif %}
+  <hr>
+  <p>{% trans "Subject to VAT" %}: &#9633;{% trans "YES" %} &#9633;{% trans "NO" %} </p>
+  
+</td>
+</tr>
+
+</tbody>
+</table>
