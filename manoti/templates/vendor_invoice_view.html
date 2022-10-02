@@ -650,7 +650,7 @@
                     {% if invoice.vendorpayment_set.all|length == 0 %}
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
                     {% endif %}
-                    <a href="#" class="btn btn-success">{% trans 'Clone' %}</a>
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#clone_modal">{% trans 'Clone' %}</button>
                   
                   </div>
                   
@@ -1139,6 +1139,39 @@
                             </div>
                                 </form>
                             <div class="pull-left">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+
+          <!-- Modal -->
+            <div class="modal fade" id="clone_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Clone' %}</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div style="padding-top: 10px;">
+                              <form method="post" action="{% url 'vendor_invoice_clone' invoice.id %}">{% csrf_token %}
+                              <p><b>{% trans "Select Third-party" %}</b></p>
+                              {% render_field clone_form.third_party class="form-control" %}
+                              <p class = "alert alert-warning" >{% trans "Are you sure you want to clone the Vendor invoice" %} <b>{{invoice.reference}} ?</b> </p>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="&#9989; {% trans 'Yes' %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-right">
                                 <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
                             </div>
                   </div>
