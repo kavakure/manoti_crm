@@ -647,7 +647,7 @@ class VendorInvoiceLine(models.Model):
 	description       = models.TextField(_("Description"), blank=False, null=False)
 	sku		          = models.CharField(_("Vendor SKU"), max_length=200, blank=True)
 	sales_tax 		  = models.IntegerField(_("Sales tax"), blank=False)
-	unit_price_tax_excl = models.IntegerField(_("Unit price (net)"), blank=True, null=False)
+	unit_price_tax_excl = models.IntegerField(_("Unit price (net)"), blank=False, null=False)
 	unit_price_tax_incl = models.IntegerField(_("Unit price (Tax incl.)"), blank=True, null=False)
 	discount 		  = models.IntegerField(_("Discount"), blank=True, default=0)
 	quantity 		  = models.IntegerField(_("Qty"), blank=False, default=1)
