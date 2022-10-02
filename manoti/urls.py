@@ -39,6 +39,7 @@ urlpatterns = [
 	#Billing area ralated URLS
 	url(r'^billing/$', views.billing_homepage, name='billing_homepage'),
 	url(r'^vendor-invoice-view/(?P<invoice_id>[-\w]+)/$', views.vendor_invoice_view, name='vendor_invoice_view'),
+	url(r'^vendor-invoice-pdf/(?P<invoice_id>[-\w]+)/$', views.vendor_pdf_invoice, name='vendor_pdf_invoice'),
 	url(r'^vendor-invoice-list/$', views.vendor_invoice_list, name='vendor_invoice_list'),
 	url(r'^vendor-invoice-home/$', views.vendor_invoice_home, name='vendor_invoice_home'),
 	url(r'^vendor-invoice-linked-file-add/(?P<invoice_id>[-\w]+)/$', views.vendor_invoice_linked_file_add, name='vendor_invoice_linked_file_add'),
