@@ -620,7 +620,7 @@
                     <a class="btn btn-success"
                       href="https://www.example.com" 
                       target="popup" 
-                      onclick="window.open('https://www.example.com','popup','width=600,height=600'); return false;">
+                      onclick="window.open('{% url 'vendor_pdf_invoice' invoice.id %}','popup','width=1200, height=600'); return false;">
                         {% trans 'Preview' %}
                     </a>
                     <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
