@@ -20,7 +20,7 @@ from .models import BankAccount, BankAccountLinkedFile, BankAccountAttachedFile,
 from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm, ProposalAttachedFileForm
 from .forms import BankAccountForm, BankAccountEditForm, BankAccountLinkedFileForm, BankAccountAttachedFileForm, BankEntryForm, BankEntryAttachedFileForm
 from .forms import VendorInvoiceLinkedFileForm, VendorInvoiceAttachedFileForm, VendorInvoiceForm, VendorInvoiceLineForm
-from .utils import generate_proposal_reference, generate_vendor_invoice_reference
+from .utils import generate_proposal_reference, generate_vendor_invoice_reference, render_to_pdf
 
 @login_required
 def dahshboard(request):
@@ -1313,6 +1313,25 @@ def vendor_invoice_clone(request, invoice_id=None):
 				print("[ERROR] >> %s" % proposal_form.errors) # To-do: add logging to the console
 	else:
 		return http.HttpResponseRedirect(reverse('vendor_invoice_list'))
+
+
+
+@login_required
+def vendor_pdf_invoice(request, invoice_id=None):
+	"""Get the PDF version of a given invoice"""
+
+	invoice = get_object_or_404(VendorInvoice, id=invoice_id)
+
+	context_dict = {
+		'pagesize':'A4',
+		'invoice' : invoice,
+	}
+	
+	# pdf = render_to_pdf('pdf_invoice.html', context_dict)
+	# return HttpResponse(pdf, content_type='application/pdf')
+	return render(request, "pdf_invoice.html", context_dict)
+
+
 
 ##################################################################################################
 ### Bank|cash area ralated views
