@@ -282,6 +282,7 @@ class PaymentType(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
 	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+	
 
 	def __str__(self):
 		return self.key
@@ -289,10 +290,15 @@ class PaymentType(models.Model):
 class PaymentTerms(models.Model):
 	# 
 	key      		 = models.CharField(_("Key"), max_length=200, blank=False, null=False)
-	value      		 = models.CharField(_("Value"), max_length=200, blank=False, null=False)
+	days      		 = models.IntegerField(_("Days"), blank=False, null=True, default=0)
 
 	def __str__(self):
 		return self.key
+
+	class Meta:
+		verbose_name = _("Payment rerm")
+		verbose_name_plural = _("Payment terms")
+		ordering = ('days',)
 		
 class Source(models.Model):
 	# 
@@ -588,7 +594,7 @@ class VendorInvoice(models.Model):
 	vendor_invoice_type = models.CharField(_("Status"), choices=VENDOR_INVOICE_CHOICES, default="standard", max_length=200, blank=False, null=False)
 	label          	  	= models.CharField(_("Label"), max_length=200, blank=True)
 	date 	  		  	= models.DateTimeField(_("Invoice date"), blank=False, null=False)
-	payment_due		  	= models.DateField(_("Payment due on"), blank=True, null=True)
+	payment_due		  	= models.DateTimeField(_("Payment due on"), blank=True, null=True)
 	payment_terms 		= models.ForeignKey(PaymentTerms, verbose_name=_("Payment terms"), null=True, on_delete=models.CASCADE)
 	payment_type 		= models.ForeignKey(PaymentType, verbose_name=_("Payment type"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	bank_account 		= models.ForeignKey(BankAccount, verbose_name=_("Bank account"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
@@ -598,6 +604,7 @@ class VendorInvoice(models.Model):
 	tax_amount 	  		= models.IntegerField(_("Amount tax"), default=0)
 	total_tax_incl 	  	= models.IntegerField(_("Amount (inc. tax)"), default=0)
 	total_payment 	  	= models.IntegerField(_("Total payment"), default=0)
+	remaining_unpaid 	= models.IntegerField(_("Remaining unpaid"), blank=True, null=False, default=0)
 	is_validated		= models.BooleanField(_("Validated ?"), default=False)
 	is_abandoned		= models.BooleanField(_("Abandoned ?"), default=False)
 	is_paid				= models.BooleanField(_("Is paid ?"), default=False)
@@ -605,13 +612,19 @@ class VendorInvoice(models.Model):
 	def __str__(self):
 		return self.reference
 
+	def save(self, **kwargs):
+		self.remaining_unpaid = self.total_tax_incl - self.total_payment
+		super(VendorInvoice, self).save(**kwargs)
+
 	def get_absolute_url(self):
 		return reverse('vendor_invoice_view', kwargs={'invoice_id': self.id})
 
 	def is_late(self):
-		# if self.payment_due - self.date == 30:
-		# return self.timestamp + dt.timedelta(self.validity_duration)
-		pass
+		if not self.is_paid:
+			try:
+				return timezone.now() > self.payment_due
+			except Exception as e:
+				return False
 
 	class Meta:
 		verbose_name = _("Vendor Invoice")
