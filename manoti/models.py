@@ -584,6 +584,27 @@ CUSTOMER_INVOICE_CHOICES = (
 	("template", 'Template Invoice'),
 )
 
+class Payment(models.Model):
+	# Used to define a payment received from customer or a payment made to a customer
+	business         	= models.ForeignKey(Business, blank=True, null=True, on_delete=models.CASCADE)
+	author 				= models.ForeignKey(User, blank=False, null=True, on_delete=models.CASCADE, help_text=_("The user object that created this model"))
+	is_private 		  	= models.BooleanField(_("Is private"), default=True, help_text=_("Is this entry private to the the user that added it ?"))
+	reference_number 	= models.IntegerField(_("Reference number"), blank=False, null=False, default=1)
+	reference      		= models.CharField(_("Internal Reference"), max_length=200, blank=False, null=False, default="Draft", unique=True)
+	third_party 	  	= models.ForeignKey(ThirdParty, verbose_name=_("Company"), blank=False, null=False, on_delete=models.CASCADE)
+	date 	  		  	= models.DateTimeField(_("Date"), blank=False, null=False)
+	payment_type 		= models.ForeignKey(PaymentType, verbose_name=_("Payment type"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
+	bank_account 		= models.ForeignKey(BankAccount, verbose_name=_("Account to Credit"), null=True, on_delete=models.CASCADE)
+	number         	  	= models.CharField(_("Number (Check/Transfer N°)"), max_length=200, blank=True)
+	sender         	  	= models.CharField(_("Sender (Check/Transfer sender)"), max_length=200, blank=True)
+	bank_of_sender 	  	= models.CharField(_("Bank (Bank of Check)"), max_length=200, blank=True)
+	comments    		= models.TextField(_("Private note"), blank=True, null=True)
+	total 		  		= models.IntegerField(_("Total payment"), default=0)
+	sens				= models.IntegerField(_("Sense ?"), choices=SENS_CHOICES, default=1, help_text=_("For an accounting account of a customer, use Credit to record a payment you have received\nFor an accounting account of a supplier, use Debit to record a payment you made"))
+
+	def __str__(self):
+		return self.reference
+
 class VendorInvoice(models.Model):
 	# 
 	business         	= models.ForeignKey(Business, blank=True, null=True, on_delete=models.CASCADE)
