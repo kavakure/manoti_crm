@@ -1,0 +1,69 @@
+{% extends "base_billing.html" %}
+{% load static i18n humanize %}
+
+{% block extra_stylesheet %}
+<link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
+{% endblock extra_stylesheet%}
+
+{% block title %}{% trans "Vendor payments " %}{% endblock %}
+
+
+{% block main_content %}
+<section id="main-content">
+    <section class="wrapper site-min-height">
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+              <h3><i class="fa fa-angle-right"></i> <b>{% trans "Payments made to suppliers " %}({{payments|length}})</b></h3>
+            </div>
+
+          </div>
+      
+
+
+        <div class="row mt">
+            <div class="col-lg-12">
+                      <div class="content-panel">
+                      <!-- <h4><i class="fa fa-angle-right"></i> Most 15 recent Third Parties</h4> -->
+                          <section>
+                            <table class="table table-bordered table-striped table-condensed">
+                              <thead>
+                              <tr>
+                                  <th>{% trans "Reference" %}</th>
+                                  <th>{% trans "Date" %}</th>
+                                  <th>{% trans "Third-party" %}</th>
+                                  <th>{% trans "Type" %}</th>
+                                  <th>{% trans "Number" %}</th>
+                                  <th>{% trans "Bank entry" %}</th>
+                                  <th>{% trans "Account" %}</th>
+                                  <th>{% trans "Amount" %}</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              {% for payment in payments %}
+                              <tr>
+                                  <td><b> <a href="{{payment.get_absolute_url}}">{{payment.reference}}<b></a></td>
+                                  <td>{{payment.date|date:"d N Y"}}</td>
+                                  <td><a href="{{payment.third_party.get_absolute_url}}">{{payment.third_party.name}}<b></a></td>
+                                  <td>{{payment.payment_type}}</td>
+                                  <td>{{payment.number}}</td>
+                                  <td>{{payment.bank_entry.id}}</td>
+                                  <td>{{payment.bank_account.name }}</td>
+                                  <td>{{payment.total }}</td>
+                              </tr>
+                              {% endfor %}
+                              </tbody>
+                          </table>
+                          </section>
+                  </div><!-- /content-panel -->
+               </div><!-- /col-lg-4 --> 
+        </div><!-- /row -->
+                  
+              </div><! --/row -->
+          </section>
+      </section>
+
+      <!--main content end-->
+
+
+{% endblock %}
