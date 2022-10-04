@@ -595,6 +595,7 @@ class Payment(models.Model):
 	date 	  		  	= models.DateTimeField(_("Date"), blank=False, null=False)
 	payment_type 		= models.ForeignKey(PaymentType, verbose_name=_("Payment type"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	bank_account 		= models.ForeignKey(BankAccount, verbose_name=_("Account to Credit"), null=True, on_delete=models.CASCADE)
+	bank_entry 	 		= models.ForeignKey(BankEntry, verbose_name=_("Bank Entry"), null=True, on_delete=models.CASCADE)
 	number         	  	= models.CharField(_("Number (Check/Transfer N°)"), max_length=200, blank=True)
 	sender         	  	= models.CharField(_("Sender (Check/Transfer sender)"), max_length=200, blank=True)
 	bank_of_sender 	  	= models.CharField(_("Bank (Bank of Check)"), max_length=200, blank=True)
@@ -604,6 +605,9 @@ class Payment(models.Model):
 
 	def __str__(self):
 		return self.reference
+
+	def get_absolute_url(self):
+		return reverse('vendor_payment_view', kwargs={'payment_id': self.id})
 
 class VendorInvoice(models.Model):
 	# 
