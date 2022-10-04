@@ -15,7 +15,7 @@ from datetime import datetime
 
 
 from .models import ThirdParty, Contact, Proposal, PurchaseOrder, ProposalLine, StatusChoices, ProposalLinkedFile, ProposalAttachedFile
-from .models import VendorInvoice, CustomerInvoice, VendorInvoiceLinkedFile, VendorInvoiceAttachedFile, VendorInvoiceLine, LineType
+from .models import VendorInvoice, CustomerInvoice, VendorInvoiceLinkedFile, VendorInvoiceAttachedFile, VendorInvoiceLine, LineType, Payment
 from .models import BankAccount, BankAccountLinkedFile, BankAccountAttachedFile, BankEntry, BankEntryAttachedFile
 from .forms import ThirdPartyForm, ContactForm, ProposalForm, ProposalLineForm, ProposalStatusForm, ProposalStatusForm, ProposalLinkedFileForm, ProposalAttachedFileForm
 from .forms import BankAccountForm, BankAccountEditForm, BankAccountLinkedFileForm, BankAccountAttachedFileForm, BankEntryForm, BankEntryAttachedFileForm
@@ -1331,7 +1331,33 @@ def vendor_pdf_invoice(request, invoice_id=None):
 	# return HttpResponse(pdf, content_type='application/pdf')
 	return render(request, "pdf_invoice.html", context_dict)
 
+@login_required
+def vendor_payment_list(request):
+	"""
+	List all all the payments made to suppliers
+	"""
+	payments = Payment.objects.filter(sens=1).order_by('-date')
+	return render(request, "vendor_payment_list.html", {"payments": payments})
 
+@login_required
+def vendor_payment_view(request, payment_id=None):
+	"""
+	View and display a payment made to a supplier
+	 """
+
+	errors = [m for m in get_messages(request) if m.level == constants.ERROR]
+	payment = get_object_or_404(Payment, id=payment_id)
+
+	if errors:
+		error_message = errors[0]
+	else:
+		error_message = None
+
+	ctx = {
+		'payment': payment,
+		'error_message' : error_message,
+	}
+	return render(request, "vendor_payment_view.html", ctx)
 
 ##################################################################################################
 ### Bank|cash area ralated views
