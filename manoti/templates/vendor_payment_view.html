@@ -1,0 +1,812 @@
+{% extends "base_billing.html" %} {% load static i18n widget_tweaks humanize %}
+
+{% block title %}{{payment.reference}} - {{payment.third_party}} {% endblock %}
+
+{% block extra_stylesheet %}
+<link href="{% static 'assets/css/table-responsive.css' %}" rel="stylesheet">
+
+<style>
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+{% endblock extra_stylesheet%}
+
+{% block messages %}xxxx {% endblock %}
+
+{% block main_content %}
+<section id="main-content">
+    <section class="wrapper site-min-height">
+
+
+
+      <div class="content-panel" style="margin-top: 5px;">
+
+          <div class="row mt">
+            <div class="col-lg-9 col-md-9 col-sm-9">
+              <h3><i class="fa fa-angle-right"></i> <b>{{payment.reference}}</b></h3> 
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3" align="right" style="padding-right: 50px;">
+              <p style="font-size: 18px;"><a href="{% url 'vendor_payment_list' %}"><b>{% trans 'Back to list' %}</b></a> </p>
+            </div>
+          </div>
+
+      </div>
+        
+      <div class="content-panel" style="margin-top: 15px;">
+        <div class="tab">
+          <button class="tablinks" onclick="openCity(event, 'payment')">{% trans "Payment" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'linked_files')">{% trans "Linked files" %}</button>
+          <button class="tablinks" onclick="openCity(event, 'log')">{% trans "Log" %}</button>
+        </div>
+
+        <div id="payment" class="tabcontent" style="display: block;">
+          <!-- =========================================================================================== -->
+
+            <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                  
+                    <table class="table">
+                      <tbody>
+                        <tr>
+                          <td>{% trans "Date" %}</td>
+                          <td align="left">
+
+                            <span id="invoice_type_label" class="other_labels" style="display:block;">{{payment.date}}  <button onclick="openform('invoice_type_label', 'invoice_type_form')" class='btn btn-default btn-xs'>🖉</button></span>
+                            <span id="invoice_type_form" class="other_forms" style="display:none;">
+                              
+                                  <form class="form-inline" action="#" method="post">{% csrf_token %}
+                                  <div class="form-group">
+                                      {% render_field invoice_form.third_party|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                      {% render_field invoice_form.date|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_terms|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_type|attr:"hidden" %}
+                                      {% render_field invoice_form.bank_account|attr:"hidden" %}
+                                      {% render_field invoice_form.label|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_invoice_type class="form-control" %}
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="button" onclick="openform('invoice_type_label', 'invoice_type_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                                  </div>
+                                  </form>
+                              <span>
+
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Payment Type" %}</td>
+                          <td align="left"> {{payment.payment_type}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Amount" %}</td>
+                          <td align="left"> {{payment.total|intcomma}} {{payment.business.main_currency}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Bank Account" %}</td>
+                          <td align="left">{{payment.bank_account}}</td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Bank entry" %}</td>
+                          <td align="left">{{payment.bank_entry}} </td>
+                        </tr>
+                        <tr>
+                          <td>{% trans "Comments" %}</td>
+                          <td align="left">
+
+                            <span id="invoice_payment_type_label" class="other_labels" style="display:block;"><button onclick="openform('invoice_payment_type_label', 'invoice_payment_type_form')" class='btn btn-default btn-xs'>🖉</button> {{payment.comments}}  </span>
+                            <span id="invoice_payment_type_form" class="other_forms"  style="display:none;">
+                              
+                                  <form class="form-inline" action="#" method="post">{% csrf_token %}
+                                  <div class="form-group">
+                                      {% render_field invoice_form.third_party|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_reference|attr:"hidden" %}
+                                      {% render_field invoice_form.vendor_invoice_type|attr:"hidden" %}
+                                      {% render_field invoice_form.date|attr:"hidden" %}
+                                      {% render_field invoice_form.bank_account|attr:"hidden" %}
+                                      {% render_field invoice_form.label|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_terms|attr:"hidden" %}
+                                      {% render_field invoice_form.payment_type class="form-control" %}
+                                  </div>
+                                  <div class="btn-group">
+                                    <button type="button" onclick="openform('invoice_payment_type_label', 'invoice_payment_type_form')" class="btn btn-default">{% trans "Cancel" %}</button>
+                                    <button type="submit" class="btn btn-success">{% trans "Save" %}</button>
+                                  </div>
+                                  </form>
+                              <span>
+
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </div>  
+
+
+            </div>
+
+                <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+              <div class="col-lg-12 col-md-12 col-sm-12">
+                  <table class="table table-bordered table-striped table-condensed">
+                      <thead>
+                      <tr>
+                          <th>{% trans "Type" %}</th>
+                          <th>{% trans "Description" %}</th>
+                          <th align="right">{% trans "Vendor SKU" %}</th>
+                          <th align="right">{% trans "Sales tax" %}</th>
+                          <th align="right">{% trans "U.P. (net)" %}</th>
+                          <th align="right">{% trans "U.P. (inc. tax)" %}</th>
+                          <th align="right">{% trans "Qty" %}</th>
+                          <th align="right">{% trans "Disc." %}</th>
+                          {% if not invoice.is_validated %}<th align="right">{% trans "Action" %}</th>{% endif %}
+
+                      </tr>
+                      </thead>
+                      <tbody>
+                      {% for line in invoice.vendorinvoiceline_set.all %}
+
+
+                      <form enctype="multipart/form-data" action="#" class="form-inline"  method="post" name="vendor_invoice_line_edit_form{{line.id}}" id="vendor_invoice_line_edit_form{{line.id}}" role="form">
+
+                                  {% csrf_token %}
+                                  {{ line_form.non_field_errors }}
+
+                      <tr>
+                          <td>
+                          <span class="value{{line.id}}" style="display:block;">{{line.line_type}}</span>
+                          <span class="form{{line.id}}" style="display:none;">
+                            <input type="hidden" name="line_id" id="id_id" value="{{line.id}}">
+                            <select name="line_type" class="form-control" required="" id="id_line_type">
+                              <option value="{{line.line_type.value}}" selected="{{line.line_type.value}}">{{line.line_type.key}}</option>
+
+                              {% for type in line_types %}
+                              <option value="{{type.value}}">{{type.key}}</option>
+                              {% endfor %}
+
+                            </select>
+                          </span>
+                          </td>
+                          <td>
+                            <span class="value{{line.id}}" style="display:block;">{{line.description}}</span>
+                            <span class="form{{line.id}}" style="display:none;">
+                              <textarea name="description" cols="5" rows="3" class="form-control" required="" id="id_description{{line.id}}">{{line.description}}</textarea>
+                            </span>
+                          </td>
+                          <td align="right">
+                            <span class="value{{line.id}}" style="display:block;">{{line.sku}}</span>
+                            <span class="form{{line.id}}" style="display:none;">
+                              <input type="text" name="sku" style="width: 90px" maxlength="200" class="form-control" id="id_sku{{line.id}}" value="{{line.sku}}">
+                            </span>
+                          </td>
+                          <td align="right">
+                            <span class="value{{line.id}}" style="display:block;">{{line.sales_tax}} %</span>
+                            <span class="form{{line.id}}" style="display:none;">
+                              <input type="text" name="sales_tax" style="width: 90px" maxlength="200" class="form-control" id="id_sales_tax{{line.id}}" value="{{line.sales_tax}}" disabled>
+                            </span>
+                          </td>
+                          <td align="right">
+                            <span class="value{{line.id}}" style="display:block;">{{line.unit_price_tax_excl|intcomma}} {{invoice.third_party.business.main_currency}}</span>
+                            <span class="form{{line.id}}" style="display:none;">
+                              <input type="number" name="unit_price_tax_excl" style="width: 80px" class="form-control" id="id_unit_price_tax_excl{{line.id}}" value="{{line.unit_price_tax_excl}}">
+                            </span>
+                          </td>
+                          <td align="right">
+                            <span class="value{{line.id}}" style="display:block;">{{line.unit_price_tax_incl|intcomma }} {{invoice.third_party.business.main_currency}}</span>
+                            <span class="form{{line.id}}" style="display:none;">
+                              <input type="number" name="unit_price_tax_incl" style="width: 80px" class="form-control" id="id_unit_price_tax_incl{{line.id}}" disabled>
+                            </span>
+                          </td>
+                          <td align="right">
+                            <span class="value{{line.id}}" style="display:block;">{{line.quantity|intcomma|default:"0"}}</span>
+                            <span class="form{{line.id}}" style="display:none;">
+                             <input type="number" name="quantity" style="width: 80px" class="form-control" id="id_quantity{{line.id}}" value="{{line.quantity}}">
+                            </span>
+                          </td>
+                          <td align="right">
+                            <span class="value{{line.id}}" style="display:block;">{{line.discount|intcomma}} %</span>
+                            <span class="form{{line.id}}" style="display:none;">
+                             <input type="number" name="discount" style="width: 80px" class="form-control" id="id_discount{{line.id}}" value="{{line.discount}}">
+                            </span>
+                          </td>
+                          {% if not invoice.is_validated %}
+                          <td align="right">
+                            <div class="btn-group value{{line.id}}" style="display:block;">
+                               <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_line_modal{{line.id}}"><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% trans "Delete" %}</button>
+                                <button type="button" class="btn btn-warning btn-xs" onclick="openlineform('value{{line.id}}', 'form{{line.id}}')" >{% trans "Modify" %}</button>
+                            </div>
+                            <div class="btn-group form{{line.id}}" style="display:none;">
+                                <button type="button" class="btn btn-default btn-xs" onclick="openlineform('value{{line.id}}', 'form{{line.id}}')" >{% trans "Cancel" %}</button>
+                                <input type="submit" class="btn btn-success btn-fill btn-xs" value="{% trans 'Save' %}"/>
+                            </div>
+                          </form>
+                          </td>
+                          {% endif %}
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_line_modal{{line.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete product line?' %}</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="#">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the product line:" %} <b>{{line.description}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes' %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
+                          
+                      </tr>
+                      {% endfor %}
+
+                      {% if not invoice.is_validated %}
+                      <form enctype="multipart/form-data" action="#" class="form-inline" onsubmit="return validateForm()" method="post" name="vendor_invoice_add_line_form" id="vendor_invoice_add_line_form" role="form">
+                        {% csrf_token %}
+                        {{ line_form.non_field_errors }}
+
+                        {% for hidden in line_form.hidden_fields %}
+                          {{ hidden }}
+                        {% endfor %}
+
+                        {% render_field line_form.id class="form-control" %}
+                      <tr>
+                        <td align="left"> 
+                          {% render_field line_form.line_type class="form-control" %}
+                          {% if line_form.line_type.errors %}
+                            {% for error in line_form.line_type.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.line_type.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.description class="form-control" rows="3" cols="20" %}
+                          {% if line_form.description.errors %}
+                            {% for error in line_form.description.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.description.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="right"> 
+                          {% render_field line_form.sku class="form-control" %}
+                          {% if line_form.sku.errors %}
+                            {% for error in line_form.sku.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.sku.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="right"> 
+                          {% if invoice.third_party.sales_tax_is_used %} 18% {% else %} 0% {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.unit_price_tax_excl class="form-control" %}
+                          {% if line_form.unit_price_tax_excl.errors %}
+                            {% for error in line_form.unit_price_tax_excl.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.unit_price_tax_excl.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.unit_price_tax_incl|attr:"disabled" class="form-control" %}
+                          {% if line_form.unit_price_tax_incl.errors %}
+                            {% for error in line_form.unit_price_tax_incl.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.unit_price_tax_incl.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.quantity class="form-control" %}
+                          {% if line_form.quantity.errors %}
+                            {% for error in line_form.quantity.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.quantity.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="left"> 
+                          {% render_field line_form.discount class="form-control" %}
+                          {% if line_form.discount.errors %}
+                            {% for error in line_form.discount.errors %}
+                              <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ line_form.discount.errors|join:", " }}</span><br>
+                            {% endfor %}
+                          {% endif %}
+                        </td>
+                        <td align="right"> 
+                         <button type="submit" class="btn btn-success" ><i class="fa fa-check-circle-o" aria-hidden="true"></i> {% if editing %}{% trans "Modify" %}{% else %}{% trans "Add" %}{% endif %}</button>
+                         </form> 
+                        </td>
+                      </tr>
+                      {% endif %}
+                      </tbody>
+                  </table>
+                </div>
+            </div>
+
+            <div class="row mt" style="padding-right: 15px; padding-left: 15px; margin-left: 5px; margin-right: 10px;">
+
+
+
+
+                <div class="col-lg-12 col-md-12 col-sm-12" style="margin-bottom: 40px;">
+
+   <!--                <div class="btn-group pull-left">
+                    <a class="btn btn-success"
+                      href="https://www.example.com" 
+                      target="popup" 
+                      onclick="window.open('#','popup','width=1200, height=600'); return false;">
+                        {% trans 'Preview' %}
+                    </a>
+                    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                      <span class="caret"></span>
+                      <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#">{% trans 'Download' %}</a></li>
+                      <li><a href="#">{% trans 'Print' %}</a></li>
+                      <li><a href="#">{% trans 'Share via -Email' %}</a></li>
+                      <li class="divider"></li>
+                      <li><a href="#">Separated link</a></li>
+                    </ul>
+                  </div> -->
+
+                  <div class="pull-right">
+
+
+                    {% if invoice.vendorinvoiceline_set.all|length != 0 %}
+                      {% if invoice.is_validated %}
+                      <a href="#" class="btn btn-success">{% trans 'Enter payment' %}</a>
+                      <button type="button"  data-toggle="modal" data-target="#toggle_validation_modal" class="btn btn-success">{% trans 'Re-open' %}</button>
+                      {% else %}
+                      <button type="button"  data-toggle="modal" data-target="#toggle_validation_modal" class="btn btn-success">{% trans 'Validate' %}</button>
+                      {% endif %}
+                    {% endif %}
+                    {% if invoice.vendorpayment_set.all|length == 0 %}
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete_modal">{% trans 'Delete' %}</button>
+                    {% endif %}
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#clone_modal">{% trans 'Clone' %}</button>
+                  
+                  </div>
+                  
+
+                </div>
+            </div>
+
+
+            <div class="row mt">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h4><b><i class="fa fa-angle-right"></i> {% trans "Linked files" %}</b></h4>
+                <table class="table table-bordered table-striped table-condensed">
+                    <thead>
+                    <tr>
+                        <th>{% trans "Link" %}</th>
+                        <th>{% trans "Date" %}</th>
+                        <th> </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for file in invoice.vendorinvoiceattachedfile_set.all %}
+                    <tr>
+                        <td>
+                          <a href="{{file.attachment.url}}" 
+                            target="popup" 
+                            onclick="window.open('{{file.attachment.url}}','popup','width=600,height=600'); return false;">
+                              {{file.filename}}
+                          </a>
+                        </td>
+                        <td>{{file.timestamp}}</td>
+                        <td>
+                          <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_attached_file_modal{{file.id}}">&#128683;</button>
+                        </td>
+                    </tr>
+
+                              <!-- Modal -->
+                                <div class="modal fade" id="delete_attached_file_modal{{file.id}}" role="dialog">
+                                  <div class="modal-dialog">
+                                  
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans 'Delete attached file' %}?</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class = "alert alert-danger" style="padding-top: 10px;">
+                                                  <form method="post" action="#">{% csrf_token %}
+                                                  {% trans " Are you sure you want to delete the file:" %} <b>{{file.filename}}</b>
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                                <div class="pull-left">
+                                                    <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes' %}"/>
+                                                </form>
+                                                </div>
+                                                    </form>
+                                                <div class="pull-right">
+                                                    <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- End Modal -->
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+              </div>  
+            
+            </div>
+         <!-- =========================================================================================== -->
+        </div>
+
+
+
+        <div id="linked_files" class="tabcontent">
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+
+
+            <h4>{% trans "Attached files and documents" %}</h4>
+            <table class="table table-condensed">
+                <tbody>
+                <tr>
+                    <td>{% trans "Number of attached files/documents" %}</td>
+                    <td align="left"> {{invoice.v.all|length}}</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+          </div>
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+              <h4>{% trans "Attach a new file/document" %}</h4>
+
+
+<!-- ########################################### -->
+              <form enctype="multipart/form-data" action="#" class="form-inline" method="post" id="bank_attached_form" role="form">
+
+                 {% csrf_token %}
+                  {{ attached_form.non_field_errors }}
+
+
+                  <div class="form-group">
+                      {{attached_form.vendor_invoice.as_hidden }}
+                  </div>
+                  <div class="form-group">
+                      {% render_field attached_form.filename class="form-control" placeholder="Filename" %}
+                  </div>
+                  <div class="form-group">
+                      {% render_field attached_form.attachment class="form-control" %}
+                  </div> 
+                  <button type="submit" class="btn btn-theme">{% trans "Add" %}</button>
+              </form>
+<!-- ########################################### -->
+
+            </div>
+          </div>
+
+
+
+          <div class="row mt">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            <h4>{% trans "Attached files and documents" %}</h4>
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>{% trans "Document" %}</th>
+                    <th>{% trans "Size" %}</th>
+                    <th>{% trans "Date" %}</th>
+                    <th> </th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for file in invoice.vendorinvoiceattachedfile_set.all %}
+                <tr>
+                    <td>
+                      <a href="{{file.attachment.url}}" 
+                        target="popup" 
+                        onclick="window.open('{{file.attachment.url}}','popup','width=600,height=600'); return false;">
+                          {{file.filename}}
+                      </a>
+                    </td>
+                    <td> ---- </td>
+                    <td>{{file.timestamp}}</td>
+                    <td>
+                      <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#delete_attached_file_modal{{file.id}}">&#128683;</button>
+                    </td>
+                </tr>
+
+                <!-- Modal -->
+                  <div class="modal fade" id="delete_attached_file_modal{{file.id}}" role="dialog">
+                    <div class="modal-dialog">
+                    
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          <h4 class="modal-title">{% trans 'Delete attached file' %}?</h4>
+                        </div>
+                        <div class="modal-body">
+                          <div class = "alert alert-danger" style="padding-top: 10px;">
+                                    <form method="post" action="#">{% csrf_token %}
+                                    {% trans " Are you sure you want to delete the file:" %} <b>{{file.filename}}</b>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                                  <div class="pull-left">
+                                      <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes' %}"/>
+                                  </form>
+                                  </div>
+                                      </form>
+                                  <div class="pull-right">
+                                      <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                                  </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- End Modal -->
+
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+          </div>
+
+
+
+        </div>
+
+
+
+      <div id="log" class="tabcontent">
+          <h3>#To-do</h3>
+          <p>Lorem Ipsum is simply dummy text of the printing and typesetting</p> 
+      </div>
+
+        
+    </section>
+</section>
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="delete_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Delete' %} {{invoice.reference}} ? </h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class = "alert alert-danger" style="padding-top: 10px;">
+                              <form method="post" action="#">{% csrf_token %}
+                              {% trans "Are you sure you wish to delete" %} <b>{{invoice.reference}} </b> {% trans "and all the information assoicated with it" %}?
+                              <br> <b>{% trans "N.B: This action can not be undone!" %}</b>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-danger btn-fill btn-sm" value="&#128683; {% trans 'Yes I am sure: Proceed & Delete' %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-right">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "Cancel" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+
+
+        <!-- Modal -->
+            <div class="modal fade" id="toggle_validation_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% if invoice.is_validated %}{% trans 'Re-open' %}{% else %}{% trans 'Validate' %}{% endif %} {{invoice.reference}} ?</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class = "alert alert-warning" style="padding-top: 10px;">
+                              <form method="post" action="#">{% csrf_token %}
+                              {% if invoice.is_validated %} 
+                              {% trans "Are you sure you want to open back the vendor invoice" %} <b>{{invoice.reference}}</b> 
+                              {% else %}
+                              <b> {% trans "Are you sure you want to validate this vendor invoice" %} </b> 
+                              {% endif %}
+                              
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-right">
+                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="&#9989; {% trans 'Yes' %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-left">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+
+          <!-- Modal -->
+            <div class="modal fade" id="clone_modal" role="dialog">
+              <div class="modal-dialog">
+              
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{% trans 'Clone' %}</h4>
+                  </div>
+                  <div class="modal-body">
+                    <div style="padding-top: 10px;">
+                              <form method="post" action="#">{% csrf_token %}
+                              <p><b>{% trans "Select Third-party" %}</b></p>
+                              {% render_field clone_form.third_party class="form-control" %}
+                              <p class = "alert alert-warning" >{% trans "Are you sure you want to clone the Vendor invoice" %} <b>{{invoice.reference}} ?</b> </p>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                            <div class="pull-left">
+                                <input type="submit" class="btn btn-success btn-fill btn-sm" value="&#9989; {% trans 'Yes' %}"/>
+                            </form>
+                            </div>
+                                </form>
+                            <div class="pull-right">
+                                <button id="myColseBtn{{file.id}}" type="button" class="btn btn-default btn-fill btn-sm closeModal" data-dismiss="modal" aria-hidden="true">{% trans "No" %}</button>
+                            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
+
+
+{% endblock %}
+
+
+{% block extra_javascript %}
+
+
+
+<!--script for this page-->
+
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+
+<script>
+function openform(label_id, form_id) {
+  var form, label, other_forms, other_labels; 
+  // other_forms = document.getElementsByClassName("other_forms");
+  // other_labels = document.getElementsByClassName("other_labels");
+  the_form = document.getElementById(form_id);
+  the_label = document.getElementById(label_id);
+  if (the_label.style.display == "block"){
+    // other_labels.style.display = "block";
+    // other_forms.style.display = "none";
+    the_label.style.display = "none";
+    the_form.style.display = "block";
+  } else {
+    the_label.style.display = "block";
+    the_form.style.display = "none";
+  }
+}
+</script>
+
+<script>
+function openlineform(line_value, line_form) {
+  var form, label; 
+  forms = document.getElementsByClassName(line_form);
+  labels = document.getElementsByClassName(line_value);
+  var i;
+  for (i = 0; i < forms.length; i++) {
+      forms[i].style.display = 'none';
+
+    if (labels[i].style.display == "block"){
+      labels[i].style.display = "none";
+      forms[i].style.display = "block";
+    } else {
+      labels[i].style.display = "block";
+      forms[i].style.display = "none";
+    }
+
+  }
+
+}
+</script>
+
+
+<script type="text/javascript">
+function validateEditForm(form, up_tax_excl, up_tax_incl) {
+  let x = document.forms[form][up_tax_excl].value;
+  let y = document.forms[form][up_tax_incl].value;
+  if (x == "" || y == "") {
+    alert("Please enter a unit price first");
+    return false;
+  }
+}
+</script>
+
+<script type="text/javascript">
+function validateForm() {
+  let x = document.forms["vendor_invoice_line_form"]["id_unit_price_tax_incl"].value;
+  let y = document.forms["vendor_invoice_line_form"]["id_unit_price_tax_excl"].value;
+  if (x == "" || y == "") {
+    alert("Please enter a unit price first");
+    return false;
+  }
+}
+</script>
+{% endblock extra_javascript %}
