@@ -7,7 +7,7 @@ from xhtml2pdf import pisa
 from django.template.loader import get_template
 from django.template import Context, loader
 from django.http import HttpResponse
-from cgi import escape
+# from cgi import escape
 
 def generate_third_party_codes():
 
