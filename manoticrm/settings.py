@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 IS_HEROKU = "DYNO" in os.environ
 
-ADMINS = config('ADMINS')
+ADMINS = ((config('ADMIN_USERNAME'), config('ADMIN_EMAIL')),)
 
 MANAGERS = ADMINS
 
