@@ -11,8 +11,13 @@ from django.http import HttpResponse
 
 def generate_third_party_codes():
 
-	ven = ThirdParty.objects.all().order_by('-vendor_code_number').first()
-	cus = ThirdParty.objects.all().order_by('-customer_code_number').first()
+	try:
+		ven = ThirdParty.objects.all().order_by('-vendor_code_number').first()
+		cus = ThirdParty.objects.all().order_by('-customer_code_number').first()
+	except Exception as e:
+		ven, cus = None, None
+
+
 	if ven == None:
 		ven_number = 1
 	else:
@@ -36,8 +41,12 @@ def generate_third_party_codes():
 
 def generate_proposal_reference():
 
-	all_proposals = Proposal.objects.all().order_by('-timestamp').first()
-	validated_proposals = Proposal.objects.filter(is_validated=True).order_by('-timestamp').first()
+	try:
+		all_proposals = Proposal.objects.all().order_by('-timestamp').first()
+		validated_proposals = Proposal.objects.filter(is_validated=True).order_by('-timestamp').first()
+	except Exception as e:
+		all_proposals, validated_proposals = None, None
+
 	if validated_proposals == None:
 		validated_number = 1
 	else:
@@ -57,8 +66,12 @@ def generate_proposal_reference():
 
 def generate_vendor_invoice_reference():
 
-	invoices = VendorInvoice.objects.all().order_by('-date').first()
-	validated_invoices = VendorInvoice.objects.filter(is_validated=True).order_by('-date').first()
+	try:
+		invoices = VendorInvoice.objects.all().order_by('-date').first()
+		validated_invoices = VendorInvoice.objects.filter(is_validated=True).order_by('-date').first()
+	except Exception as e:
+		invoices, validated_invoices = None, None
+
 	if validated_invoices == None:
 		validated_number = 1
 	else:
