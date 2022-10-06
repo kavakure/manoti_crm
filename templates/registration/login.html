@@ -54,7 +54,7 @@
 							
 
 							<div class="form-group">
-								{% render_field form.username class="form-control" placeholder=Username" autofocus="autofocus"%}
+								{% render_field form.username class="form-control" placeholder="Username" autofocus="autofocus"%}
                 {% if field.errors %}
                   {% for error in form.username.errors %}
                     <span class="label label-danger" style="margin-bottom: 10px;">{% trans "Error" %}: {{ form.username.errors|join:", " }}</span><br>
