@@ -609,6 +609,10 @@ class Payment(models.Model):
 	def get_absolute_url(self):
 		return reverse('vendor_payment_view', kwargs={'payment_id': self.id})
 
+class VendorInvoicePayment(models.Model):
+	payment         	= models.ForeignKey(Payment, blank=True, null=True, on_delete=models.CASCADE)
+	amount 		  		= models.IntegerField(_("Amount paid"), default=0)
+
 class VendorInvoice(models.Model):
 	# 
 	business         	= models.ForeignKey(Business, blank=True, null=True, on_delete=models.CASCADE)
@@ -738,6 +742,7 @@ class CustomerInvoice(models.Model):
 	total_payment 	  	= models.IntegerField(_("Amount (inc. tax)"), default=0)
 	is_validated		= models.BooleanField(_("Validated ?"), default=False)
 	is_abandoned		= models.BooleanField(_("Abandoned ?"), default=False)
+	total_payment 	  	= models.IntegerField(_("Total payment"), default=0)
 
 	def __str__(self):
 		return self.reference
