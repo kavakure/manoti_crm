@@ -32,67 +32,67 @@ MANAGERS = ADMINS
 
 # SECURITY WARNING: keep the secret key used in production secret!
 try:
-    SECRET_KEY = config('SECRET_KEY')
+	SECRET_KEY = config('SECRET_KEY')
 except Exception as e:
-    SECRET_KEY = "CHANGE_ME!!!! (P.S. the SECRET_KEY environment variable will be used, if set, instead)."
+	SECRET_KEY = "CHANGE_ME!!!! (P.S. the SECRET_KEY environment variable will be used, if set, instead)."
 
 # Generally avoid wildcards(*). However since Heroku router provides hostname validation it is ok
 if IS_HEROKU:
-    ALLOWED_HOSTS = ["*"]
+	ALLOWED_HOSTS = ["*"]
 else:
-    ALLOWED_HOSTS = []
+	ALLOWED_HOSTS = []
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if not IS_HEROKU:
-    DEBUG = True
+	DEBUG = True
 else:
-    DEBUG = False
+	DEBUG = False
 
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    'django_registration',
-    'django.contrib.humanize',
-    'widget_tweaks',
-    'storages',
-    "crm",
-    "hello",
-    "manoti",
+	"django.contrib.admin",
+	"django.contrib.auth",
+	"django.contrib.contenttypes",
+	"django.contrib.sessions",
+	"django.contrib.messages",
+	"django.contrib.staticfiles",
+	'django_registration',
+	'django.contrib.humanize',
+	'widget_tweaks',
+	'storages',
+	"crm",
+	"hello",
+	"manoti",
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+	"django.middleware.security.SecurityMiddleware",
+	"whitenoise.middleware.WhiteNoiseMiddleware",
+	"django.contrib.sessions.middleware.SessionMiddleware",
+	"django.middleware.common.CommonMiddleware",
+	"django.middleware.csrf.CsrfViewMiddleware",
+	"django.contrib.auth.middleware.AuthenticationMiddleware",
+	"django.contrib.messages.middleware.MessageMiddleware",
+	"django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = "manoticrm.urls"
 
 TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ['templates'],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ]
-        },
-    }
+	{
+		"BACKEND": "django.template.backends.django.DjangoTemplates",
+		"DIRS": ['templates'],
+		"APP_DIRS": True,
+		"OPTIONS": {
+			"context_processors": [
+				"django.template.context_processors.debug",
+				"django.template.context_processors.request",
+				"django.contrib.auth.context_processors.auth",
+				"django.contrib.messages.context_processors.messages",
+			]
+		},
+	}
 ]
 
 
@@ -106,32 +106,32 @@ WSGI_APPLICATION = "manoticrm.wsgi.application"
 MAX_CONN_AGE = 600
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3")
-    }
+	"default": {
+		"ENGINE": "django.db.backends.sqlite3",
+		"NAME": os.path.join(BASE_DIR, "db.sqlite3")
+	}
 }
 
 if "DATABASE_URL" in os.environ:
-    # Configure Django for DATABASE_URL environment variable.
-    DATABASES["default"] = dj_database_url.config(
-        conn_max_age=MAX_CONN_AGE, ssl_require=True)
+	# Configure Django for DATABASE_URL environment variable.
+	DATABASES["default"] = dj_database_url.config(
+		conn_max_age=MAX_CONN_AGE, ssl_require=True)
 
-    # Enable test database if found in CI environment.
-    if "CI" in os.environ:
-        DATABASES["default"]["TEST"] = DATABASES["default"]
+	# Enable test database if found in CI environment.
+	if "CI" in os.environ:
+		DATABASES["default"]["TEST"] = DATABASES["default"]
 
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+	{
+		"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+	},
+	{"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+	{"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+	{"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
@@ -162,7 +162,7 @@ AWS_S3_CUSTOM_DOMAIN = '%s.s3.eu-west-1.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 
 AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
+	'CacheControl': 'max-age=86400',
 }
 AWS_STATIC_LOCATION = 'static'
 AWS_MEDIA_LOCATION = 'media'
@@ -171,7 +171,7 @@ S3_USE_SIGV4 = True
 
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'staticfiles'),
+	os.path.join(BASE_DIR, 'staticfiles'),
 ]
 STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
 MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
@@ -187,17 +187,17 @@ DEFAULT_FILE_STORAGE = 'manoticrm.storage_backends.MediaStorage'
 
 # Test Runner Config
 class HerokuDiscoverRunner(DiscoverRunner):
-    """Test Runner for Heroku CI, which provides a database for you.
-    This requires you to set the TEST database (done for you by settings().)"""
+	"""Test Runner for Heroku CI, which provides a database for you.
+	This requires you to set the TEST database (done for you by settings().)"""
 
-    def setup_databases(self, **kwargs):
-        self.keepdb = True
-        return super(HerokuDiscoverRunner, self).setup_databases(**kwargs)
+	def setup_databases(self, **kwargs):
+		self.keepdb = True
+		return super(HerokuDiscoverRunner, self).setup_databases(**kwargs)
 
 
 # Use HerokuDiscoverRunner on Heroku CI
 if "CI" in os.environ:
-    TEST_RUNNER = "manoticrm.settings.HerokuDiscoverRunner"
+	TEST_RUNNER = "manoticrm.settings.HerokuDiscoverRunner"
 
 
 # Default primary key field type
@@ -219,3 +219,60 @@ EMAIL_SUBJECT_PREFIX = config('EMAIL_SUBJECT_PREFIX')
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+
+
+# A sample logging configuration.
+# This logs all rapidsms messages to the file `rapidsms.log`
+# in the project directory.  It also sends an email to
+# the site admins on every HTTP 500 error when DEBUG=False.
+# See http://docs.djangoproject.com/en/dev/topics/logging for
+# more details on how to customize your logging configuration.
+LOGGING = {
+	'version': 1,
+	'disable_existing_loggers': False,
+	'filters': {
+		'require_debug_false': {
+			'()': 'django.utils.log.RequireDebugFalse'
+		}
+	},
+	'formatters': {
+		'basic': {
+			'format': '%(asctime)s %(name)-20s %(levelname)-8s %(message)s',
+		},
+		'simple': {
+			'format': '%(asctime)s AKAZI_USSD@cONTABO: %(message)s',
+			'datefmt': '%Y-%m-%dT%H:%M:%S',
+		},
+
+	},
+	'handlers': {
+		'mail_admins': {
+			'level': 'ERROR',
+			'filters': ['require_debug_false'],
+			'class': 'django.utils.log.AdminEmailHandler'
+		},
+		'console': {
+			'level': 'DEBUG',
+			'class': 'logging.StreamHandler',
+			'formatter': 'basic',
+		},
+		'SysLog': {
+			'level': 'DEBUG',
+			'class': 'logging.handlers.SysLogHandler',
+			'formatter': 'simple',
+			'address': ('logs6.papertrailapp.com', 40950)
+		}
+	},
+	'loggers': {
+		'django.request': {
+			'handlers': ['mail_admins', 'SysLog'],
+			'level': 'ERROR',
+			'propagate': True,
+		},
+		'django': {
+			'handlers': ['SysLog'],
+			'level': 'INFO',
+			'propagate': True,
+		},    }
+}
