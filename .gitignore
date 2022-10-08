@@ -5,5 +5,4 @@ staticfiles
 db.sqlite3
 getting-started/*
 hello/migrations/*
-manoti/migrations/*
 media/*
