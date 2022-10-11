@@ -210,6 +210,7 @@ class VendorInvoiceForm(forms.ModelForm):
 			'is_abandoned',
 			'is_paid',
 			'total_payment',
+			'remaining_unpaid',
 		]
 
 		widgets = {
