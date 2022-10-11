@@ -355,9 +355,9 @@ class Proposal(models.Model):
 	note_private    = models.TextField(_("Private note"), blank=True, null=True)
 	note_public     = models.TextField(_("Public Note"), blank=True, null=True)
 	#The money figures
-	amount_excl_tax = models.IntegerField(_("Amount (excl. tax)"), blank=False, null=False, default=0)
+	amount_excl_tax = models.DecimalField(_("Amount (excl. tax)"), blank=False, null=False, default=0, decimal_places=6, max_digits=12)
 	tax = models.IntegerField(_("Amount tax"), blank=False, null=False, default=0)
-	amount_incl_tax = models.IntegerField(_("Amount (inc. tax)"), blank=False, null=False, default=0)
+	amount_incl_tax = models.DecimalField(_("Amount (inc. tax)"), blank=False, null=False, default=0, decimal_places=6, max_digits=12)
 	is_validated = models.BooleanField(_("Is the commercial proposal validated"), default=False, blank=False, null=False, help_text=_("was this commercial proposal validated?"))
 	is_signed = models.ForeignKey(StatusChoices, verbose_name=_("Set accepted/refused"), null=True, blank=True, on_delete=models.CASCADE,  help_text=_("Determines if this commercial proposal accepted or refused by the customer or prospect"))
 	is_billed = models.BooleanField(_("Is the commercial proposal Billed?"), default=False, blank=False, null=False, help_text=_("Determines if an invoice was created from this commercial invoice"))
@@ -423,10 +423,10 @@ class ProposalLine(models.Model):
 	description     = models.TextField(_("Description"), blank=False, null=False)
 	sales_tax 		= models.IntegerField(_("Sales tax"), blank=True, null=True)
 	quantity 		= models.IntegerField(_("Qty"), blank=False, default=1)
-	unit_price  	= models.IntegerField(_("Unit price"), blank=False, null=False, default=1)
+	unit_price  	= models.DecimalField(_("Unit price"), blank=False, null=False, default=1, decimal_places=6, max_digits=12)
 	discount	  	= models.IntegerField(_("Discount"), blank=True, default=0)
-	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"), blank=True, default=0)
-	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"), blank=True, default=0)
+	total_tax_excl 	= models.DecimalField(_("Total (Tax excl.)"), blank=True, default=0, decimal_places=6, max_digits=12)
+	total_tax_incl 	= models.DecimalField(_("Total (Tax incl.)"), blank=True, default=0, decimal_places=6, max_digits=12)
 
 	def __str__(self):
 		return self.description
@@ -600,7 +600,7 @@ class Payment(models.Model):
 	sender         	  	= models.CharField(_("Sender (Check/Transfer sender)"), max_length=200, blank=True)
 	bank_of_sender 	  	= models.CharField(_("Bank (Bank of Check)"), max_length=200, blank=True)
 	comments    		= models.TextField(_("Private note"), blank=True, null=True)
-	total 		  		= models.IntegerField(_("Total payment"), default=0)
+	total 		  		= models.DecimalField(_("Total payment"), default=0,  decimal_places=6, max_digits=12)
 	sens				= models.IntegerField(_("Sense ?"), choices=SENS_CHOICES, default=1, help_text=_("For an accounting account of a customer, use Credit to record a payment you have received\nFor an accounting account of a supplier, use Debit to record a payment you made"))
 
 	def __str__(self):
@@ -611,7 +611,7 @@ class Payment(models.Model):
 
 class VendorInvoicePayment(models.Model):
 	payment         	= models.ForeignKey(Payment, blank=True, null=True, on_delete=models.CASCADE)
-	amount 		  		= models.IntegerField(_("Amount paid"), default=0)
+	amount 		  		= models.DecimalField(_("Amount paid"), default=0, decimal_places=6, max_digits=12)
 
 class VendorInvoice(models.Model):
 	# 
@@ -631,11 +631,11 @@ class VendorInvoice(models.Model):
 	bank_account 		= models.ForeignKey(BankAccount, verbose_name=_("Bank account"), null=True, on_delete=models.CASCADE, help_text=_("You can change values from this list from the Setup >> Dictionnaries"))
 	note_private    	= models.TextField(_("Private note"), blank=True, null=True)
 	note_public     	= models.TextField(_("Public Note"), blank=True, null=True)
-	total_tax_excl 		= models.IntegerField(_("Amount (excl. tax)"), default=0)
-	tax_amount 	  		= models.IntegerField(_("Amount tax"), default=0)
-	total_tax_incl 	  	= models.IntegerField(_("Amount (inc. tax)"), default=0)
-	total_payment 	  	= models.IntegerField(_("Total payment"), default=0)
-	remaining_unpaid 	= models.IntegerField(_("Remaining unpaid"), blank=True, null=False, default=0)
+	total_tax_excl 		= models.DecimalField(_("Amount (excl. tax)"), default=0, decimal_places=6, max_digits=12)
+	tax_amount 	  		= models.DecimalField(_("Amount tax"), default=0, decimal_places=6, max_digits=12)
+	total_tax_incl 	  	= models.DecimalField(_("Amount (inc. tax)"), default=0, decimal_places=6, max_digits=12)
+	total_payment 	  	= models.DecimalField(_("Total payment"), default=0, decimal_places=6, max_digits=12)
+	remaining_unpaid 	= models.DecimalField(_("Remaining unpaid"), blank=True, null=False, default=0, decimal_places=6, max_digits=12)
 	is_validated		= models.BooleanField(_("Validated ?"), default=False)
 	is_abandoned		= models.BooleanField(_("Abandoned ?"), default=False)
 	is_paid				= models.BooleanField(_("Is paid ?"), default=False)
@@ -691,12 +691,12 @@ class VendorInvoiceLine(models.Model):
 	description       = models.TextField(_("Description"), blank=False, null=False)
 	sku		          = models.CharField(_("Vendor SKU"), max_length=200, blank=True)
 	sales_tax 		  = models.IntegerField(_("Sales tax"), blank=False)
-	unit_price_tax_excl = models.IntegerField(_("Unit price (net)"), blank=False, null=False)
-	unit_price_tax_incl = models.IntegerField(_("Unit price (Tax incl.)"), blank=True, null=False)
+	unit_price_tax_excl = models.DecimalField(_("Unit price (net)"), blank=False, null=False, decimal_places=6, max_digits=12)
+	unit_price_tax_incl = models.DecimalField(_("Unit price (Tax incl.)"), blank=True, null=False, decimal_places=6, max_digits=12)
 	discount 		  = models.IntegerField(_("Discount"), blank=True, default=0)
 	quantity 		  = models.IntegerField(_("Qty"), blank=False, default=1)
-	total_tax_excl 	= models.IntegerField(_("Total (Tax excl.)"), blank=True, default=0)
-	total_tax_incl 	= models.IntegerField(_("Total (Tax incl.)"), blank=True, default=0)
+	total_tax_excl 	= models.DecimalField(_("Total (Tax excl.)"), blank=True, default=0, decimal_places=6, max_digits=12)
+	total_tax_incl 	= models.DecimalField(_("Total (Tax incl.)"), blank=True, default=0, decimal_places=6, max_digits=12)
 
 	def __str__(self):
 		return self.description
