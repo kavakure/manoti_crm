@@ -970,7 +970,13 @@ def vendor_invoice_create(request):
 			invoice.author = request.user # Set the user object here
 			invoice.reference_number = ref['draft_number']
 			invoice.reference  = "PROV%s" % str(ref['draft_number']).zfill(3)
-			invoice.save() # Now you can send it to DB
+			try:
+				invoice.save() # Now you can send it to DB
+			except Exception as e:
+				print("[ERROR] >>> %s" % e)
+				invoice.reference  = "PROV%s" % str(ref['draft_number']+1).zfill(3)
+				invoice.save() # Now you can send it to DB
+			
 			messages.success(request, _('Succcessfully saved created a draft vendor invoice'), extra_tags='alert alert-success alert-dismissable')
 			if next_url:
 				return http.HttpResponseRedirect(reverse('next_url'))
